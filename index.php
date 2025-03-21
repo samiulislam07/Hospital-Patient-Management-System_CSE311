@@ -1,4 +1,61 @@
-<?php include 'config.php'; ?>
+<?php
+session_start();
+include 'config.php';
+
+$error = "";
+
+// Check if login form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $user_id = trim($_POST['user_id']);
+    $password = $_POST['password'];
+    $role = $_POST['role']; // Identifies if login is for doctor or nurse
+
+    if ($role === "doctor") {
+        $sql = "SELECT user_id, password FROM Doctor WHERE user_id = ?";
+    } elseif ($role === "nurse") {
+        $sql = "SELECT user_id, password FROM Nurse WHERE user_id = ?";
+    } else {
+        $error = "Invalid role!";
+    }
+
+    if (empty($error)) {
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            die("Prepare failed: " . $conn->error);
+        }
+
+        $stmt->bind_param("s", $user_id);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($db_user_id, $db_password);
+            $stmt->fetch();
+
+            // Directly compare passwords (since they are stored in plain text)
+            if ($password === $db_password) {
+                $_SESSION['user_id'] = $db_user_id;
+                
+                if ($role === "doctor") {
+                    header("Location: doctor_dashboard.php");
+                } elseif ($role === "nurse") {
+                    header("Location: nurse_dashboard.php");
+                }
+                exit();
+            } else {
+                $error = "Invalid password!";
+            }
+        } else {
+            $error = "User ID not found!";
+        }
+
+        $stmt->close();
+    }
+}
+
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,92 +65,86 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Navigation Bar -->
     <nav>
         <div class="logo">
             <span>🏥 HOSPITAL MANAGEMENT SYSTEM</span>
         </div>
-        <!-- <div class="nav-links">
-            <a href="#">HOME</a>
-            <a href="#">CONTACT</a>
-        </div> -->
     </nav>
 
-
-
-<div class="container">
-    <!-- Left Section -->
-    <div class="left-section">
-        <img id="role-image" src="images/favicon.png">
-        <h2 id="role-text">Welcome</h2>
-    </div>
-
-    <!-- Right Section -->
-    <div class="right-section">
-        <div class="tab-buttons">
-            <button class="tab-btn active" onclick="showForm('patient')">Patient</button>
-            <button class="tab-btn" onclick="showForm('doctor')">Doctor</button>
-            <button class="tab-btn" onclick="showForm('nurse')">Nurse</button>
+    <div class="container">
+        <div class="left-section">
+            <img id="role-image" src="images/favicon.png">
+            <h2 id="role-text">Welcome</h2>
         </div>
 
-        <!-- Patient Form -->
-        <div class="form-container active" id="patient-form">
-            <h2>Register as Patient</h2>
-            <form action="register_patient.php" method="POST">
-                <div class="form-group"><input type="text" name="first_name" placeholder="First Name *" required></div>
-                <div class="form-group"><input type="text" name="last_name" placeholder="Last Name *" required></div>
-                <div class="form-group"><input type="email" name="email" placeholder="Your Email *" required></div>
-                <div class="form-group"><input type="password" name="password" placeholder="Password *" required></div>
-                <div class="form-group"><input type="password" name="confirm_password" placeholder="Confirm Password *" required></div>
-                <button type="submit" class="submit-btn">Register</button>
-            </form>
+        <div class="right-section">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="showForm('patient')">Patient</button>
+                <button class="tab-btn" onclick="showForm('doctor')">Doctor</button>
+                <button class="tab-btn" onclick="showForm('nurse')">Nurse</button>
+            </div>
 
-            <div class="register-link">
-                <p>Already have an account? <a href="#">Sign in</a></p>
+            <!-- Patient Registration -->
+            <div class="form-container active" id="patient-form">
+                <h2>Register as Patient</h2>
+                <form action="register_patient.php" method="POST">
+                    <div class="form-group"><input type="text" name="first_name" placeholder="First Name *" required></div>
+                    <div class="form-group"><input type="text" name="last_name" placeholder="Last Name *" required></div>
+                    <div class="form-group"><input type="email" name="email" placeholder="Your Email *" required></div>
+                    <div class="form-group"><input type="password" name="password" placeholder="Password *" required></div>
+                    <div class="form-group"><input type="password" name="confirm_password" placeholder="Confirm Password *" required></div>
+                    <button type="submit" class="submit-btn">Register</button>
+                </form>
+                <div class="register-link">
+                    <p>Already have an account? <a href="patient_login.php">Sign in</a></p>
+                </div>
+            </div>
+
+            <!-- Doctor Login -->
+            <div class="form-container" id="doctor-form">
+                <h2>Login as Doctor</h2>
+                <form action="" method="POST">
+                    <input type="hidden" name="role" value="doctor">
+                    <div class="form-group"><input type="text" name="user_id" placeholder="User ID" required></div>
+                    <div class="form-group"><input type="password" name="password" placeholder="Password" required></div>
+                    <button type="submit" class="submit-btn">Login</button>
+                </form>
+                <?php if (!empty($error) && isset($_POST['role']) && $_POST['role'] === "doctor") { echo "<p style='color:red;'>$error</p>"; } ?>
+            </div>
+
+            <!-- Nurse Login -->
+            <div class="form-container" id="nurse-form">
+                <h2>Login as Nurse</h2>
+                <form action="" method="POST">
+                    <input type="hidden" name="role" value="nurse">
+                    <div class="form-group"><input type="text" name="user_id" placeholder="User ID" required></div>
+                    <div class="form-group"><input type="password" name="password" placeholder="Password" required></div>
+                    <button type="submit" class="submit-btn">Login</button>
+                </form>
+                <?php if (!empty($error) && isset($_POST['role']) && $_POST['role'] === "nurse") { echo "<p style='color:red;'>$error</p>"; } ?>
             </div>
         </div>
-
-
-        <!-- Doctor Form -->
-        <div class="form-container" id="doctor-form">
-            <h2>Login as Doctor</h2>
-            <div class="form-group"><input type="text" placeholder="User Name *"></div>
-            <div class="form-group"><input type="password" placeholder="Password *"></div>
-            <button class="submit-btn">Login</button>
-        </div>
-
-        <!-- Admin Form -->
-        <div class="form-container" id="nurse-form">
-            <h2>Login as Nurse</h2>
-            <div class="form-group"><input type="text" placeholder="User Name *"></div>
-            <div class="form-group"><input type="password" placeholder="Password *"></div>
-            <button class="submit-btn">Login</button>
-        </div>
     </div>
-</div>
 
 <script>
     function showForm(role) {
-        // Remove 'active' class from all buttons and forms
         document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
         document.querySelectorAll(".form-container").forEach(form => form.classList.remove("active"));
 
-        // Add 'active' class to the clicked button and corresponding form
         document.querySelector(`[onclick="showForm('${role}')"]`).classList.add("active");
         document.getElementById(`${role}-form`).classList.add("active");
 
-        // Update image and text on the left section
         const roleImage = document.getElementById("role-image");
         const roleText = document.getElementById("role-text");
 
         if (role === "patient") {
-            roleImage.src = "images/patient.png"; // Replace with actual patient image URL
+            roleImage.src = "images/patient.png";
             roleText.innerText = "Welcome, Patient!";
         } else if (role === "doctor") {
-            roleImage.src = "images/doctor.png"; // Replace with actual doctor image URL
+            roleImage.src = "images/doctor.png";
             roleText.innerText = "Welcome, Doctor!";
         } else if (role === "nurse") {
-            roleImage.src = "images/nurse.png"; // Replace with actual nurse image URL
+            roleImage.src = "images/nurse.png";
             roleText.innerText = "Welcome, Nurse!";
         }
     }
