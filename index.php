@@ -35,6 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Directly compare passwords (since they are stored in plain text)
             if ($password === $db_password) {
                 $_SESSION['user_id'] = $db_user_id;
+                $_SESSION['role'] = $role;
                 
                 if ($role === "doctor") {
                     header("Location: doctor_dashboard.php");
