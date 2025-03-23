@@ -4,14 +4,13 @@ include 'config.php';
 if(isset($_POST['dept_id'])) {
     $dept_id = $_POST['dept_id'];
     
-    $sql = "SELECT d.user_id, d.first_name, d.last_name, d.specialization, 
-                   d.availability, d.doc_fee, dept.dept_name
+    $sql = "SELECT d.user_id, d.first_name, d.last_name, 
+                   d.specialization, d.availability, d.doc_fee 
             FROM Doctor d
-            JOIN Department dept ON d.dept_id = dept.dept_id
             WHERE d.dept_id = ?";
     
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $dept_id);
+    $stmt->bind_param("i", $dept_id); // Use "i" for integer
     $stmt->execute();
     $result = $stmt->get_result();
     

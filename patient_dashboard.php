@@ -63,6 +63,22 @@ $dept_result = $conn->query($dept_sql);
 while($dept = $dept_result->fetch_assoc()) {
     $departments[] = $dept;
 }
+
+// Add this in the PHP section before HTML
+$selected_doctors = [];
+if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['selected_dept'])) {
+    $dept_id = $_POST['selected_dept'];
+    $sql = "SELECT d.user_id, d.first_name, d.last_name, 
+                   d.specialization, d.availability, d.doc_fee 
+            FROM Doctor d
+            WHERE d.dept_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $dept_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $selected_doctors = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+}
 ?>
 
 <!DOCTYPE html>
@@ -250,25 +266,30 @@ while($dept = $dept_result->fetch_assoc()) {
                                 </div>
                             </form>
                         </div>
-                    </div>
 
                     <!-- Book Appointments Tab -->
                     <div class="tab-pane fade" id="list-profile">
                         <div class="container-fluid bg-white p-4">
                             <h4 class="mb-4">Book New Appointment</h4>
                             
-                            <!-- Department Selection -->
-                            <div class="form-group">
-                                <label for="departmentSelect">Select Department:</label>
-                                <select class="form-control" id="departmentSelect" required>
-                                    <option value="">Choose Department</option>
-                                    <?php foreach($departments as $dept): ?>
-                                        <option value="<?= $dept['dept_id'] ?>"><?= $dept['dept_name'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <!-- Doctors List -->
-                            <div id="doctorsList" class="mt-4">
+                            <form method="POST">
+                                <div class="form-group">
+                                    <label>Select Department:</label>
+                                    <select name="selected_dept" class="form-control" required>
+                                        <option value="" disabled selected>Select Department</option>
+                                        <?php foreach($departments as $dept): ?>
+                                            <option value="<?= $dept['dept_id'] ?>" 
+                                                <?= isset($_POST['selected_dept']) && $_POST['selected_dept'] == $dept['dept_id'] ? 'selected' : '' ?>>
+                                                <?= $dept['dept_name'] ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Show Doctors</button>
+                            </form>
+
+                            <?php if(!empty($selected_doctors)): ?>
+                            <div class="mt-4">
                                 <table class="table table-hover">
                                     <thead class="thead-light">
                                         <tr>
@@ -279,11 +300,46 @@ while($dept = $dept_result->fetch_assoc()) {
                                             <th>Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="doctorsTableBody">
-                                        <!-- AJAX Content -->
+                                    <tbody>
+                                        <?php foreach($selected_doctors as $doctor): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($doctor['first_name'].' '.$doctor['last_name']) ?></td>
+                                            <td><?= htmlspecialchars($doctor['specialization']) ?></td>
+                                            <td><?= htmlspecialchars($doctor['availability']) ?></td>
+                                            <td>$<?= htmlspecialchars($doctor['doc_fee']) ?></td>
+                                            <td>
+                                                <button type="button" class="btn btn-primary btn-sm book-btn" 
+                                                        data-doctor-id="<?= $doctor['user_id'] ?>">
+                                                    Book Appointment
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
                                     </tbody>
                                 </table>
                             </div>
+                            <?php else: ?>
+                            <div class="mt-4">
+                                <table class="table table-hover">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Doctor Name</th>
+                                            <th>Specialization</th>
+                                            <th>Availability</th>
+                                            <th>Fee</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="5" class="text-center">Select a department to view doctors</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
 
                             <!-- Appointment Modal -->
                             <div class="modal fade" id="appointmentModal" tabindex="-1">
@@ -318,8 +374,6 @@ while($dept = $dept_result->fetch_assoc()) {
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
                     <!-- Pending Tests Tab -->
                     <div class="tab-pane fade" id="list-appt">
@@ -353,8 +407,7 @@ while($dept = $dept_result->fetch_assoc()) {
 
     <!-- JavaScript -->
     <script>
-    $(document).ready(function() {
-        // Department Change Handler
+        $(document).ready(function() {
         $('#departmentSelect').change(function() {
             var dept_id = $(this).val();
             if(dept_id) {
@@ -364,16 +417,13 @@ while($dept = $dept_result->fetch_assoc()) {
                     data: {dept_id: dept_id},
                     success: function(response) {
                         $('#doctorsTableBody').html(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", status, error);
+                        $('#doctorsTableBody').html('<tr><td colspan="5">Error loading doctors</td></tr>');
                     }
                 });
             }
-        });
-
-        // Book Appointment Button Handler
-        $(document).on('click', '.book-btn', function() {
-            var doctor_id = $(this).data('doctor-id');
-            $('#selectedDoctorId').val(doctor_id);
-            $('#appointmentModal').modal('show');
         });
     });
     </script>
