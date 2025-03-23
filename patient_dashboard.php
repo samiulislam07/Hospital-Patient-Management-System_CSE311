@@ -55,6 +55,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
         echo "<script>alert('Doctor ID missing. Cannot update profile.');</script>";
     }
 }
+
+// Fetch departments for dropdown
+$departments = [];
+$dept_sql = "SELECT * FROM Department";
+$dept_result = $conn->query($dept_sql);
+while($dept = $dept_result->fetch_assoc()) {
+    $departments[] = $dept;
+}
 ?>
 
 <!DOCTYPE html>
@@ -95,20 +103,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
     <div class="container-fluid" style="margin-top: 50px;">
         <h3 class="text-center">Welcome <?php echo htmlspecialchars($patient['first_name']); ?></h3>
 
-
         <div class="row">
+            <!-- Left Sidebar -->
             <div class="col-md-4" style="max-width:18%;margin-top: 3%;">
-            <div class="list-group" id="list-tab" role="tablist">
-                <a class="list-group-item list-group-item-action active" href="#list-dash" data-toggle="tab">Dashboard</a>
-                <a class="list-group-item list-group-item-action" href="#update-profile" data-toggle="tab">Update Profile</a>
-                <!-- Change all other list items similarly -->
-                <a class="list-group-item list-group-item-action" href="#list-profile" data-toggle="tab">Book Appointments</a>
-                <a class="list-group-item list-group-item-action" href="#list-appt" data-toggle="tab">Pending Tests</a>
-                <a class="list-group-item list-group-item-action" href="#list-tests" data-toggle="tab">Test Results</a>
-                <a class="list-group-item list-group-item-action" href="#list-trtplans" data-toggle="tab">Pay Bill</a>
-            </div>
+                <div class="list-group" id="list-tab" role="tablist">
+                    <a class="list-group-item list-group-item-action active" href="#list-dash" data-toggle="tab">Dashboard</a>
+                    <a class="list-group-item list-group-item-action" href="#update-profile" data-toggle="tab">Update Profile</a>
+                    <a class="list-group-item list-group-item-action" href="#list-profile" data-toggle="tab">Book Appointments</a>
+                    <a class="list-group-item list-group-item-action" href="#list-appt" data-toggle="tab">Pending Tests</a>
+                    <a class="list-group-item list-group-item-action" href="#list-tests" data-toggle="tab">Test Results</a>
+                    <a class="list-group-item list-group-item-action" href="#list-trtplans" data-toggle="tab">Pay Bill</a>
+                </div>
             </div>
 
+            <!-- Main Content -->
             <div class="col-md-8" style="margin-top: 3%;">
                 <div class="tab-content" id="nav-tabContent" style="width: 950px;">
                     <!-- Dashboard -->
@@ -244,8 +252,81 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
                         </div>
                     </div>
 
+                    <!-- Book Appointments Tab -->
+                    <div class="tab-pane fade" id="list-profile">
+                        <div class="container-fluid bg-white p-4">
+                            <h4 class="mb-4">Book New Appointment</h4>
+                            
+                            <!-- Department Selection -->
+                            <div class="form-group">
+                                <label for="departmentSelect">Select Department:</label>
+                                <select class="form-control" id="departmentSelect" required>
+                                    <option value="">Choose Department</option>
+                                    <?php foreach($departments as $dept): ?>
+                                        <option value="<?= $dept['dept_id'] ?>"><?= $dept['dept_name'] ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <!-- Doctors List -->
+                            <div id="doctorsList" class="mt-4">
+                                <table class="table table-hover">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Doctor Name</th>
+                                            <th>Specialization</th>
+                                            <th>Availability</th>
+                                            <th>Fee</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="doctorsTableBody">
+                                        <!-- AJAX Content -->
+                                    </tbody>
+                                </table>
+                            </div>
 
-                    <!-- Test Results -->
+                            <!-- Appointment Modal -->
+                            <div class="modal fade" id="appointmentModal" tabindex="-1">
+                                <div class="modal fade" id="appointmentModal" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirm Appointment</h5>
+                                                <button type="button" class="close" data-dismiss="modal">
+                                                    <span>&times;</span>
+                                                </button>
+                                            </div>
+                                            <form id="appointmentForm" method="POST">
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="doctor_id" id="selectedDoctorId">
+                                                    <div class="form-group">
+                                                        <label>Appointment Date</label>
+                                                        <input type="date" name="appt_date" class="form-control" required 
+                                                            min="<?= date('Y-m-d') ?>">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Preferred Time</label>
+                                                        <input type="time" name="appt_time" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    <button type="submit" name="book_appointment" class="btn btn-primary">Confirm Booking</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pending Tests Tab -->
+                    <div class="tab-pane fade" id="list-appt">
+                        <!-- ... existing pending tests content ... -->
+                    </div>
+
+                    <!-- Test Results Tab -->
                     <div class="tab-pane fade" id="list-tests">
                         <h4>Test Results</h4>
                         <input type="text" class="form-control mb-2" placeholder="Search by Patient Name/ID">
@@ -263,33 +344,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
                             </thead>
                         </table>
                     </div>
+
                     <!-- Treatment Plans -->
-                    <div class="tab-pane fade" id="list-trtplans">
-                        <h4>Treatment Plans</h4>
-                        <input type="text" class="form-control mb-2" placeholder="Search by Patient Name/ID">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Patient</th>
-                                    <th>Dosage</th>
-                                    <th>Suggestions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>John Doe</td>
-                                    <td>500mg</td>
-                                    <td>Twice a day after food</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- JavaScript -->
+    <script>
+    $(document).ready(function() {
+        // Department Change Handler
+        $('#departmentSelect').change(function() {
+            var dept_id = $(this).val();
+            if(dept_id) {
+                $.ajax({
+                    url: 'get_doctors.php',
+                    type: 'POST',
+                    data: {dept_id: dept_id},
+                    success: function(response) {
+                        $('#doctorsTableBody').html(response);
+                    }
+                });
+            }
+        });
+
+        // Book Appointment Button Handler
+        $(document).on('click', '.book-btn', function() {
+            var doctor_id = $(this).data('doctor-id');
+            $('#selectedDoctorId').val(doctor_id);
+            $('#appointmentModal').modal('show');
+        });
+    });
+    </script>
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

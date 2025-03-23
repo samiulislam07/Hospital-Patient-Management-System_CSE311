@@ -184,7 +184,6 @@ $conn->close();
     <div class="container-fluid" style="margin-top: 50px;">
         <h3 class="text-center">Welcome <?php echo htmlspecialchars($doctor['first_name']); ?></h3>
 
-
         <div class="row">
             <div class="col-md-4" style="max-width:18%;margin-top: 3%;">
                 <div class="list-group" id="list-tab" role="tablist">
