@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 22, 2025 at 02:51 PM
+-- Generation Time: Mar 23, 2025 at 04:31 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -31,6 +31,8 @@ CREATE TABLE `appointment` (
   `appt_id` int(11) NOT NULL,
   `appt_date` date NOT NULL,
   `appt_time` time NOT NULL,
+  `patient_user_id` varchar(11) DEFAULT NULL,
+  `doctor_user_id` varchar(11) DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -38,11 +40,11 @@ CREATE TABLE `appointment` (
 -- Dumping data for table `appointment`
 --
 
-INSERT INTO `appointment` (`appt_id`, `appt_date`, `appt_time`, `updated_at`) VALUES
-(1, '2025-03-04', '13:02:22', '2025-03-22 03:02:46'),
-(2, '2025-03-12', '11:38:16', '2025-03-22 03:39:30'),
-(3, '2025-03-12', '20:39:34', '2025-03-22 03:39:50'),
-(4, '2024-10-09', '14:39:53', '2025-03-22 03:40:08');
+INSERT INTO `appointment` (`appt_id`, `appt_date`, `appt_time`, `patient_user_id`, `doctor_user_id`, `updated_at`) VALUES
+(1, '2025-03-04', '13:02:22', 'p001', 'd001', '2025-03-23 15:28:47'),
+(2, '2025-03-12', '11:38:16', 'p002', 'd001', '2025-03-23 15:28:58'),
+(3, '2025-03-12', '20:39:34', 'p003', 'd002', '2025-03-23 15:29:09'),
+(4, '2024-10-09', '14:39:53', 'p004', 'd002', '2025-03-23 15:29:36');
 
 -- --------------------------------------------------------
 
@@ -277,7 +279,7 @@ CREATE TABLE `patient` (
 INSERT INTO `patient` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `blood_group`, `dob`, `hno`, `street`, `city`, `zip`, `country`, `created_at`, `updated_at`) VALUES
 ('p001', 'Shanto', 'Ahmed', 'shanto.ahmed@gmail.com', 'password123', 'Male', 'A+', '1992-05-20', '56', 'Gulshan', 'Dhaka', '1212', 'Bangladesh', '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
 ('p002', 'Sumi', 'Parveen', 'sumi.parveen@gmail.com', 'password123', 'Female', 'B-', '1995-03-15', '24', 'Banani', 'Dhaka', '1213', 'Bangladesh', '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
-('p003', 'Samiul', 'Islam', 'samiulsamin.17@gmail.com', '$2y$10$o1NAiYsMM4XNs7Su67l9MeWrxgFcYhDaxiAs5kBZ0Rqqit9m/zFzG', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-21 06:47:11', '2025-03-21 06:47:11'),
+('p003', 'Samiul', 'Islam', 'samiulsamin.17@gmail.com', '$2y$10$o1NAiYsMM4XNs7Su67l9MeWrxgFcYhDaxiAs5kBZ0Rqqit9m/zFzG', 'Male', 'A+', '2003-04-18', '17/A', 'Shantibagh', 'Dhaka', '1217', 'Bangladesh', '2025-03-21 06:47:11', '2025-03-23 13:30:23'),
 ('p004', 'Xaima', 'Zaman', 'xaima.nsu@gmail.com', '$2y$10$s6HyahngF6KDhSyI1qiLO.JMPdbH24vxj/4rBbX3mlKfDIgLCdsyu', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-21 10:51:49', '2025-03-21 10:51:49');
 
 -- --------------------------------------------------------
@@ -430,7 +432,9 @@ INSERT INTO `users` (`user_id`, `first_name`, `last_name`, `email`, `password`, 
 -- Indexes for table `appointment`
 --
 ALTER TABLE `appointment`
-  ADD PRIMARY KEY (`appt_id`);
+  ADD PRIMARY KEY (`appt_id`),
+  ADD KEY `fk_patient_user` (`patient_user_id`),
+  ADD KEY `fk_doctor_user` (`doctor_user_id`);
 
 --
 -- Indexes for table `bill`
@@ -601,6 +605,13 @@ ALTER TABLE `treatmentplan`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `appointment`
+--
+ALTER TABLE `appointment`
+  ADD CONSTRAINT `fk_doctor_user` FOREIGN KEY (`doctor_user_id`) REFERENCES `doctor` (`user_id`),
+  ADD CONSTRAINT `fk_patient_user` FOREIGN KEY (`patient_user_id`) REFERENCES `patient` (`user_id`);
 
 --
 -- Constraints for table `bill`

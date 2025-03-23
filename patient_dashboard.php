@@ -350,39 +350,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['selected_dept'])) {
                         </div>
                     </div>
 
-                            <!-- Appointment Modal -->
-                            <div class="modal fade" id="appointmentModal" tabindex="-1">
-                                <div class="modal fade" id="appointmentModal" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Confirm Appointment</h5>
-                                                <button type="button" class="close" data-dismiss="modal">
-                                                    <span>&times;</span>
-                                                </button>
-                                            </div>
-                                            <form id="appointmentForm" method="POST">
-                                                <div class="modal-body">
-                                                    <input type="hidden" name="doctor_id" id="selectedDoctorId">
-                                                    <div class="form-group">
-                                                        <label>Appointment Date</label>
-                                                        <input type="date" name="appt_date" class="form-control" required 
-                                                            min="<?= date('Y-m-d') ?>">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label>Preferred Time</label>
-                                                        <input type="time" name="appt_time" class="form-control" required>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    <button type="submit" name="book_appointment" class="btn btn-primary">Confirm Booking</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            
 
                     <!-- Pending Tests Tab -->
                     <div class="tab-pane fade" id="list-appt">
@@ -413,29 +381,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['selected_dept'])) {
             </div>
         </div>
     </div>
-
-    <!-- JavaScript -->
-    <script>
-        $(document).ready(function() {
-        $('#departmentSelect').change(function() {
-            var dept_id = $(this).val();
-            if(dept_id) {
-                $.ajax({
-                    url: 'get_doctors.php',
-                    type: 'POST',
-                    data: {dept_id: dept_id},
-                    success: function(response) {
-                        $('#doctorsTableBody').html(response);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("AJAX Error:", status, error);
-                        $('#doctorsTableBody').html('<tr><td colspan="5">Error loading doctors</td></tr>');
-                    }
-                });
-            }
-        });
-    });
-    </script>
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
