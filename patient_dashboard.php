@@ -219,7 +219,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['selected_dept'])) {
                                             </div>
                                             <div class="col-md-3">
                                                 <label>Blood Group:</label>
-                                                <input type="text" name="blood_group" class="form-control" value="<?= $patient['blood_group'] ?>">
+                                                <select name="blood_group" class="form-control">
+                                                    <option value="A+" <?= $patient['blood_group'] == 'A+' ? 'selected' : '' ?>>A+</option>
+                                                    <option value="A-" <?= $patient['blood_group'] == 'A-' ? 'selected' : '' ?>>A-</option>
+                                                    <option value="B+" <?= $patient['blood_group'] == 'B+' ? 'selected' : '' ?>>B+</option>
+                                                    <option value="B-" <?= $patient['blood_group'] == 'B-' ? 'selected' : '' ?>>B-</option>
+                                                    <option value="AB+" <?= $patient['blood_group'] == 'AB+' ? 'selected' : '' ?>>AB+</option>
+                                                    <option value="AB-" <?= $patient['blood_group'] == 'AB-' ? 'selected' : '' ?>>AB-</option>
+                                                    <option value="O+" <?= $patient['blood_group'] == 'O+' ? 'selected' : '' ?>>O+</option>
+                                                    <option value="O-" <?= $patient['blood_group'] == 'O-' ? 'selected' : '' ?>>O-</option>
+                                                </select>
                                             </div>
                                             <div class="col-md-3">
                                                 <label>Date of Birth:</label>
