@@ -1,6 +1,6 @@
 <?php
 session_start();
-$con=mysqli_connect("localhost","root","","hospital_db");
+include 'config.php';
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -101,7 +101,7 @@ if (isset($_POST['app-submit'])) {
     if (mysqli_query($con, $insert_appointment_query)) {
         $appt_id = mysqli_insert_id($con);
   
-        $insert_checkup_query = "INSERT INTO Checkup (appt_id, patient_user_id, doctor_user_id, appt_status) VALUES (?, ?, ?, 'ongoing')";
+        $insert_checkup_query = "INSERT INTO Checkup (appt_id, patient_user_id, doctor_user_id, appt_status) VALUES (?, ?, ?, 'scheduled')";
         $stmt = mysqli_prepare($con, $insert_checkup_query);
         mysqli_stmt_bind_param($stmt, "iss", $appt_id, $patient_user_id, $doctor_user_id);
         if (mysqli_stmt_execute($stmt)) {
@@ -114,43 +114,43 @@ if (isset($_POST['app-submit'])) {
     }
   }
 
-// function display_pending_tests()
-// {
-//     global $con;
+function display_pending_tests()
+{
+    global $con;
 
-//     // Assuming patient is logged in
-//     $patient_id = $_SESSION['user_id'];
+    // Assuming patient is logged in
+    $patient_id = $_SESSION['user_id'];
 
-//     $query = "SELECT 
-//                 t.test_name,
-//                 CONCAT(d.first_name, ' ', d.last_name) AS doctor_name,
-//                 d.specialization,
-//                 dtp.pres_date
-//               FROM `doc-test-patient` dtp
-//               JOIN `test` t ON dtp.test_id = t.test_id
-//               JOIN `doctor` d ON dtp.doctor_user_id = d.user_id
-//               WHERE dtp.patient_user_id = '$patient_id' AND dtp.test_date IS NULL";
+    $query = "SELECT 
+                t.test_name,
+                CONCAT(d.first_name, ' ', d.last_name) AS doctor_name,
+                d.specialization,
+                dtp.pres_date
+              FROM doc_test_patient dtp
+              JOIN test t ON t.test_id = dtp.test_id
+              JOIN doctor d ON d.user_id = dtp.doctor_user_id
+              WHERE dtp.patient_user_id = '$patient_id' AND dtp.test_date IS NULL";
 
-//     $result = mysqli_query($con, $query);
+    $result = mysqli_query($con, $query);
 
-//     if (!$result) {
-//         echo '<tr><td colspan="4">Error retrieving data.</td></tr>';
-//         return;
-//     }
+    if (!$result) {
+        echo '<tr><td colspan="4">Error retrieving data.</td></tr>';
+        return;
+    }
 
-//     if (mysqli_num_rows($result) === 0) {
-//         echo '<tr><td colspan="4" class="text-center">No pending tests found.</td></tr>';
-//         return;
-//     }
+    if (mysqli_num_rows($result) === 0) {
+        echo '<tr><td colspan="4" class="text-center">No pending tests found.</td></tr>';
+        return;
+    }
 
-//     while ($row = mysqli_fetch_assoc($result)) {
-//         echo '<tr>';
-//         echo '<td>' . htmlspecialchars($row['test_name']) . '</td>';
-//         echo '<td>' . htmlspecialchars($row['doctor_name']) . '</td>';
-//         echo '<td>' . htmlspecialchars($row['specialization']) . '</td>';
-//         echo '<td>' . htmlspecialchars($row['pres_date']) . '</td>';
-//         echo '</tr>';
-//     }
-// }
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo '<tr>';
+        echo '<td>' . htmlspecialchars($row['test_name']) . '</td>';
+        echo '<td>' . htmlspecialchars($row['doctor_name']) . '</td>';
+        echo '<td>' . htmlspecialchars($row['specialization']) . '</td>';
+        echo '<td>' . htmlspecialchars($row['pres_date']) . '</td>';
+        echo '</tr>';
+    }
+}
 
 ?>

@@ -1,4 +1,5 @@
-<?php include 'config.php'; include 'patient_func.php';?>
+<?php include 'config.php';
+include 'patient_func.php'; ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -177,32 +178,34 @@
                                             </div>
                                             <div class="col-md-2"> <!-- Changed from col-md-1 -->
                                                 <label>Country:</label>
-                                                <input type="text" name="country" class="form-control" 
-                                                    value="<?= $patient['country'] ?>" 
+                                                <input type="text" name="country" class="form-control"
+                                                    value="<?= $patient['country'] ?>"
                                                     style="min-width: 150px;">
                                             </div>
                                         </div>
                                     </div>
 
-                                        <!-- Update Button -->
-                                        <div class="row mt-4">
-                                            <div class="col-md-12 text-right">
-                                                <button type="submit" name="update_patient" class="btn btn-primary">
-                                                    <i class="fa fa-pencil"></i> Update Profile
-                                                </button>
-                                            </div>
+                                    <!-- Update Button -->
+                                    <div class="row mt-4">
+                                        <div class="col-md-12 text-right">
+                                            <button type="submit" name="update_patient" class="btn btn-primary">
+                                                <i class="fa fa-pencil"></i> Update Profile
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-                            </form>
                         </div>
+                        </form>
+                    </div>
 
                     <!-- Book Appointments Tab -->
-                     <div class="tab-pane fade" id="list-appt" role="tabpanel" aria-labelledby="list-appt-list">
+                    <div class="tab-pane fade" id="list-appt" role="tabpanel" aria-labelledby="list-appt-list">
                         <div class="container-fluid">
                             <div class="card">
                                 <div class="card-body">
-                                    <center><h4>Book Appointment</h4></center><br>
+                                    <center>
+                                        <h4>Book Appointment</h4>
+                                    </center><br>
                                     <form class="form-group" method="post" action="patient_dashboard.php">
                                         <div class="row">
                                             <div class="col-md-4">
@@ -221,15 +224,15 @@
                                                     let spec = this.value;
                                                     console.log(spec)
                                                     let docs = [...document.getElementById('doctor').options];
-                                                    docs.forEach((el, ind, arr)=>{
-                                                        arr[ind].setAttribute("style","");
-                                                        if (el.getAttribute("data-spec") != spec ) {
-                                                arr[ind].setAttribute("style","display: none");
-                                                }
-                                                });
+                                                    docs.forEach((el, ind, arr) => {
+                                                        arr[ind].setAttribute("style", "");
+                                                        if (el.getAttribute("data-spec") != spec) {
+                                                            arr[ind].setAttribute("style", "display: none");
+                                                        }
+                                                    });
                                                 };
                                             </script>
-                                            
+
                                             <div class="col-md-4"><label for="doctor">Doctors:</label></div>
                                             <div class="col-md-8">
                                                 <select name="doctor" class="form-control" id="doctor">
@@ -240,42 +243,45 @@
                                             <br><br>
 
                                             <script>
-                                                document.getElementById('doctor').onchange = function updateFees(e){
-                                                var selectedOption = this.options[this.selectedIndex]; 
-                                                var fee = selectedOption.getAttribute('data-fee');
-                                                var avail = selectedOption.getAttribute('data-availability');
-                                                var id = selectedOption.getAttribute('data-id');
-                                                document.getElementById('docFees').value = fee;
-                                                document.getElementById('appointmentTime').value = avail;
-                                                document.getElementById('docId').value = id;
+                                                document.getElementById('doctor').onchange = function updateFees(e) {
+                                                    var selectedOption = this.options[this.selectedIndex];
+                                                    var fee = selectedOption.getAttribute('data-fee');
+                                                    var avail = selectedOption.getAttribute('data-availability');
+                                                    var id = selectedOption.getAttribute('data-id');
+                                                    document.getElementById('docFees').value = fee;
+                                                    document.getElementById('availibility').value = avail;
+                                                    document.getElementById('docId').value = id;
                                                 }
                                             </script>
 
                                             <div class="col-md-4">
-                                                <label for="consultancyfees">Doctor ID</label>                                                
+                                                <label for="consultancyfees">Doctor ID</label>
                                             </div>
                                             <div class="col-md-8">
-                                                <input class="form-control" type="text" name="docId" id="docId" readonly="readonly"/>
+                                                <input class="form-control" type="text" name="docId" id="docId" readonly="readonly" />
                                             </div>
                                             <br><br>
-                                            
+
                                             <div class="col-md-4">
-                                                <label for="consultancyfees">Consultancy Fees</label>                                                
+                                                <label for="consultancyfees">Consultancy Fees</label>
                                             </div>
                                             <div class="col-md-8">
-                                                <input class="form-control" type="text" name="docFees" id="docFees" readonly="readonly"/>
+                                                <input class="form-control" type="text" name="docFees" id="docFees" readonly="readonly" />
+                                            </div>
+                                            <br><br>
+                                            <div class="col-md-4">
+                                                <label for="availibility">Available Schedule</label>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <input class="form-control" type="text" name="availibility" id="availibility" readonly="readonly" />
                                             </div>
                                             <br><br>
                                             <div class="col-md-4"><label>Appointment Date</label></div>
                                             <div class="col-md-8"><input type="date" class="form-control datepicker" name="appdate"></div><br><br>
-                                            
-                                            <div class="col-md-4">
-                                                <label for="appointmentTime">Appointment Time</label>
-                                            </div>
-                                            <div class="col-md-8">
-                                                <input class="form-control" type="text" name="appointmentTime" id="appointmentTime" readonly="readonly"/>
-                                            </div>
-                                            <br><br>
+
+                                            <div class="col-md-4"><label>Appointment Time</label></div>
+                                            <div class="col-md-8"><input type="time" class="form-control timepicker" name="appointmentTime"></div><br><br>
+
                                             <div class="col-md-4">
                                                 <input type="submit" name="app-submit" value="Create New Appointment" class="btn btn-primary" id="inputbtn">
                                             </div>
@@ -285,10 +291,26 @@
                                 </div>
                             </div>
                         </div><br>
-                     </div>
+                    </div>
                     <!-- Pending Tests Tab -->
                     <div class="tab-pane fade" id="list-test" role="tabpanel" aria-labelledby="list-test-list">
                         <!-- ... existing pending tests content ... -->
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Test Name</th>
+                                    <th scope="col">Doctor Name</th>
+                                    <th scope="col">Specialization</th>
+                                    <th scope="col">Prescribed Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                display_pending_tests();
+                                ?>
+                            </tbody>
+
+                        </table>
                     </div>
 
                     <!-- Test Results Tab -->
@@ -322,13 +344,13 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.10.1/sweetalert2.all.min.js">
-   </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.10.1/sweetalert2.all.min.js">
+    </script>
     <script>
-    // Initialize Bootstrap tabs PROPERLY
-    $(document).ready(function() {
-        $('#list-tab a').tab();
-    });
+        // Initialize Bootstrap tabs PROPERLY
+        $(document).ready(function() {
+            $('#list-tab a').tab();
+        });
     </script>
 </body>
 
