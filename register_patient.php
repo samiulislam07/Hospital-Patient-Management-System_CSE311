@@ -18,7 +18,7 @@ function generatePatientID($con) {
 }
 
 // Process form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = generatePatientID($con);  // Auto-generated ID
     $first_name = trim($_POST['first_name']);
     $last_name = trim($_POST['last_name']);

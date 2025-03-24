@@ -2,7 +2,7 @@
 include 'config.php';
 // Fetch available tests
 $testQuery = "SELECT test_name FROM test";
-$testResult = $conn->query($testQuery);
+$testResult = $con->query($testQuery);
 $testList = [];
 while ($row = $testResult->fetch_assoc()) {
     $testList[] = $row['test_name'];

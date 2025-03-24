@@ -16,7 +16,7 @@ $departments = [];
 
 // Fetch doctor details
 $sql = "SELECT user_id, first_name, last_name, email, gender, phone, dob, salary, doc_fee, specialization, availability FROM Doctor WHERE user_id = ?";
-$stmt = $conn->prepare($sql);
+$stmt = $con->prepare($sql);
 if ($stmt) {
     $stmt->bind_param("s", $doctor_id);
     $stmt->execute();
@@ -29,7 +29,7 @@ if ($stmt) {
 
 // Fetch specialization options from Department table
 $sql = "SELECT dept_name FROM Department";
-$result = $conn->query($sql);
+$result = $con->query($sql);
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $departments[] = $row['dept_name'];
@@ -50,11 +50,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
     if (!empty($doctor_id)) {
 
         // Start a transaction (for atomicity)
-        $conn->begin_transaction();
+        $con->begin_transaction();
 
         // Update Users Table (email only)
         $update_users_sql = "UPDATE Users SET email = ? WHERE user_id = ?";
-        $stmt_users = $conn->prepare($update_users_sql);
+        $stmt_users = $con->prepare($update_users_sql);
 
         if ($stmt_users) {
             $stmt_users->bind_param("ss", $email, $doctor_id);
@@ -62,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
             if ($stmt_users->execute()) {
                 // Users table updated successfully, now update Staff table
                 $update_staff_sql = "UPDATE Staff SET email = ?, gender = ?, phone = ?, dob = ? WHERE user_id = ?";
-                $stmt_staff = $conn->prepare($update_staff_sql);
+                $stmt_staff = $con->prepare($update_staff_sql);
 
                 if ($stmt_staff) {
                     $stmt_staff->bind_param("sssss", $email, $gender, $phone, $dob, $doctor_id);
@@ -70,46 +70,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
                     if ($stmt_staff->execute()) {
                         // Staff table updated successfully, now update Doctor table
                         $update_doctor_sql = "UPDATE Doctor SET email = ?, gender = ?, phone = ?, dob = ?, doc_fee = ?, specialization = ?, availability = ? WHERE user_id = ?";
-                        $stmt_doctor = $conn->prepare($update_doctor_sql);
+                        $stmt_doctor = $con->prepare($update_doctor_sql);
 
                         if ($stmt_doctor) {
                             $stmt_doctor->bind_param("ssssssss", $email, $gender, $phone, $dob, $doc_fee, $specialization, $availability, $doctor_id);
 
                             if ($stmt_doctor->execute()) {
                                 // All updates successful, commit the transaction
-                                $conn->commit();
+                                $con->commit();
                                 echo "<script>alert('Profile updated successfully!'); window.location.href='doctor_dashboard.php';</script>";
                             } else {
                                 // Doctor table update failed, rollback transaction
-                                $conn->rollback();
+                                $con->rollback();
                                 echo "<script>alert('Error updating Doctor profile. Please try again.');</script>";
                             }
                             $stmt_doctor->close();
                         } else {
                             // Doctor prepare failed, rollback transaction
-                            $conn->rollback();
+                            $con->rollback();
                             echo "<script>alert('Database error updating Doctor. Please try again.');</script>";
                         }
                     } else {
                         // Staff table update failed, rollback transaction
-                        $conn->rollback();
+                        $con->rollback();
                         echo "<script>alert('Error updating Staff profile. Please try again.');</script>";
                     }
                     $stmt_staff->close();
                 } else {
                     // Staff prepare failed, rollback transaction
-                    $conn->rollback();
+                    $con->rollback();
                     echo "<script>alert('Database error updating Staff. Please try again.');</script>";
                 }
             } else {
                 // Users table update failed, rollback transaction
-                $conn->rollback();
+                $con->rollback();
                 echo "<script>alert('Error updating Users profile. Please try again.');</script>";
             }
             $stmt_users->close();
         } else {
             // User prepare failed, rollback transaction
-            $conn->rollback();
+            $con->rollback();
             echo "<script>alert('Database error updating Users. Please try again.');</script>";
         }
     } else {
@@ -126,7 +126,7 @@ $sql = "SELECT a.appt_id, a.appt_date, a.appt_time, c.appt_status, p.first_name 
         INNER JOIN checkup c ON a.appt_id = c.appt_id
         INNER JOIN Patient p ON c.patient_user_id = p.user_id
         WHERE c.doctor_user_id = ?";
-$stmt = $conn->prepare($sql);
+$stmt = $con->prepare($sql);
 if ($stmt) {
     $stmt->bind_param("s", $doctor_id);
     $stmt->execute();
@@ -145,7 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $appt_status = $_POST['appt_status'];
 
     $update_sql = "UPDATE checkup SET appt_status = ? WHERE appt_id = ? AND doctor_user_id = ?";
-    $stmt = $conn->prepare($update_sql);
+    $stmt = $con->prepare($update_sql);
     if ($stmt) {
         $stmt->bind_param("sss", $appt_status, $appt_id, $doctor_id);
         if ($stmt->execute()) {
@@ -167,7 +167,7 @@ $sql = "SELECT p.user_id, p.first_name, p.last_name, p.blood_group, mh.allergies
         INNER JOIN checkup c ON p.user_id = c.patient_user_id
         LEFT JOIN MedicalHistory mh ON p.user_id = mh.patient_user_id
         WHERE c.doctor_user_id = ? AND c.appt_status = 'Ongoing'";
-$stmt = $conn->prepare($sql);
+$stmt = $con->prepare($sql);
 if ($stmt) {
     $stmt->bind_param("s", $doctor_id);
     $stmt->execute();
@@ -195,7 +195,7 @@ $sql = "SELECT
         WHERE dtp.doctor_user_id = ?
         ORDER BY dtp.pres_date DESC";
 
-$stmt = $conn->prepare($sql);
+$stmt = $con->prepare($sql);
 if ($stmt) {
     $stmt->bind_param("s", $doctor_id);
     $stmt->execute();
@@ -229,7 +229,7 @@ $sql = "SELECT
         WHERE tp.doctor_user_id = ?
         ORDER BY tp.prescribe_date DESC";
 
-$stmt = $conn->prepare($sql);
+$stmt = $con->prepare($sql);
 if ($stmt) {
     $stmt->bind_param("s", $doctor_id);
     $stmt->execute();
@@ -249,7 +249,7 @@ if ($stmt) {
     $stmt->close();
 }
 
-$conn->close();
+$con->close();
 
 ?>
 
