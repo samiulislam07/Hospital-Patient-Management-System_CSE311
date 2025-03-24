@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 24, 2025 at 04:41 AM
+-- Generation Time: Mar 24, 2025 at 06:49 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -42,7 +42,8 @@ INSERT INTO `appointment` (`appt_id`, `appt_date`, `appt_time`, `updated_at`) VA
 (1, '2025-03-04', '13:02:22', '2025-03-22 03:02:46'),
 (2, '2025-03-12', '11:38:16', '2025-03-22 03:39:30'),
 (3, '2025-03-12', '20:39:34', '2025-03-22 03:39:50'),
-(4, '2024-10-09', '14:39:53', '2025-03-22 03:40:08');
+(4, '2024-10-09', '14:39:53', '2025-03-22 03:40:08'),
+(5, '2025-03-22', '00:00:10', '2025-03-24 16:03:10');
 
 -- --------------------------------------------------------
 
@@ -96,10 +97,11 @@ CREATE TABLE `checkup` (
 --
 
 INSERT INTO `checkup` (`appt_id`, `patient_user_id`, `doctor_user_id`, `appt_status`, `created_at`, `updated_at`) VALUES
-(1, 'p001', 'd001', 'Ongoing', '2025-03-22 03:04:03', '2025-03-22 05:24:42'),
+(1, 'p001', 'd001', 'Ongoing', '2025-03-22 03:04:03', '2025-03-24 11:33:50'),
 (2, 'p001', 'd002', 'Ongoing', '2025-03-22 03:40:37', '2025-03-22 03:40:37'),
 (3, 'p002', 'd002', 'Ongoing', '2025-03-22 03:40:50', '2025-03-22 03:40:50'),
-(4, 'p002', 'd001', 'Ongoing', '2025-03-22 03:41:25', '2025-03-22 04:19:03');
+(4, 'p002', 'd001', 'Ongoing', '2025-03-22 03:41:25', '2025-03-24 10:30:29'),
+(5, 'p004', 'd002', 'Ongoing', '2025-03-24 16:03:10', '2025-03-24 16:03:10');
 
 -- --------------------------------------------------------
 
@@ -156,7 +158,7 @@ CREATE TABLE `doctor` (
 --
 
 INSERT INTO `doctor` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `doc_fee`, `specialization`, `availability`, `dept_id`, `created_at`, `updated_at`) VALUES
-('d001', 'Dr. Kamal', 'Hossain', 'dr.kamal.hossain@gmail.com', 'password123', 'Female', '01812345678', '1985-02-25', 60000.00, 700.00, 'Orthopedics', 'Mon-Wed-Fri 10 AM - 12 PM', 1, '2025-03-19 16:31:47', '2025-03-24 03:32:02'),
+('d001', 'Dr. Kamal', 'Hossain', '', 'password123', 'Female', '', '1985-02-25', 60000.00, 0.00, 'Orthopedics', 'Mon-Wed-Fri 10 AM - 12 PM', 1, '2025-03-19 16:31:47', '2025-03-24 09:15:09'),
 ('d002', 'Dr. Shilpi', 'Begum', 'dr.shilpi.begum@gmail.com', 'password123', 'Female', '01887654321', '1988-06-15', 65000.00, 750.00, 'Dermatology', '10AM - 4PM', 2, '2025-03-19 16:31:47', '2025-03-19 16:31:47');
 
 -- --------------------------------------------------------
@@ -193,6 +195,7 @@ INSERT INTO `doc_test_patient` (`doctor_user_id`, `test_id`, `patient_user_id`, 
 ('d001', 7, 'p001', '2025-03-04', '2025-03-07', 'Positive', '2025-03-23 22:18:49', '2025-03-24 03:39:57'),
 ('d001', 8, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 01:30:49', '2025-03-24 01:30:49'),
 ('d001', 9, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 01:30:49', '2025-03-24 01:30:49'),
+('d001', 10, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 10:59:03', '2025-03-24 10:59:03'),
 ('d002', 7, 'p001', '2025-03-04', '2025-03-10', 'Positive', '2025-03-23 22:18:49', '2025-03-23 22:18:49');
 
 -- --------------------------------------------------------
@@ -254,6 +257,13 @@ CREATE TABLE `nurse` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `nurse`
+--
+
+INSERT INTO `nurse` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `duty_hour`, `dept_id`, `created_at`, `updated_at`) VALUES
+('n001', 'Anika', 'Rahman', 'anika.rahman@gmail.com', 'password123', 'Female', NULL, NULL, NULL, NULL, NULL, '2025-03-24 13:25:59', '2025-03-24 13:25:59');
+
 -- --------------------------------------------------------
 
 --
@@ -300,7 +310,8 @@ INSERT INTO `patient` (`user_id`, `first_name`, `last_name`, `email`, `password`
 ('p001', 'Shanto', 'Ahmed', 'shanto.ahmed@gmail.com', 'password123', 'Male', 'A+', '1992-05-20', '56', 'Gulshan', 'Dhaka', '1212', 'Bangladesh', '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
 ('p002', 'Sumi', 'Parveen', 'sumi.parveen@gmail.com', 'password123', 'Female', 'B-', '1995-03-15', '24', 'Banani', 'Dhaka', '1213', 'Bangladesh', '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
 ('p003', 'Samiul', 'Islam', 'samiulsamin.17@gmail.com', '$2y$10$o1NAiYsMM4XNs7Su67l9MeWrxgFcYhDaxiAs5kBZ0Rqqit9m/zFzG', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-21 06:47:11', '2025-03-21 06:47:11'),
-('p004', 'Xaima', 'Zaman', 'xaima.nsu@gmail.com', '$2y$10$s6HyahngF6KDhSyI1qiLO.JMPdbH24vxj/4rBbX3mlKfDIgLCdsyu', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-21 10:51:49', '2025-03-21 10:51:49');
+('p004', 'Xaima', 'Zaman', 'xaima.nsu@gmail.com', '$2y$10$s6HyahngF6KDhSyI1qiLO.JMPdbH24vxj/4rBbX3mlKfDIgLCdsyu', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-21 10:51:49', '2025-03-21 10:51:49'),
+('p005', 'Xahiya', 'Zaman', 'xahiyazaman@gmail.com', '$2y$10$YdqKqHDcoQPXfzrIOu0oq.FpVJpXaDXg0fs5G9HYUVxzRyAZykWyG', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-24 16:12:50', '2025-03-24 16:12:50');
 
 -- --------------------------------------------------------
 
@@ -341,7 +352,7 @@ CREATE TABLE `staff` (
 --
 
 INSERT INTO `staff` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `dept_id`, `created_at`, `updated_at`) VALUES
-('d001', 'Dr. Kamal', 'Hossain', 'dr.kamal.hossain@gmail.com', 'password123', 'Male', '01812345678', '1985-02-25', 60000.00, 1, '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
+('d001', 'Dr. Kamal', 'Hossain', '', 'password123', 'Female', '', '1985-02-25', 60000.00, 1, '2025-03-19 16:31:47', '2025-03-24 09:15:09'),
 ('d002', 'Dr. Shilpi', 'Begum', 'dr.shilpi.begum@gmail.com', 'password123', 'Female', '01887654321', '1988-06-15', 65000.00, 2, '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
 ('n001', 'Anika', 'Rahman', 'anika.rahman@gmail.com', 'password123', 'Female', '01911223344', '1993-11-10', 25000.00, 3, '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
 ('n002', 'Mahi', 'Sultana', 'mahi.sultana@gmail.com', 'password123', 'Female', '01922334455', '1990-08-22', 28000.00, 3, '2025-03-19 16:31:47', '2025-03-19 16:31:47');
@@ -424,14 +435,15 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `first_name`, `last_name`, `email`, `password`, `created_at`, `updated_at`) VALUES
-('d001', 'Dr. Kamal', 'Hossain', 'dr.kamal.hossain@gmail.com', 'password123', '2025-03-19 16:17:03', '2025-03-19 16:17:03'),
+('d001', 'Dr. Kamal', 'Hossain', '', 'password123', '2025-03-19 16:17:03', '2025-03-24 09:14:57'),
 ('d002', 'Dr. Shilpi', 'Begum', 'dr.shilpi.begum@gmail.com', 'password123', '2025-03-19 16:17:03', '2025-03-19 16:17:03'),
 ('n001', 'Anika', 'Rahman', 'anika.rahman@gmail.com', 'password123', '2025-03-19 16:17:03', '2025-03-19 16:17:03'),
 ('n002', 'Mahi', 'Sultana', 'mahi.sultana@gmail.com', 'password123', '2025-03-19 16:17:03', '2025-03-19 16:17:03'),
 ('p001', 'Shanto', 'Ahmed', 'shanto.ahmed@gmail.com', 'password123', '2025-03-19 16:17:03', '2025-03-19 16:17:03'),
 ('p002', 'Sumi', 'Parveen', 'sumi.parveen@gmail.com', 'password123', '2025-03-19 16:17:03', '2025-03-19 16:17:03'),
 ('p003', 'Samiul', 'Islam', 'samiulsamin.17@gmail.com', '$2y$10$o1NAiYsMM4XNs7Su67l9MeWrxgFcYhDaxiAs5kBZ0Rqqit9m/zFzG', '2025-03-21 06:47:11', '2025-03-21 06:47:11'),
-('p004', 'Xaima', 'Zaman', 'xaima.nsu@gmail.com', '$2y$10$s6HyahngF6KDhSyI1qiLO.JMPdbH24vxj/4rBbX3mlKfDIgLCdsyu', '2025-03-21 10:51:49', '2025-03-21 10:51:49');
+('p004', 'Xaima', 'Zaman', 'xaima.nsu@gmail.com', '$2y$10$s6HyahngF6KDhSyI1qiLO.JMPdbH24vxj/4rBbX3mlKfDIgLCdsyu', '2025-03-21 10:51:49', '2025-03-21 10:51:49'),
+('p005', 'Xahiya', 'Zaman', 'xahiyazaman@gmail.com', '$2y$10$YdqKqHDcoQPXfzrIOu0oq.FpVJpXaDXg0fs5G9HYUVxzRyAZykWyG', '2025-03-24 16:12:50', '2025-03-24 16:12:50');
 
 --
 -- Indexes for dumped tables
@@ -570,7 +582,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `appointment`
 --
 ALTER TABLE `appointment`
-  MODIFY `appt_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `appt_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `bill`

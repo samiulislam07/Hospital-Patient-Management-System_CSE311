@@ -102,16 +102,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_nurse'])) {
     }
 }
 
+// Fetch Patient Information
+$patientInfo = [];
+$sql = "SELECT p.user_id, p.first_name, p.last_name, p.gender, p.dob, p.blood_group, mh.allergies, mh.pre_conditions
+        FROM Patient p
+        LEFT JOIN MedicalHistory mh ON p.user_id = mh.patient_user_id";
+$result = $con->query($sql);
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $patientInfo[] = $row;
+    }
+}
+
 $con->close();
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>nurse Dashboard</title>
+    <title>Nurse Dashboard</title>
     <link rel="stylesheet" href="css/dashboard_style.css">
     <!-- External Stylesheets -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -149,6 +163,9 @@ $con->close();
                 <div class="list-group" id="list-tab" role="tablist">
                     <a class="list-group-item list-group-item-action active" href="#list-dash" data-toggle="list">Dashboard</a>
                     <a class="list-group-item list-group-item-action" href="#list-profile" data-toggle="list">Update Profile</a>
+                    <a class="list-group-item list-group-item-action" href="#list-patients" data-toggle="list">View All Patients</a>
+                    <a class="list-group-item list-group-item-action" href="#list-pdetails" data-toggle="list">Patients Medical Details</a>
+                    <a class="list-group-item list-group-item-action" href="#list-performtest" data-toggle="list">Perform Tests</a>
                 </div>
             </div>
 
@@ -239,11 +256,83 @@ $con->close();
                             </div>
                         </form>
                     </div>
+                    <!-- Patient Information -->
+                    <div class="tab-pane fade" id="list-patients">
+                        <h4>Patients Information</h4>
+                        <input type="text" class="form-control mb-2" id="patientSearch" placeholder="Search by Patient Name">
+                        <table class="table table-hover" id="patientsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%;">#</th>
+                                    <th style="width: 20%;">Patient Name</th>
+                                    <th style="width: 10%;">Gender</th>
+                                    <th style="width: 10%;">Age</th>
+                                    <th style="width: 20%;">Blood Group</th>
+                                    <th style="width: 20%;">Allergies</th>
+                                    <th style="width: 25%;">Preconditions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (count($patientInfo) > 0): ?>
+                                    <?php $index = 1;
+                                    foreach ($patientInfo as $patient): ?>
+                                        <tr>
+                                            <td><?= $index++ ?></td>
+                                            <td><?= htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']) ?></td>
+                                            <td><?= htmlspecialchars($patient['gender']) ?></td>
+                                            <td>
+                                                <?php
+                                                if (!empty($patient['dob'])) {
+                                                    $dob = new DateTime($patient['dob']);
+                                                    $today = new DateTime();
+                                                    $age = $today->diff($dob)->y;
+                                                    echo $age;
+                                                } else {
+                                                    echo 'N/A';
+                                                }
+                                                ?>
+                                            </td>
+                                            <td><?= htmlspecialchars($patient['blood_group']) ?></td>
+                                            <td><?= htmlspecialchars($patient['allergies'] ?: 'N/A') ?></td>
+                                            <td><?= htmlspecialchars($patient['pre_conditions'] ?: 'N/A') ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="7">No patient information found.</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        // Patient Information Search
+        const patientSearchInput = document.getElementById('patientSearch');
+        const patientsTableBody = document.querySelector('#patientsTable tbody');
+
+        patientSearchInput.addEventListener('keyup', function() {
+            const searchValue = this.value.toLowerCase();
+            const rows = patientsTableBody.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                if (rowText.includes(searchValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        </script>
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
