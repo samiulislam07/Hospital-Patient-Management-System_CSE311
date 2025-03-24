@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'config.php';
+include 'newfunc.php';
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -13,7 +14,7 @@ $patient = [];
 
 // Fetch patient details
 $sql = "SELECT user_id, first_name, last_name, email, gender, blood_group, dob, hno, street, city, zip, country FROM Patient WHERE user_id = ?";
-$stmt = $conn->prepare($sql);
+$stmt = $con->prepare($sql);
 if ($stmt) {
     $stmt->bind_param("s", $patient_id);
     $stmt->execute();
@@ -39,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
     // Ensure patient ID is set
     if (!empty($patient_id)) {
         $update_sql = "UPDATE Patient SET email = ?, gender = ?, blood_group = ?, dob = ?, hno = ?, street = ?, city = ?, zip = ?, country = ? WHERE user_id = ?";
-        $stmt = $conn->prepare($update_sql);
+        $stmt = $con->prepare($update_sql);
         if ($stmt) {
             $stmt->bind_param("ssssssssss", $email, $gender, $blood_group, $dob, $hno, $street, $city, $zip, $country, $patient_id);
             if ($stmt->execute()) {
@@ -56,28 +57,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
     }
 }
 
-// Fetch departments for dropdown
-$departments = [];
-$dept_sql = "SELECT * FROM Department";
-$dept_result = $conn->query($dept_sql);
-while($dept = $dept_result->fetch_assoc()) {
-    $departments[] = $dept;
-}
+if (isset($_POST['app-submit'])) {
+    //global $con;
 
-// Add this in the PHP section before HTML
-$selected_doctors = [];
-if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['selected_dept'])) {
-    $dept_id = $_POST['selected_dept'];
-    $sql = "SELECT d.user_id, d.first_name, d.last_name, 
-                   d.specialization, d.availability, d.doc_fee 
-            FROM Doctor d
-            WHERE d.dept_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $dept_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $selected_doctors = $result->fetch_all(MYSQLI_ASSOC);
-    $stmt->close();
+    $appt_date = mysqli_real_escape_string($con, $_POST['appdate']);
+    $appt_time = mysqli_real_escape_string($con, $_POST['appointmentTime']);
+    $doctor_user_id = mysqli_real_escape_string($con, $_POST['docId']);
+
+    if (isset($_SESSION['user_id'])) {
+        $patient_user_id = mysqli_real_escape_string($con, $_SESSION['user_id']);
+    } else {
+        echo "<script>alert('Patient user ID not found. Please log in.');</script>";
+        exit();
+    }
+
+    $insert_appointment_query = "INSERT INTO Appointment (appt_date, appt_time) VALUES ('$appt_date', '$appt_time')";
+    if (mysqli_query($con, $insert_appointment_query)) {
+        $appt_id = mysqli_insert_id($con);
+
+        $insert_checkup_query = "INSERT INTO Checkup (appt_id, patient_user_id, doctor_user_id, appt_status) VALUES (?, ?, ?, 'ongoing')";
+        $stmt = mysqli_prepare($con, $insert_checkup_query);
+        mysqli_stmt_bind_param($stmt, "iss", $appt_id, $patient_user_id, $doctor_user_id);
+        if (mysqli_stmt_execute($stmt)) {
+            echo "<script>alert('Appointment created successfully!'); window.location.href='patient_dashboard.php';</script>";
+        } else {
+            echo "<script>alert('Error creating appointment (Checkup): " . mysqli_error($con) . "');</script>";
+        }
+    } else {
+        echo "<script>alert('Error creating appointment (Appointment): " . mysqli_error($con) . "');</script>";
+    }
 }
 ?>
 
@@ -86,11 +94,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['selected_dept'])) {
 
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/x-icon" href="images/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Patient Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="font-awesome-4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/dashboard_style.css">
     <!-- External Stylesheets -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="vendor/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans&display=swap" rel="stylesheet">
 </head>
@@ -99,9 +110,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['selected_dept'])) {
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <a class="navbar-brand" href="#">
-            <i class="fa fa-hospital-o"></i> Hospital Management System
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <i class="fa fa-hospital-o"></i> Hospital Management System</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -121,22 +131,22 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['selected_dept'])) {
 
         <div class="row">
             <!-- Left Sidebar -->
-            <div class="col-md-4" style="max-width:18%;margin-top: 3%;">
+            <div class="col-md-4" style="max-width:25%; margin-top: 3%">
                 <div class="list-group" id="list-tab" role="tablist">
-                    <a class="list-group-item list-group-item-action active" href="#list-dash" data-toggle="tab">Dashboard</a>
-                    <a class="list-group-item list-group-item-action" href="#update-profile" data-toggle="tab">Update Profile</a>
-                    <a class="list-group-item list-group-item-action" href="#list-profile" data-toggle="tab">Book Appointments</a>
-                    <a class="list-group-item list-group-item-action" href="#list-appt" data-toggle="tab">Pending Tests</a>
-                    <a class="list-group-item list-group-item-action" href="#list-tests" data-toggle="tab">Test Results</a>
-                    <a class="list-group-item list-group-item-action" href="#list-trtplans" data-toggle="tab">Pay Bill</a>
-                </div>
+                    <a class="list-group-item list-group-item-action active" id="list-dash-list" data-toggle="list" href="#list-dash" role="tab" aria-controls="list-dash">Dashboard</a>
+                    <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="list-profile">Update Profile</a>
+                    <a class="list-group-item list-group-item-action" id="list-appt-list" data-toggle="list" href="#list-appt" role="tab" aria-controls="list-appt">Book Appointments</a>
+                    <a class="list-group-item list-group-item-action" id="list-test-list" data-toggle="list" href="#list-test" role="tab" aria-controls="list-test">Pending Tests</a>
+                    <a class="list-group-item list-group-item-action" id="list-result-list" data-toggle="list" href="#list-result" role="tab" aria-controls="list-result">Test Results</a>
+                    <a class="list-group-item list-group-item-action" id="list-bill-list" data-toggle="list" href="#list-bill" role="tab" aria-controls="list-bill">Pay Bill</a>
+                </div><br>
             </div>
 
             <!-- Main Content -->
             <div class="col-md-8" style="margin-top: 3%;">
                 <div class="tab-content" id="nav-tabContent" style="width: 950px;">
                     <!-- Dashboard -->
-                    <div class="tab-pane fade show active" id="list-dash">
+                    <div class="tab-pane fade show active" id="list-dash" role="tabpanel" aria-labelledby="list-dash-list">
                         <div class="container-fluid bg-white p-4">
                             <div class="row">
                                 <!-- Patient Profile -->
@@ -180,7 +190,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['selected_dept'])) {
                     </div>
 
                     <!-- Update Profile Tab -->
-                    <div class="tab-pane fade" id="update-profile">
+                    <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
                         <div class="container-fluid bg-white p-4">
                             <form method="POST">
                                 <div class="row">
@@ -277,88 +287,130 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['selected_dept'])) {
                         </div>
 
                     <!-- Book Appointments Tab -->
-                    <div class="tab-pane fade" id="list-profile">
-                        <div class="container-fluid bg-white p-4">
-                            <h4 class="mb-4">Book New Appointment</h4>
-                            
-                            <form method="POST">
-                                <div class="form-group">
-                                    <label>Select Department:</label>
-                                    <select name="selected_dept" class="form-control" required>
-                                        <option value="" disabled selected>Select Department</option>
-                                        <?php foreach($departments as $dept): ?>
-                                            <option value="<?= $dept['dept_id'] ?>" 
-                                                <?= isset($_POST['selected_dept']) && $_POST['selected_dept'] == $dept['dept_id'] ? 'selected' : '' ?>>
-                                                <?= $dept['dept_name'] ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
+                     <div class="tab-pane fade" id="list-appt" role="tabpanel" aria-labelledby="list-appt-list">
+                        <div class="container-fluid">
+                            <div class="card">
+                                <div class="card-body">
+                                    <center><h4>Book Appointment</h4></center><br>
+                                    <form class="form-group" method="post" action="patient_dashboard.php">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label for="spec">Specialization</label>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <select name="spec" class="form-control" id="spec">
+                                                    <option value="" disabled selected>Select Specialization</option>
+                                                    <?php display_specs() ?>
+                                                </select>
+                                            </div>
+                                            <br><br>
+
+                                            <script>
+                                                function display_specs() {
+                                                global $con;
+                                                $query="select distinct(specialization) from doctor";
+                                                $result=mysqli_query($con,$query);
+                                                while($row=mysqli_fetch_array($result))
+                                                {
+                                                    $spec=$row['specialization'];
+                                                    echo '<option value="'.$spec.'">'.$spec.'</option>';
+                                                }
+                                                }
+
+                                                function display_docs()
+                                                {
+                                                global $con;
+                                                $query = "select * from doctor";
+                                                $result = mysqli_query($con,$query);
+                                                while( $row = mysqli_fetch_array($result) )
+                                                {
+                                                $userid = $row['user_id'];
+                                                $doctor_name = $row['first_name'] . ' ' . $row['last_name'];
+                                                $spec=$row['specialization'];
+                                                $docFee = $row['doc_fee'];
+                                                $availability = $row['availability'];
+                                                echo '<option data-name="' .$doctor_name. '" data-spec="' .$spec. '" data-fee="'.$docFee.'" data-availability="' . $availability . '" data-id="' .$userid. '">'.$doctor_name.'</option>';
+                                                }
+                                                }
+                                            </script>
+
+                                            <script>
+                                                document.getElementById('spec').onchange = function foo() {
+                                                    let spec = this.value;
+                                                    console.log(spec)
+                                                    let docs = [...document.getElementById('doctor').options];
+                                                    docs.forEach((el, ind, arr)=>{
+                                                        arr[ind].setAttribute("style","");
+                                                        if (el.getAttribute("data-spec") != spec ) {
+                                                arr[ind].setAttribute("style","display: none");
+                                                }
+                                                });
+                                                };
+                                            </script>
+                                            
+                                            <div class="col-md-4"><label for="doctor">Doctors:</label></div>
+                                            <div class="col-md-8">
+                                                <select name="doctor" class="form-control" id="doctor">
+                                                    <option value="" disabled selected>Select Doctor</option>
+                                                    <?php display_docs(); ?>
+                                                </select>
+                                            </div>
+                                            <br><br>
+
+                                            <script>
+                                                document.getElementById('doctor').onchange = function updateFees(e){
+                                                var selectedOption = this.options[this.selectedIndex]; 
+                                                var fee = selectedOption.getAttribute('data-fee');
+                                                var avail = selectedOption.getAttribute('data-availability');
+                                                var id = selectedOption.getAttribute('data-id');
+                                                document.getElementById('docFees').value = fee;
+                                                document.getElementById('appointmentTime').value = avail;
+                                                document.getElementById('docId').value = id;
+                                                }
+                                            </script>
+
+                                            <div class="col-md-4">
+                                                <label for="consultancyfees">Doctor ID</label>                                                
+                                            </div>
+                                            <div class="col-md-8">
+                                                <input class="form-control" type="text" name="docId" id="docId" readonly="readonly"/>
+                                            </div>
+                                            <br><br>
+                                            
+                                            <div class="col-md-4">
+                                                <label for="consultancyfees">Consultancy Fees</label>                                                
+                                            </div>
+                                            <div class="col-md-8">
+                                                <input class="form-control" type="text" name="docFees" id="docFees" readonly="readonly"/>
+                                            </div>
+                                            <br><br>
+                                            <div class="col-md-4"><label>Appointment Date</label></div>
+                                            <div class="col-md-8"><input type="date" class="form-control datepicker" name="appdate"></div><br><br>
+                                            
+                                            <div class="col-md-4">
+                                                <label for="appointmentTime">Appointment Time</label>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <input class="form-control" type="text" name="appointmentTime" id="appointmentTime" readonly="readonly"/>
+                                            </div>
+                                            <br><br>
+                                            <div class="col-md-4">
+                                                <input type="submit" name="app-submit" value="Create New Appointment" class="btn btn-primary" id="inputbtn">
+                                            </div>
+                                            <div class="col-md-8"></div>
+                                        </div>
+                                    </form>
                                 </div>
-                                <button type="submit" class="btn btn-primary">Show Doctors</button>
-                            </form>
-
-                            <?php if(!empty($selected_doctors)): ?>
-                            <div class="mt-4">
-                                <table class="table table-hover">
-                                    <thead class="thead-light">
-                                        <tr>
-                                            <th>Doctor Name</th>
-                                            <th>Specialization</th>
-                                            <th>Availability</th>
-                                            <th>Fee</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach($selected_doctors as $doctor): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($doctor['first_name'].' '.$doctor['last_name']) ?></td>
-                                            <td><?= htmlspecialchars($doctor['specialization']) ?></td>
-                                            <td><?= htmlspecialchars($doctor['availability']) ?></td>
-                                            <td>$<?= htmlspecialchars($doctor['doc_fee']) ?></td>
-                                            <td>
-                                                <button type="button" class="btn btn-primary btn-sm book-btn" 
-                                                        data-doctor-id="<?= $doctor['user_id'] ?>">
-                                                    Book Appointment
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
                             </div>
-                            <?php else: ?>
-                            <div class="mt-4">
-                                <table class="table table-hover">
-                                    <thead class="thead-light">
-                                        <tr>
-                                            <th>Doctor Name</th>
-                                            <th>Specialization</th>
-                                            <th>Availability</th>
-                                            <th>Fee</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td colspan="5" class="text-center">Select a department to view doctors</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                            
-
+                        </div><br>
+                     </div>
                     <!-- Pending Tests Tab -->
-                    <div class="tab-pane fade" id="list-appt">
+                    <div class="tab-pane fade" id="list-test" role="tabpanel" aria-labelledby="list-test-list">
                         <!-- ... existing pending tests content ... -->
                     </div>
 
                     <!-- Test Results Tab -->
-                    <div class="tab-pane fade" id="list-tests">
+                    <div class="tab-pane fade" id="list-result" role="tabpanel" aria-labelledby="list-result-list">
                         <h4>Test Results</h4>
                         <input type="text" class="form-control mb-2" placeholder="Search by Patient Name/ID">
 
@@ -375,17 +427,27 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['selected_dept'])) {
                             </thead>
                         </table>
                     </div>
+                    <!-- Pay Bill -->
+                    <div class="tab-pane fade" id="list-bill" role="tabpanel" aria-labelledby="list-bill-list">
 
-                    <!-- Treatment Plans -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.10.1/sweetalert2.all.min.js">
+   </script>
+    <script>
+    // Initialize Bootstrap tabs PROPERLY
+    $(document).ready(function() {
+        $('#list-tab a').tab();
+    });
+    </script>
 </body>
 
 </html>

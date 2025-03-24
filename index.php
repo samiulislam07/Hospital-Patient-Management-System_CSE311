@@ -19,9 +19,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (empty($error)) {
-        $stmt = $conn->prepare($sql);
+        $stmt = $con->prepare($sql);
         if (!$stmt) {
-            die("Prepare failed: " . $conn->error);
+            die("Prepare failed: " . $con->error);
         }
 
         $stmt->bind_param("s", $user_id);
@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$conn->close();
+$con->close();
 ?>
 
 <!DOCTYPE html>
