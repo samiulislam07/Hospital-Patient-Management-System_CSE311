@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
 
     // Ensure doctor ID is set
     if (isset($_SESSION['user_id'])) {
-        $update_sql = "UPDATE doctor SET email = ?, gender = ?, phone = ?, dob = ?, doc_fee = ?, specialization = ?, 'availability' = ? WHERE user_id = ?";
+        $update_sql = "UPDATE doctor SET email = ?, gender = ?, phone = ?, dob = ?, doc_fee = ?, specialization = ?, availability = ? WHERE user_id = ?";
         $stmt = $conn->prepare($update_sql);
 
         if ($stmt) {
