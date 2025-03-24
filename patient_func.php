@@ -1,6 +1,12 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
 $con=mysqli_connect("localhost","root","","hospital_db");
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+}
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -9,7 +15,6 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $patient_id = $_SESSION['user_id'];
-$patient = [];
 
 // Fetch patient details
 $sql = "SELECT user_id, first_name, last_name, email, gender, blood_group, dob, hno, street, city, zip, country FROM Patient WHERE user_id = ?";
@@ -20,6 +25,8 @@ if ($stmt) {
     $result = $stmt->get_result();
     if ($result->num_rows === 1) {
         $patient = $result->fetch_assoc();
+    }else {
+        die("Database error: " . mysqli_error($con));
     }
     $stmt->close();
 }
@@ -114,43 +121,58 @@ if (isset($_POST['app-submit'])) {
     }
   }
 
-// function display_pending_tests()
-// {
-//     global $con;
+function display_pending_tests()
+{
+    global $con;
+    if (!isset($_SESSION['user_id'])) {
+        echo '<tr><td colspan="4" class="text-center text-danger">Session expired. Please log in again.</td></tr>';
+        return;
+    }
 
-//     // Assuming patient is logged in
-//     $patient_id = $_SESSION['user_id'];
+    // Assuming patient is logged in
+    $patient_id = $_SESSION['user_id'];
 
-//     $query = "SELECT 
-//                 t.test_name,
-//                 CONCAT(d.first_name, ' ', d.last_name) AS doctor_name,
-//                 d.specialization,
-//                 dtp.pres_date
-//               FROM `doc-test-patient` dtp
-//               JOIN `test` t ON dtp.test_id = t.test_id
-//               JOIN `doctor` d ON dtp.doctor_user_id = d.user_id
-//               WHERE dtp.patient_user_id = '$patient_id' AND dtp.test_date IS NULL";
+    $query = "SELECT 
+                t.test_name,
+                CONCAT(d.first_name, ' ', d.last_name) AS doctor_name,
+                d.specialization,
+                dtp.pres_date
+              FROM `doc-test-patient` dtp
+              JOIN `test` t ON dtp.test_id = t.test_id
+              JOIN `doctor` d ON dtp.doctor_user_id = d.user_id
+              WHERE dtp.patient_user_id = ? AND dtp.test_date IS NULL";
 
-//     $result = mysqli_query($con, $query);
+    $stmt = mysqli_prepare($con, $query);
+    if (!$stmt) {
+        echo '<tr><td colspan="4" class="text-danger text-center">Database error: Unable to prepare statement.</td></tr>';
+        return;
+    }
 
-//     if (!$result) {
-//         echo '<tr><td colspan="4">Error retrieving data.</td></tr>';
-//         return;
-//     }
+    mysqli_stmt_bind_param($stmt, "s", $patient_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
-//     if (mysqli_num_rows($result) === 0) {
-//         echo '<tr><td colspan="4" class="text-center">No pending tests found.</td></tr>';
-//         return;
-//     }
+    if (!$result) {
+        echo '<tr><td colspan="4" class="text-danger text-center">Error fetching data.</td></tr>';
+        return;
+    }
 
-//     while ($row = mysqli_fetch_assoc($result)) {
-//         echo '<tr>';
-//         echo '<td>' . htmlspecialchars($row['test_name']) . '</td>';
-//         echo '<td>' . htmlspecialchars($row['doctor_name']) . '</td>';
-//         echo '<td>' . htmlspecialchars($row['specialization']) . '</td>';
-//         echo '<td>' . htmlspecialchars($row['pres_date']) . '</td>';
-//         echo '</tr>';
-//     }
-// }
+    if (mysqli_num_rows($result) === 0) {
+        echo '<tr><td colspan="5" class="text-center">No pending tests found.</td></tr>';
+    } else {
+        // $counter = 1;
+        while ($row = mysqli_fetch_assoc($result)) {
+            echo '<tr>';
+            // echo '<td>' . $counter++ . '</td>';
+            echo '<td>' . htmlspecialchars($row['test_name']) . '</td>';
+            echo '<td>' . htmlspecialchars($row['doctor_name']) . '</td>';
+            echo '<td>' . htmlspecialchars($row['specialization']) . '</td>';
+            echo '<td>' . htmlspecialchars($row['pres_date']) . '</td>';
+            echo '</tr>';
+        }
+    }
+
+    mysqli_stmt_close($stmt);
+}
 
 ?>

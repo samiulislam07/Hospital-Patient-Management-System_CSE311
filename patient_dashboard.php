@@ -288,7 +288,22 @@
                      </div>
                     <!-- Pending Tests Tab -->
                     <div class="tab-pane fade" id="list-test" role="tabpanel" aria-labelledby="list-test-list">
-                        <!-- ... existing pending tests content ... -->
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>                                    
+                                    <th scope="col">Test Name</th>
+                                    <th scope="col">Doctor Name</th>
+                                    <th scope="col">Specialization</th>
+                                    <th scope="col">Prescribed Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                    //display_pending_tests();
+                                ?>
+                            </tbody>
+
+                        </table>
                     </div>
 
                     <!-- Test Results Tab -->
