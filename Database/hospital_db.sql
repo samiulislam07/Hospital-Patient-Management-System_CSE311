@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 24, 2025 at 06:49 PM
+-- Generation Time: Mar 24, 2025 at 09:18 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -43,7 +43,9 @@ INSERT INTO `appointment` (`appt_id`, `appt_date`, `appt_time`, `updated_at`) VA
 (2, '2025-03-12', '11:38:16', '2025-03-22 03:39:30'),
 (3, '2025-03-12', '20:39:34', '2025-03-22 03:39:50'),
 (4, '2024-10-09', '14:39:53', '2025-03-22 03:40:08'),
-(5, '2025-03-22', '00:00:10', '2025-03-24 16:03:10');
+(5, '2025-03-22', '00:00:10', '2025-03-24 16:03:10'),
+(6, '2025-03-24', '00:00:00', '2025-03-24 19:32:49'),
+(7, '2025-03-26', '10:00:00', '2025-03-24 19:52:48');
 
 -- --------------------------------------------------------
 
@@ -101,7 +103,9 @@ INSERT INTO `checkup` (`appt_id`, `patient_user_id`, `doctor_user_id`, `appt_sta
 (2, 'p001', 'd002', 'Ongoing', '2025-03-22 03:40:37', '2025-03-22 03:40:37'),
 (3, 'p002', 'd002', 'Ongoing', '2025-03-22 03:40:50', '2025-03-22 03:40:50'),
 (4, 'p002', 'd001', 'Ongoing', '2025-03-22 03:41:25', '2025-03-24 10:30:29'),
-(5, 'p004', 'd002', 'Ongoing', '2025-03-24 16:03:10', '2025-03-24 16:03:10');
+(5, 'p004', 'd002', 'Ongoing', '2025-03-24 16:03:10', '2025-03-24 16:03:10'),
+(6, 'p004', 'd001', 'Ongoing', '2025-03-24 19:32:49', '2025-03-24 19:32:49'),
+(7, 'p004', 'd001', 'Ongoing', '2025-03-24 19:52:48', '2025-03-24 19:53:19');
 
 -- --------------------------------------------------------
 
@@ -158,7 +162,7 @@ CREATE TABLE `doctor` (
 --
 
 INSERT INTO `doctor` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `doc_fee`, `specialization`, `availability`, `dept_id`, `created_at`, `updated_at`) VALUES
-('d001', 'Dr. Kamal', 'Hossain', '', 'password123', 'Female', '', '1985-02-25', 60000.00, 0.00, 'Orthopedics', 'Mon-Wed-Fri 10 AM - 12 PM', 1, '2025-03-19 16:31:47', '2025-03-24 09:15:09'),
+('d001', 'Dr. Kamal', 'Hossain', 'dr.kamal.hossain@gmail.com', 'password123', 'Male', '025695198085149', '1985-02-25', 60000.00, 700.00, 'Orthopedics', 'Mon-Wed-Fri 10 AM - 12 PM', 1, '2025-03-19 16:31:47', '2025-03-24 19:12:13'),
 ('d002', 'Dr. Shilpi', 'Begum', 'dr.shilpi.begum@gmail.com', 'password123', 'Female', '01887654321', '1988-06-15', 65000.00, 750.00, 'Dermatology', '10AM - 4PM', 2, '2025-03-19 16:31:47', '2025-03-19 16:31:47');
 
 -- --------------------------------------------------------
@@ -184,18 +188,25 @@ CREATE TABLE `doc_test_patient` (
 
 INSERT INTO `doc_test_patient` (`doctor_user_id`, `test_id`, `patient_user_id`, `pres_date`, `test_date`, `result`, `created_at`, `updated_at`) VALUES
 ('d001', 1, 'p001', '2025-03-04', '2025-03-06', 'Low RBC', '2025-03-23 22:01:28', '2025-03-24 03:34:39'),
+('d001', 1, 'p004', '2025-03-24', NULL, NULL, '2025-03-24 19:33:45', '2025-03-24 19:33:45'),
+('d001', 1, 'p004', '2025-03-26', NULL, NULL, '2025-03-24 19:54:21', '2025-03-24 19:54:21'),
 ('d001', 2, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 22:01:28', '2025-03-23 22:01:28'),
 ('d001', 2, 'p002', '2024-10-09', '2025-03-08', 'broken bone', '2025-03-24 01:30:49', '2025-03-24 03:40:50'),
 ('d001', 3, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 22:10:00', '2025-03-23 22:10:00'),
 ('d001', 3, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 01:30:49', '2025-03-24 01:30:49'),
 ('d001', 4, 'p001', '2025-03-04', NULL, NULL, '2025-03-24 02:25:34', '2025-03-24 02:25:34'),
 ('d001', 4, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 01:30:49', '2025-03-24 01:30:49'),
+('d001', 4, 'p004', '2025-03-26', NULL, NULL, '2025-03-24 19:54:21', '2025-03-24 19:54:21'),
 ('d001', 5, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 22:18:49', '2025-03-23 22:18:49'),
 ('d001', 6, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 23:21:40', '2025-03-23 23:21:40'),
 ('d001', 7, 'p001', '2025-03-04', '2025-03-07', 'Positive', '2025-03-23 22:18:49', '2025-03-24 03:39:57'),
+('d001', 7, 'p004', '2025-03-26', NULL, NULL, '2025-03-24 19:53:57', '2025-03-24 19:53:57'),
 ('d001', 8, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 01:30:49', '2025-03-24 01:30:49'),
+('d001', 8, 'p004', '2025-03-26', NULL, NULL, '2025-03-24 19:54:21', '2025-03-24 19:54:21'),
 ('d001', 9, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 01:30:49', '2025-03-24 01:30:49'),
 ('d001', 10, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 10:59:03', '2025-03-24 10:59:03'),
+('d001', 10, 'p004', '2025-03-24', NULL, NULL, '2025-03-24 19:33:50', '2025-03-24 19:33:50'),
+('d001', 10, 'p004', '2025-03-26', NULL, NULL, '2025-03-24 19:54:21', '2025-03-24 19:54:21'),
 ('d002', 7, 'p001', '2025-03-04', '2025-03-10', 'Positive', '2025-03-23 22:18:49', '2025-03-23 22:18:49');
 
 -- --------------------------------------------------------
@@ -247,7 +258,7 @@ CREATE TABLE `nurse` (
   `last_name` varchar(30) NOT NULL,
   `email` varchar(80) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `gender` enum('Male','Female','Other') NOT NULL,
+  `gender` enum('Male','Female','Other') DEFAULT NULL,
   `phone` varchar(15) DEFAULT NULL,
   `dob` date DEFAULT NULL,
   `salary` decimal(10,2) DEFAULT NULL,
@@ -338,7 +349,7 @@ CREATE TABLE `staff` (
   `last_name` varchar(30) NOT NULL,
   `email` varchar(80) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `gender` enum('Male','Female','Other') NOT NULL,
+  `gender` enum('Male','Female','Other') DEFAULT NULL,
   `phone` varchar(15) DEFAULT NULL,
   `dob` date DEFAULT NULL,
   `salary` decimal(10,2) DEFAULT NULL,
@@ -352,7 +363,7 @@ CREATE TABLE `staff` (
 --
 
 INSERT INTO `staff` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `dept_id`, `created_at`, `updated_at`) VALUES
-('d001', 'Dr. Kamal', 'Hossain', '', 'password123', 'Female', '', '1985-02-25', 60000.00, 1, '2025-03-19 16:31:47', '2025-03-24 09:15:09'),
+('d001', 'Dr. Kamal', 'Hossain', 'dr.kamal.hossain@gmail.com', 'password123', 'Male', '025695198085149', '1985-02-25', 60000.00, 1, '2025-03-19 16:31:47', '2025-03-24 19:12:13'),
 ('d002', 'Dr. Shilpi', 'Begum', 'dr.shilpi.begum@gmail.com', 'password123', 'Female', '01887654321', '1988-06-15', 65000.00, 2, '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
 ('n001', 'Anika', 'Rahman', 'anika.rahman@gmail.com', 'password123', 'Female', '01911223344', '1993-11-10', 25000.00, 3, '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
 ('n002', 'Mahi', 'Sultana', 'mahi.sultana@gmail.com', 'password123', 'Female', '01922334455', '1990-08-22', 28000.00, 3, '2025-03-19 16:31:47', '2025-03-19 16:31:47');
@@ -412,7 +423,8 @@ INSERT INTO `treatmentplan` (`trtplan_id`, `prescribe_date`, `dosage`, `suggesti
 (2, '2025-03-02', 'Paracetamol 500mg, every 6 hours as needed for pain', 'Monitor temperature and stay hydrated.', 'p002', 'd002', '2025-03-19 16:33:59'),
 (3, '2025-03-04', NULL, NULL, 'p001', 'd001', '2025-03-24 02:48:34'),
 (4, '2025-03-04', 'meow', 'meow', 'p001', 'd001', '2025-03-23 23:30:12'),
-(5, '2024-10-09', 'hello', 'hi', 'p002', 'd001', '2025-03-24 02:45:51');
+(5, '2024-10-09', 'hello', 'hi', 'p002', 'd001', '2025-03-24 02:45:51'),
+(6, '2025-03-24', 'hfh', 'hfh', 'p004', 'd001', '2025-03-24 19:34:08');
 
 -- --------------------------------------------------------
 
@@ -435,7 +447,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `first_name`, `last_name`, `email`, `password`, `created_at`, `updated_at`) VALUES
-('d001', 'Dr. Kamal', 'Hossain', '', 'password123', '2025-03-19 16:17:03', '2025-03-24 09:14:57'),
+('d001', 'Dr. Kamal', 'Hossain', 'dr.kamal.hossain@gmail.com', 'password123', '2025-03-19 16:17:03', '2025-03-24 19:12:13'),
 ('d002', 'Dr. Shilpi', 'Begum', 'dr.shilpi.begum@gmail.com', 'password123', '2025-03-19 16:17:03', '2025-03-19 16:17:03'),
 ('n001', 'Anika', 'Rahman', 'anika.rahman@gmail.com', 'password123', '2025-03-19 16:17:03', '2025-03-19 16:17:03'),
 ('n002', 'Mahi', 'Sultana', 'mahi.sultana@gmail.com', 'password123', '2025-03-19 16:17:03', '2025-03-19 16:17:03'),
@@ -582,7 +594,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `appointment`
 --
 ALTER TABLE `appointment`
-  MODIFY `appt_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `appt_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `bill`
@@ -612,7 +624,7 @@ ALTER TABLE `test`
 -- AUTO_INCREMENT for table `treatmentplan`
 --
 ALTER TABLE `treatmentplan`
-  MODIFY `trtplan_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `trtplan_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
