@@ -1,3 +1,13 @@
+<?php
+include 'config.php';
+// Fetch available tests
+$testQuery = "SELECT test_name FROM test";
+$testResult = $conn->query($testQuery);
+$testList = [];
+while ($row = $testResult->fetch_assoc()) {
+    $testList[] = $row['test_name'];
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,18 +22,6 @@
 </head>
 
 <body>
-    
-    <?php
-    include 'config.php';
-
-    // Fetch available tests
-    $testQuery = "SELECT test_name FROM test";
-    $testResult = $conn->query($testQuery);
-    $testList = [];
-    while ($row = $testResult->fetch_assoc()) {
-        $testList[] = $row['test_name'];
-    }
-    ?>
     <!-- Order Test Pop-up Form -->
     <div id="orderTestPopup" class="popup">
         <button class="pclose-btn">&times;</button> <!-- Close Button -->
@@ -50,7 +48,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
         $(document).ready(function() {
-            const testList = <?= json_encode($testList); ?>; // Fetch test names from PHP
+            const testList = <?= json_encode($testList, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
             let selectedTests = [];
             let dropdown = $("#testDropdown");
 

@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 include 'config.php';
 
@@ -35,7 +36,7 @@ if ($result->num_rows > 0) {
     }
 }
 
-// Update Doctor Profile
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
     $email = $_POST['email'];
     $gender = $_POST['gender'];
@@ -45,28 +46,80 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
     $specialization = $_POST['specialization'];
     $availability = $_POST['availability'];
 
-    // Ensure doctor ID is set
+    // Ensure user ID is set
     if (!empty($doctor_id)) {
-        $update_sql = "UPDATE Doctor SET email = ?, gender = ?, phone = ?, dob = ?, doc_fee = ?, specialization = ?, availability = ? WHERE user_id = ?";
-        $stmt = $conn->prepare($update_sql);
-        if ($stmt) {
-            $stmt->bind_param("ssssssss", $email, $gender, $phone, $dob, $doc_fee, $specialization, $availability, $doctor_id);
-            if ($stmt->execute()) {
-                echo "<script>alert('Profile updated successfully!'); window.location.href='doctor_dashboard.php';</script>";
+
+        // Start a transaction (for atomicity)
+        $conn->begin_transaction();
+
+        // Update Users Table (email only)
+        $update_users_sql = "UPDATE Users SET email = ? WHERE user_id = ?";
+        $stmt_users = $conn->prepare($update_users_sql);
+
+        if ($stmt_users) {
+            $stmt_users->bind_param("ss", $email, $doctor_id);
+
+            if ($stmt_users->execute()) {
+                // Users table updated successfully, now update Staff table
+                $update_staff_sql = "UPDATE Staff SET email = ?, gender = ?, phone = ?, dob = ? WHERE user_id = ?";
+                $stmt_staff = $conn->prepare($update_staff_sql);
+
+                if ($stmt_staff) {
+                    $stmt_staff->bind_param("sssss", $email, $gender, $phone, $dob, $doctor_id);
+
+                    if ($stmt_staff->execute()) {
+                        // Staff table updated successfully, now update Doctor table
+                        $update_doctor_sql = "UPDATE Doctor SET email = ?, gender = ?, phone = ?, dob = ?, doc_fee = ?, specialization = ?, availability = ? WHERE user_id = ?";
+                        $stmt_doctor = $conn->prepare($update_doctor_sql);
+
+                        if ($stmt_doctor) {
+                            $stmt_doctor->bind_param("ssssssss", $email, $gender, $phone, $dob, $doc_fee, $specialization, $availability, $doctor_id);
+
+                            if ($stmt_doctor->execute()) {
+                                // All updates successful, commit the transaction
+                                $conn->commit();
+                                echo "<script>alert('Profile updated successfully!'); window.location.href='doctor_dashboard.php';</script>";
+                            } else {
+                                // Doctor table update failed, rollback transaction
+                                $conn->rollback();
+                                echo "<script>alert('Error updating Doctor profile. Please try again.');</script>";
+                            }
+                            $stmt_doctor->close();
+                        } else {
+                            // Doctor prepare failed, rollback transaction
+                            $conn->rollback();
+                            echo "<script>alert('Database error updating Doctor. Please try again.');</script>";
+                        }
+                    } else {
+                        // Staff table update failed, rollback transaction
+                        $conn->rollback();
+                        echo "<script>alert('Error updating Staff profile. Please try again.');</script>";
+                    }
+                    $stmt_staff->close();
+                } else {
+                    // Staff prepare failed, rollback transaction
+                    $conn->rollback();
+                    echo "<script>alert('Database error updating Staff. Please try again.');</script>";
+                }
             } else {
-                echo "<script>alert('Error updating profile. Please try again.');</script>";
+                // Users table update failed, rollback transaction
+                $conn->rollback();
+                echo "<script>alert('Error updating Users profile. Please try again.');</script>";
             }
-            $stmt->close();
+            $stmt_users->close();
         } else {
-            echo "<script>alert('Database error. Please try again.');</script>";
+            // User prepare failed, rollback transaction
+            $conn->rollback();
+            echo "<script>alert('Database error updating Users. Please try again.');</script>";
         }
     } else {
-        echo "<script>alert('Doctor ID missing. Cannot update profile.');</script>";
+        echo "<script>alert('User ID missing. Cannot update profile.');</script>";
     }
 }
 
 
-// Fetch Appointments (Corrected)
+
+// Fetch Appointments 
 $appointments = [];
 $sql = "SELECT a.appt_id, a.appt_date, a.appt_time, c.appt_status, p.first_name AS patient_first_name, p.last_name AS patient_last_name, p.gender AS patient_gender
         FROM Appointment a
@@ -106,6 +159,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     }
 }
 
+
 // Fetch Ongoing Patients
 $ongoingPatients = [];
 $sql = "SELECT p.user_id, p.first_name, p.last_name, p.blood_group, mh.allergies, mh.pre_conditions
@@ -128,7 +182,6 @@ if ($stmt) {
 
 // Fetch Test Results
 $patientTests = [];
-
 $sql = "SELECT 
             p.first_name, 
             p.last_name, 
@@ -160,9 +213,9 @@ if ($stmt) {
     }
     $stmt->close();
 }
+
 // Fetch Treatment Plans for Logged-in Doctor
 $treatmentPlans = [];
-
 $sql = "SELECT 
             p.first_name, 
             p.last_name, 
@@ -197,6 +250,7 @@ if ($stmt) {
 }
 
 $conn->close();
+
 ?>
 
 <!DOCTYPE html>
@@ -353,6 +407,7 @@ $conn->close();
                             </div>
                         </form>
                     </div>
+
                     <!-- Appointments -->
                     <div class="tab-pane fade" id="list-appt">
                         <h4>Appointments</h4>
@@ -428,6 +483,7 @@ $conn->close();
                             </tbody>
                         </table>
                     </div>
+
                     <!-- Ongoing Patients -->
                     <div class="tab-pane fade" id="list-patients">
                         <h4>Ongoing Patients</h4>
@@ -579,8 +635,8 @@ $conn->close();
             </div>
         </div>
     </div>
-    <!-- JavaScript for Test Tab -->
     <script>
+        //JavaScript for Test Tab
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.querySelector('input[placeholder="Search by Patient Name"]');
             const table = document.querySelector('#testResultsTable');
