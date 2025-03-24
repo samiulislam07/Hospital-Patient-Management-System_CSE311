@@ -18,7 +18,7 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
             WHERE c.patient_user_id = ? AND c.doctor_user_id = ? AND c.appt_status = 'ongoing' 
             ORDER BY a.appt_id DESC LIMIT 1";
 
-    $stmt = $conn->prepare($sql);
+    $stmt = $con->prepare($sql);
     $stmt->bind_param("ss", $patientId, $doctorId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -35,11 +35,11 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
         $selectedTests = explode(", ", $_POST['selectedTests']);
 
         $insertSql = "INSERT INTO doc_test_patient (doctor_user_id, test_id, patient_user_id, pres_date) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($insertSql);
+        $stmt = $con->prepare($insertSql);
 
         foreach ($selectedTests as $testName) {
             $testQuery = "SELECT test_id FROM test WHERE test_name = ?";
-            $testStmt = $conn->prepare($testQuery);
+            $testStmt = $con->prepare($testQuery);
             $testStmt->bind_param("s", $testName);
             $testStmt->execute();
             $testResult = $testStmt->get_result();
@@ -61,7 +61,7 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
         $suggestion = $_POST['suggestion'];
 
         $insertSql = "INSERT INTO TreatmentPlan (prescribe_date, dosage, suggestion, patient_user_id, doctor_user_id) VALUES (?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($insertSql);
+        $stmt = $con->prepare($insertSql);
         $stmt->bind_param("sssss", $appointmentDate, $dosage, $suggestion, $patientId, $doctorId);
 
         if ($stmt->execute()) {
