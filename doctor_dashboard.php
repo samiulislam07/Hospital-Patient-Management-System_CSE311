@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 include 'config.php';
 
@@ -7,6 +8,7 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
 }
+include 'form_modal.php';
 
 $doctor_id = $_SESSION['user_id'];
 $doctor = [];
@@ -34,7 +36,7 @@ if ($result->num_rows > 0) {
     }
 }
 
-// Update Doctor Profile
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
     $email = $_POST['email'];
     $gender = $_POST['gender'];
@@ -44,28 +46,80 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
     $specialization = $_POST['specialization'];
     $availability = $_POST['availability'];
 
-    // Ensure doctor ID is set
+    // Ensure user ID is set
     if (!empty($doctor_id)) {
-        $update_sql = "UPDATE Doctor SET email = ?, gender = ?, phone = ?, dob = ?, doc_fee = ?, specialization = ?, availability = ? WHERE user_id = ?";
-        $stmt = $conn->prepare($update_sql);
-        if ($stmt) {
-            $stmt->bind_param("ssssssss", $email, $gender, $phone, $dob, $doc_fee, $specialization, $availability, $doctor_id);
-            if ($stmt->execute()) {
-                echo "<script>alert('Profile updated successfully!'); window.location.href='doctor_dashboard.php';</script>";
+
+        // Start a transaction (for atomicity)
+        $conn->begin_transaction();
+
+        // Update Users Table (email only)
+        $update_users_sql = "UPDATE Users SET email = ? WHERE user_id = ?";
+        $stmt_users = $conn->prepare($update_users_sql);
+
+        if ($stmt_users) {
+            $stmt_users->bind_param("ss", $email, $doctor_id);
+
+            if ($stmt_users->execute()) {
+                // Users table updated successfully, now update Staff table
+                $update_staff_sql = "UPDATE Staff SET email = ?, gender = ?, phone = ?, dob = ? WHERE user_id = ?";
+                $stmt_staff = $conn->prepare($update_staff_sql);
+
+                if ($stmt_staff) {
+                    $stmt_staff->bind_param("sssss", $email, $gender, $phone, $dob, $doctor_id);
+
+                    if ($stmt_staff->execute()) {
+                        // Staff table updated successfully, now update Doctor table
+                        $update_doctor_sql = "UPDATE Doctor SET email = ?, gender = ?, phone = ?, dob = ?, doc_fee = ?, specialization = ?, availability = ? WHERE user_id = ?";
+                        $stmt_doctor = $conn->prepare($update_doctor_sql);
+
+                        if ($stmt_doctor) {
+                            $stmt_doctor->bind_param("ssssssss", $email, $gender, $phone, $dob, $doc_fee, $specialization, $availability, $doctor_id);
+
+                            if ($stmt_doctor->execute()) {
+                                // All updates successful, commit the transaction
+                                $conn->commit();
+                                echo "<script>alert('Profile updated successfully!'); window.location.href='doctor_dashboard.php';</script>";
+                            } else {
+                                // Doctor table update failed, rollback transaction
+                                $conn->rollback();
+                                echo "<script>alert('Error updating Doctor profile. Please try again.');</script>";
+                            }
+                            $stmt_doctor->close();
+                        } else {
+                            // Doctor prepare failed, rollback transaction
+                            $conn->rollback();
+                            echo "<script>alert('Database error updating Doctor. Please try again.');</script>";
+                        }
+                    } else {
+                        // Staff table update failed, rollback transaction
+                        $conn->rollback();
+                        echo "<script>alert('Error updating Staff profile. Please try again.');</script>";
+                    }
+                    $stmt_staff->close();
+                } else {
+                    // Staff prepare failed, rollback transaction
+                    $conn->rollback();
+                    echo "<script>alert('Database error updating Staff. Please try again.');</script>";
+                }
             } else {
-                echo "<script>alert('Error updating profile. Please try again.');</script>";
+                // Users table update failed, rollback transaction
+                $conn->rollback();
+                echo "<script>alert('Error updating Users profile. Please try again.');</script>";
             }
-            $stmt->close();
+            $stmt_users->close();
         } else {
-            echo "<script>alert('Database error. Please try again.');</script>";
+            // User prepare failed, rollback transaction
+            $conn->rollback();
+            echo "<script>alert('Database error updating Users. Please try again.');</script>";
         }
     } else {
-        echo "<script>alert('Doctor ID missing. Cannot update profile.');</script>";
+        echo "<script>alert('User ID missing. Cannot update profile.');</script>";
     }
 }
 
 
-// Fetch Appointments (Corrected)
+
+// Fetch Appointments 
 $appointments = [];
 $sql = "SELECT a.appt_id, a.appt_date, a.appt_time, c.appt_status, p.first_name AS patient_first_name, p.last_name AS patient_last_name, p.gender AS patient_gender
         FROM Appointment a
@@ -79,18 +133,18 @@ if ($stmt) {
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
-            $appointments[] = $row; // Corrected: Append to the array
+            $appointments[] = $row;
         }
     }
     $stmt->close();
 }
 
-// Update Appointment Status (Corrected)
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) { // Corrected: Using 'update_status' and 'status'
+// Update Appointment Status 
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $appt_id = $_POST['appt_id'];
-    $appt_status = $_POST['appt_status']; // Corrected: Using 'status'
+    $appt_status = $_POST['appt_status'];
 
-    $update_sql = "UPDATE checkup SET appt_status = ? WHERE appt_id = ? AND doctor_user_id = ?"; // Corrected: Using 'status'
+    $update_sql = "UPDATE checkup SET appt_status = ? WHERE appt_id = ? AND doctor_user_id = ?";
     $stmt = $conn->prepare($update_sql);
     if ($stmt) {
         $stmt->bind_param("sss", $appt_status, $appt_id, $doctor_id);
@@ -104,6 +158,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) { //
         echo "<script>alert('Database error. Please try again.');</script>";
     }
 }
+
 
 // Fetch Ongoing Patients
 $ongoingPatients = [];
@@ -125,7 +180,77 @@ if ($stmt) {
     $stmt->close();
 }
 
+// Fetch Test Results
+$patientTests = [];
+$sql = "SELECT 
+            p.first_name, 
+            p.last_name, 
+            t.test_name, 
+            dtp.test_date, 
+            dtp.result,
+            dtp.patient_user_id
+        FROM Doc_Test_Patient dtp
+        JOIN Patient p ON dtp.patient_user_id = p.user_id
+        JOIN Test t ON dtp.test_id = t.test_id
+        WHERE dtp.doctor_user_id = ?
+        ORDER BY dtp.pres_date DESC";
+
+$stmt = $conn->prepare($sql);
+if ($stmt) {
+    $stmt->bind_param("s", $doctor_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $patientTests[$row['patient_user_id']]['patient_name'] = $row['first_name'] . ' ' . $row['last_name'];
+            $patientTests[$row['patient_user_id']]['tests'][] = [
+                'test_name' => $row['test_name'],
+                'test_date' => $row['test_date'],
+                'result' => $row['result']
+            ];
+        }
+    }
+    $stmt->close();
+}
+
+// Fetch Treatment Plans for Logged-in Doctor
+$treatmentPlans = [];
+$sql = "SELECT 
+            p.first_name, 
+            p.last_name, 
+            tp.trtplan_id,
+            tp.prescribe_date, 
+            tp.dosage, 
+            tp.suggestion,
+            tp.patient_user_id
+        FROM TreatmentPlan tp
+        JOIN Patient p ON tp.patient_user_id = p.user_id
+        WHERE tp.doctor_user_id = ?
+        ORDER BY tp.prescribe_date DESC";
+
+$stmt = $conn->prepare($sql);
+if ($stmt) {
+    $stmt->bind_param("s", $doctor_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $treatmentPlans[$row['patient_user_id']]['patient_name'] = $row['first_name'] . ' ' . $row['last_name'];
+            $treatmentPlans[$row['patient_user_id']]['plans'][] = [
+                'trtplan_id' => $row['trtplan_id'],
+                'prescribe_date' => $row['prescribe_date'],
+                'dosage' => $row['dosage'],
+                'suggestion' => $row['suggestion']
+            ];
+        }
+    }
+    $stmt->close();
+}
+
 $conn->close();
+
 ?>
 
 <!DOCTYPE html>
@@ -135,29 +260,11 @@ $conn->close();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Doctor Dashboard</title>
-
+    <link rel="stylesheet" href="css/dashboard_style.css">
     <!-- External Stylesheets -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans&display=swap" rel="stylesheet">
-
-    <style>
-        .bg-primary {
-            background: linear-gradient(to right, #000C40, #F0F2F0);
-        }
-
-        .list-group-item.active {
-            background: linear-gradient(to right, #000C40, #F0F2F0);
-            border-color: #c3c3c3;
-        }
-
-        .text-primary {
-            color: #342ac1 !important;
-        }
-
-        button:hover {
-            cursor: pointer;
-        }
     </style>
 </head>
 
@@ -185,10 +292,11 @@ $conn->close();
         <h3 class="text-center">Welcome <?php echo htmlspecialchars($doctor['first_name']); ?></h3>
 
         <div class="row">
+            <!-- Left Sidebar -->
             <div class="col-md-4" style="max-width:18%;margin-top: 3%;">
                 <div class="list-group" id="list-tab" role="tablist">
                     <a class="list-group-item list-group-item-action active" href="#list-dash" data-toggle="list">Dashboard</a>
-                    <a class="list-group-item list-group-item-action" href="#list-profile" data-toggle="list">Doctor Profile</a>
+                    <a class="list-group-item list-group-item-action" href="#list-profile" data-toggle="list">Update Profile</a>
                     <a class="list-group-item list-group-item-action" href="#list-appt" data-toggle="list">Appointments</a>
                     <a class="list-group-item list-group-item-action" href="#list-patients" data-toggle="list">Ongoing Patients</a>
                     <a class="list-group-item list-group-item-action" href="#list-tests" data-toggle="list">Test Results</a>
@@ -202,88 +310,33 @@ $conn->close();
                     <div class="tab-pane fade show active" id="list-dash">
                         <div class="container-fluid bg-white p-4">
                             <div class="row">
-
                                 <!-- Doctor Profile -->
-                                <div class="col-md-4">
-                                    <div class="panel text-center">
-                                        <div class="panel-body">
-                                            <i class="fa fa-user-md fa-3x text-primary"></i>
-                                            <h4>Doctor Profile</h4>
-                                            <p class="links cl-effect-1">
-                                                <a href="#list-profile" data-toggle="list">
-                                                    View Profile
-                                                </a>
-                                            </p>
+                                <div class="col-12">
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <p><strong>User ID:</strong> <?php echo htmlspecialchars($doctor['user_id']); ?></p>
+                                            <p><strong>First Name:</strong> <?php echo htmlspecialchars($doctor['first_name']); ?></p>
+                                            <p><strong>Last Name:</strong> <?php echo htmlspecialchars($doctor['last_name']); ?></p>
+                                            <p><strong>Email:</strong> <?php echo htmlspecialchars($doctor['email']); ?></p>
+                                            <p><strong>Gender:</strong> <?php echo htmlspecialchars($doctor['gender']); ?></p>
+                                            <p><strong>Phone:</strong> <?php echo htmlspecialchars($doctor['phone']); ?></p>
+                                            <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($doctor['dob']); ?></p>
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Salary:</strong> <?php echo htmlspecialchars($doctor['salary']); ?></p>
+                                            <p><strong>Specialization</strong> <?php echo htmlspecialchars($doctor['specialization']); ?></p>
+                                            <p><strong>Fees:</strong> <?php echo htmlspecialchars($doctor['doc_fee']); ?></p>
+                                            <p><strong>Availability:</strong> <?php echo htmlspecialchars($doctor['availability']); ?></p>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Appointments -->
-                                <div class="col-md-4">
-                                    <div class="panel text-center">
-                                        <div class="panel-body">
-                                            <i class="fa fa-calendar-check-o fa-3x text-primary"></i>
-                                            <h4>Appointments</h4>
-                                            <p class="links cl-effect-1">
-                                                <a href="#list-appt" data-toggle="list">
-                                                    Appointment List
-                                                </a>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <!-- Ongoing Patients -->
-                                <div class="col-md-4">
-                                    <div class="panel text-center">
-                                        <div class="panel-body">
-                                            <i class="fa fa-user fa-3x text-primary"></i>
-                                            <h4>Ongoing Patients</h4>
-                                            <p class="links cl-effect-1">
-                                                <a href="#list-patients" data-toggle="list">
-                                                    View Patients
-                                                </a>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Test Results -->
-                                <div class="col-md-6" style="margin-top: 50px;">
-                                    <div class="panel text-center">
-                                        <div class="panel-body">
-                                            <i class="fa fa-flask fa-3x text-primary"></i>
-                                            <h4>Test Results</h4>
-                                            <p class="links cl-effect-1">
-                                                <a href="#list-tests" data-toggle="list">
-                                                    View Results
-                                                </a>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Treatment Plans -->
-                                <div class="col-md-6" style="margin-top: 50px;">
-                                    <div class="panel text-center">
-                                        <div class="panel-body">
-                                            <i class="fa fa-stethoscope fa-3x text-primary"></i>
-                                            <h4>Treatment Plans</h4>
-                                            <p class="links cl-effect-1">
-                                                <a href="#list-trtplans" data-toggle="list">
-                                                    View Plans
-                                                </a>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
                     </div>
-                    <!-- Doctor Profile -->
+                    <!-- Update Profile -->
                     <div class="tab-pane fade show" id="list-profile">
-                        <h3>Doctor Profile</h3>
+                        <h3>Update Profile</h3>
                         <form method="POST">
                             <div class="form-row">
                                 <div class="form-group col-md-3">
@@ -354,6 +407,7 @@ $conn->close();
                             </div>
                         </form>
                     </div>
+
                     <!-- Appointments -->
                     <div class="tab-pane fade" id="list-appt">
                         <h4>Appointments</h4>
@@ -429,6 +483,7 @@ $conn->close();
                             </tbody>
                         </table>
                     </div>
+
                     <!-- Ongoing Patients -->
                     <div class="tab-pane fade" id="list-patients">
                         <h4>Ongoing Patients</h4>
@@ -442,7 +497,6 @@ $conn->close();
                                     <th>Preconditions</th>
                                     <th>Order Test</th>
                                     <th>Treatment Plan</th>
-                                    <th>Assign Nurse</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -455,73 +509,230 @@ $conn->close();
                                             <td><?= htmlspecialchars($patient['allergies'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($patient['pre_conditions'] ?? 'N/A') ?></td>
                                             <td>
-                                                <button type="button" class="btn btn-warning btn-sm order-form-btn">Order</button>
-                                                <span data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>"></span>
+                                                <button type="button" class="btn btn-warning btn-sm order-form-btn"
+                                                    data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>">
+                                                    Order
+                                                </button>
                                             </td>
                                             <td>
-                                                <button type="button" class="btn btn-info btn-sm treatment-form-btn">Prescribe</button>
-                                                <span data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>"></span>
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-primary btn-sm assign-form-btn">Assign</button>
-                                                <span data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>"></span>
+                                                <button type="button" class="btn btn-info btn-sm treatment-form-btn"
+                                                    data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>">
+                                                    Prescribe
+                                                </button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="8">No ongoing patients found.</td>
+                                        <td colspan="8" class="text-center">No ongoing patients.</td>
+                                    </tr>
+                                <?php endif; ?>
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Test Results -->
+                    <div class="tab-pane fade" id="list-tests">
+                        <h4>Test Results</h4>
+                        <input type="text" class="form-control mb-2" placeholder="Search by Patient Name">
+                        <table class="table table-hover" id="testResultsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">#</th>
+                                    <th style="width: 20%;">Patient</th>
+                                    <th style="width: 20%;">Test Name</th>
+                                    <th style="width: 20%;">Performed Date</th>
+                                    <th style="width: 20%;">Result</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (count($patientTests) > 0): ?>
+                                    <?php $index = 1;
+                                    foreach ($patientTests as $patientId => $patientData): ?>
+                                        <tr data-tests='<?= json_encode($patientData['tests']) ?>'>
+                                            <td><?= $index++ ?></td>
+                                            <td><?= htmlspecialchars($patientData['patient_name']) ?></td>
+
+                                            <td>
+                                                <select class="form-control test-select">
+                                                    <?php foreach ($patientData['tests'] as $test): ?>
+                                                        <option value="<?= htmlspecialchars($test['test_name']) ?>">
+                                                            <?= htmlspecialchars($test['test_name']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </td>
+                                            <td class="test-date">
+                                                <?= !empty($patientData['tests'][0]['test_date'])
+                                                    ? htmlspecialchars($patientData['tests'][0]['test_date'])
+                                                    : '<span class="text-muted">Not Yet Performed</span>' ?>
+                                            </td>
+                                            <td class="test-result">
+                                                <?= !empty($patientData['tests'][0]['result'])
+                                                    ? htmlspecialchars($patientData['tests'][0]['result'])
+                                                    : '<span class="text-muted">Pending</span>' ?>
+                                            </td>
+
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="5">No test results found.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Test Results -->
-                    <div class="tab-pane fade" id="list-tests">
-                        <h4>Test Results</h4>
-                        <input type="text" class="form-control mb-2" placeholder="Search by Patient Name/ID">
-
-                        <table class="table table-hover">
+                    <!-- Treatment Plans -->
+                    <div class="tab-pane fade" id="list-trtplans">
+                        <h4>Treatment Plans</h4>
+                        <input type="text" class="form-control mb-2" placeholder="Search by Patient Name">
+                        <table class="table table-hover" id="treatmentPlanTable">
                             <thead>
                                 <tr>
                                     <th style="width: 10%;">#</th>
                                     <th style="width: 20%;">Patient</th>
-                                    <th style="width: 20%;">Test Name</th>
-                                    <th style="width: 20%;">Date</th>
-                                    <th style="width: 20%;">Result</th>
-
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                    <!-- Treatment Plans -->
-                    <div class="tab-pane fade" id="list-trtplans">
-                        <h4>Treatment Plans</h4>
-                        <input type="text" class="form-control mb-2" placeholder="Search by Patient Name/ID">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Patient</th>
-                                    <th>Dosage</th>
-                                    <th>Suggestions</th>
+                                    <th style="width: 20%;">Prescribed Date</th>
+                                    <th style="width: 20%;">Dosage</th>
+                                    <th style="width: 20%;">Suggestion</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>John Doe</td>
-                                    <td>500mg</td>
-                                    <td>Twice a day after food</td>
-                                </tr>
+                                <?php if (count($treatmentPlans) > 0): ?>
+                                    <?php $index = 1;
+                                    foreach ($treatmentPlans as $patientId => $patientData): ?>
+                                        <tr data-plans='<?= json_encode($patientData['plans']) ?>'>
+                                            <td><?= $index++ ?></td>
+                                            <td><?= htmlspecialchars($patientData['patient_name']) ?></td>
+                                            <td>
+                                                <select class="form-control plan-select">
+                                                    <?php foreach ($patientData['plans'] as $plan): ?>
+                                                        <option value="<?= htmlspecialchars($plan['trtplan_id']) ?>">
+                                                            <?= htmlspecialchars($plan['prescribe_date'] ?? 'Not Yet Prescribed') ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </td>
+                                            <td class="dosage">
+                                                <?= !empty($patientData['plans'][0]['dosage']) ? htmlspecialchars($patientData['plans'][0]['dosage']) : '<span class="text-muted">No Dosage Given</span>' ?>
+                                            </td>
+                                            <td class="suggestion">
+                                                <?= !empty($patientData['plans'][0]['suggestion']) ? htmlspecialchars($patientData['plans'][0]['suggestion']) : '<span class="text-muted">No Suggestion</span>' ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="5">No treatment plans found.</td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        //JavaScript for Test Tab
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[placeholder="Search by Patient Name"]');
+            const table = document.querySelector('#testResultsTable');
+            if (!searchInput || !table) return; // Prevent errors if elements are missing
+
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+            // Search Functionality
+            searchInput.addEventListener('input', function() {
+                const searchText = this.value.toLowerCase();
+                rows.forEach(row => {
+                    const patientName = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase();
+                    row.style.display = patientName.includes(searchText) ? '' : 'none';
+                });
+            });
+
+            // Test Selection Functionality
+            table.addEventListener('change', function(event) {
+                if (!event.target.classList.contains('test-select')) return; // Ensure event is triggered by select
+
+                const select = event.target;
+                const row = select.closest('tr');
+                if (!row || !row.dataset.tests) return; // Ensure row and data exist
+
+                let tests;
+                try {
+                    tests = JSON.parse(row.dataset.tests);
+                } catch (e) {
+                    console.error("Invalid JSON in dataset.tests", e);
+                    return;
+                }
+
+                const selectedTest = tests.find(test => test.test_name === select.value);
+                if (selectedTest) {
+                    row.querySelector('.test-date').textContent = selectedTest.test_date || 'Not Yet Performed';
+                    row.querySelector('.test-result').textContent = selectedTest.result || 'Pending';
+                }
+            });
+        });
+
+        //JavaScript for Treatmentplan Tab
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('#list-trtplans input[placeholder="Search by Patient Name"]');
+            const table = document.querySelector('#treatmentPlanTable');
+
+            if (!searchInput || !table) return; // Prevents errors if elements are missing
+
+            const rows = Array.from(table.querySelectorAll('tbody tr')); // Store rows in an array
+
+            // Search Functionality: Filters only by Patient Name (2nd column)
+            searchInput.addEventListener('input', function() {
+                const searchText = this.value.toLowerCase();
+                rows.forEach(row => {
+                    const patientNameCell = row.querySelector('td:nth-child(2)');
+                    if (patientNameCell) {
+                        const patientName = patientNameCell.textContent.toLowerCase();
+                        row.style.display = patientName.includes(searchText) ? '' : 'none';
+                    }
+                });
+            });
+
+            // Handle Dropdown Change for Treatment Plan
+            table.addEventListener('change', function(event) {
+                if (!event.target.classList.contains('plan-select')) return; // Ensure event is triggered by select
+
+                const select = event.target;
+                const row = select.closest('tr');
+                if (!row || !row.dataset.plans) return; // Ensure row and data exists
+
+                let plans;
+                try {
+                    plans = JSON.parse(row.dataset.plans);
+                } catch (e) {
+                    console.error("Invalid JSON in dataset.plans", e);
+                    return;
+                }
+
+                const selectedPlan = plans.find(plan => plan.trtplan_id == select.value);
+                if (selectedPlan) {
+                    row.querySelector('.dosage').innerHTML = selectedPlan.dosage ?
+                        htmlspecialchars(selectedPlan.dosage) : '<span class="text-muted">No Dosage Given</span>';
+                    row.querySelector('.suggestion').innerHTML = selectedPlan.suggestion ?
+                        htmlspecialchars(selectedPlan.suggestion) : '<span class="text-muted">No Suggestion</span>';
+                }
+            });
+
+            // Function to escape HTML for security
+            function htmlspecialchars(str) {
+                return str.replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+        });
+    </script>
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

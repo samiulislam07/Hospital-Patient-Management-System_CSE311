@@ -1,0 +1,131 @@
+/* Full-page gradient background */
+body {
+    font-family: Arial, sans-serif;
+    background: white;
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+.form-group label {
+    font-weight: bold;
+    /* Makes labels stand out */
+    margin-bottom: 5px;
+    /* Adds spacing below labels */
+    display: block;
+}
+/* Pop-up styling */
+.popup {
+    display: none;
+    position: fixed;
+    text-align: left;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(to bottom, #0d1b3e, #d0d3da);
+    padding: 30px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    width: 500px;
+    color: white;
+    z-index: 1000;
+}
+.form-group {
+    margin: 10px 0;
+}
+/* Close button (✖) */
+.pclose-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+    background: none;
+    border: none;
+}
+/* Form inputs */
+.pform-group input,
+.pform-group textarea {
+    width: 100%;
+    padding: 6px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+/* Submit Button */
+.psubmit-btn {
+    background: #0d1b3e;
+    color: white;
+    border: none;
+    padding: 6px;
+    width: 20%;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+/* Form inputs */
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 6px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+/* Search & Select Buttons Side by Side */
+.d-flex {
+    display: flex;
+    gap: 10px;
+    position: relative;
+    /* Ensures dropdown stays inside */
+}
+#testSearch {
+    flex: 1;
+}
+#showDropdownBtn {
+    padding: 8px 10px;
+    /* Reduced padding for shorter height */
+    font-size: 14px;
+    /* Smaller font size */
+    background: white;
+    color: black;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 5px;
+    height: 40px;
+    /* Explicit height to keep it uniform */
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+    /* Center text vertically */
+}
+/* Dropdown menu stays inside pop-up */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 40px;
+    /* Keeps dropdown inside */
+    left: 0;
+    width: 100%;
+    background: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    max-height: 150px;
+    overflow-y: auto;
+    color: black;
+    padding: 5px;
+    z-index: 1001;
+}
+.dropdown-item {
+    padding: 8px;
+    cursor: pointer;
+    display: block;
+}
+.dropdown-item:hover {
+    background: #f0f0f0;
+}
+.psubmit-btn:disabled {
+    background: gray;
+    cursor: not-allowed;
+}
