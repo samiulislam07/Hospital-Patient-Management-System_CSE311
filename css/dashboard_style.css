@@ -1,0 +1,16 @@
+.bg-primary {
+    background: linear-gradient(to right, #000C40, #F0F2F0);
+}
+
+.list-group-item.active {
+    background: linear-gradient(to right, #000C40, #F0F2F0);
+    border-color: #c3c3c3;
+}
+
+.text-primary {
+    color: #342ac1 !important;
+}
+
+button:hover {
+    cursor: pointer;
+}

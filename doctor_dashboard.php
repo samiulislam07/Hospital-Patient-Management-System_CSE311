@@ -45,34 +45,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
     $specialization = $_POST['specialization'];
     $availability = $_POST['availability'];
 
-    // Sanitize input data
-    $email = filter_var($email);
-    $gender = htmlspecialchars($gender);
-    $phone = htmlspecialchars($phone);
-    $dob = htmlspecialchars($dob);
-    $doc_fee = htmlspecialchars($doc_fee);
-    $specialization = htmlspecialchars($specialization);
-    $availability = htmlspecialchars($availability);
-
     // Ensure doctor ID is set
-    if (isset($_SESSION['user_id'])) {
-        $update_sql = "UPDATE doctor SET email = ?, gender = ?, phone = ?, dob = ?, doc_fee = ?, specialization = ?, availability = ? WHERE user_id = ?";
+    if (!empty($doctor_id)) {
+        $update_sql = "UPDATE Doctor SET email = ?, gender = ?, phone = ?, dob = ?, doc_fee = ?, specialization = ?, availability = ? WHERE user_id = ?";
         $stmt = $conn->prepare($update_sql);
-
         if ($stmt) {
             $stmt->bind_param("ssssssss", $email, $gender, $phone, $dob, $doc_fee, $specialization, $availability, $doctor_id);
-
             if ($stmt->execute()) {
-                echo json_encode(["status" => "success", "message" => "Profile updated successfully!"]);
+                echo "<script>alert('Profile updated successfully!'); window.location.href='doctor_dashboard.php';</script>";
             } else {
-                echo json_encode(["status" => "error", "message" => "Error updating profile: " . $stmt->error]);
+                echo "<script>alert('Error updating profile. Please try again.');</script>";
             }
             $stmt->close();
         } else {
-            echo json_encode(["status" => "error", "message" => "Database error: " . $conn->error]);
+            echo "<script>alert('Database error. Please try again.');</script>";
         }
     } else {
-        echo json_encode(["status" => "error", "message" => "Doctor ID missing from session. Cannot update profile."]);
+        echo "<script>alert('Doctor ID missing. Cannot update profile.');</script>";
     }
 }
 
@@ -210,7 +199,7 @@ $conn->close();
                                             <p><strong>Gender:</strong> <?php echo htmlspecialchars($doctor['gender']); ?></p>
                                             <p><strong>Phone:</strong> <?php echo htmlspecialchars($doctor['phone']); ?></p>
                                             <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($doctor['dob']); ?></p>
-
+                            
                                         </div>
                                         <div class="col-md-6">
                                             <p><strong>Salary:</strong> <?php echo htmlspecialchars($doctor['salary']); ?></p>
@@ -226,7 +215,7 @@ $conn->close();
                     <!-- Update Profile -->
                     <div class="tab-pane fade show" id="list-profile">
                         <h3>Update Profile</h3>
-                        <form id="updateProfileForm" method="POST">
+                        <form method="POST">
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label>User ID:</label>
@@ -245,6 +234,7 @@ $conn->close();
                                     <input type="email" name="email" class="form-control" value="<?= $doctor['email'] ?? '' ?>">
                                 </div>
                             </div>
+
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label>Phone:</label>
@@ -258,15 +248,18 @@ $conn->close();
                                         <option value="Other" <?= isset($doctor['gender']) && $doctor['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
                                     </select>
                                 </div>
+
                                 <div class="form-group col-md-3">
                                     <label>Date of Birth:</label>
                                     <input type="date" class="form-control" name="dob" value="<?= htmlspecialchars($doctor['dob'] ?? '') ?>">
                                 </div>
+
                                 <div class="form-group col-md-3">
                                     <label>Doctor Fee:</label>
                                     <input type="text" name="doc_fee" class="form-control" value="<?= $doctor['doc_fee'] ?? '' ?>">
                                 </div>
                             </div>
+
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label>Salary:</label>
@@ -285,12 +278,12 @@ $conn->close();
                                     <input type="text" name="availability" class="form-control" value="<?= $doctor['availability'] ?? '' ?>">
                                 </div>
                             </div>
+
                             <br>
                             <div class="text-left">
                                 <button type="submit" name="update_doctor" class="btn btn-primary">Update</button>
                             </div>
                         </form>
-
                     </div>
                     <!-- Appointments -->
                     <div class="tab-pane fade" id="list-appt">
@@ -459,28 +452,7 @@ $conn->close();
             </div>
         </div>
     </div>
-    <script>
-        $("#updateProfileForm").submit(function(event) {
-            event.preventDefault();
-            let formData = $(this).serialize();
-            $.ajax({
-                url: "doctor_dashboard.php",
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function(response) {
-                    alert(response.message);
-                    if (response.status === "success") {
-                        window.location.hash = "#list-profile";
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.error("AJAX error:", textStatus, errorThrown);
-                    alert("Error processing update.");
-                }
-            });
-        });
-    </script>
+
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
