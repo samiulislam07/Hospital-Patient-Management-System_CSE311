@@ -11,9 +11,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $role = $_POST['role']; // Identifies if login is for doctor or nurse
 
     if ($role === "doctor") {
-        $sql = "SELECT user_id, password FROM Doctor WHERE user_id = ?";
+        $sql = "SELECT user_id, password FROM Users WHERE user_id = ?";
     } elseif ($role === "nurse") {
-        $sql = "SELECT user_id, password FROM Nurse WHERE user_id = ?";
+        $sql = "SELECT user_id, password FROM Users WHERE user_id = ?";
     } else {
         $error = "Invalid role!";
     }
