@@ -148,8 +148,7 @@ $conn->close();
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <a class="navbar-brand" href="#">
-            <i class="fa fa-hospital-o"></i> Hospital Management
-        </a>
+            <i class="fa fa-hospital-o"></i>Hospital Management System</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -167,7 +166,6 @@ $conn->close();
 
     <div class="container-fluid" style="margin-top: 50px;">
         <h3 class="text-center">Welcome <?php echo htmlspecialchars($doctor['first_name']); ?></h3>
-
 
         <div class="row">
             <!-- Left Sidebar -->
