@@ -1,6 +1,60 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+session_start();
+$con=mysqli_connect("localhost","root","","hospital_db");
+
+// Redirect if not logged in
+if (!isset($_SESSION['user_id'])) {
+  header("Location: index.php");
+  exit();
+}
+
+$patient_id = $_SESSION['user_id'];
+$patient = [];
+
+// Fetch patient details
+$sql = "SELECT user_id, first_name, last_name, email, gender, blood_group, dob, hno, street, city, zip, country FROM Patient WHERE user_id = ?";
+$stmt = $con->prepare($sql);
+if ($stmt) {
+    $stmt->bind_param("s", $patient_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 1) {
+        $patient = $result->fetch_assoc();
+    }
+    $stmt->close();
+}
+
+// Update Patient Profile
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
+  $email = $_POST['email'];
+  $gender = $_POST['gender'];
+  $blood_group = $_POST['blood_group'];
+  $dob = $_POST['dob'];
+  $hno = $_POST['hno'];
+  $street = $_POST['street'];
+  $city = $_POST['city'];
+  $zip = $_POST['zip'];
+  $country = $_POST['country'];
+
+  // Ensure patient ID is set
+  if (!empty($patient_id)) {
+      $update_sql = "UPDATE Patient SET email = ?, gender = ?, blood_group = ?, dob = ?, hno = ?, street = ?, city = ?, zip = ?, country = ? WHERE user_id = ?";
+      $stmt = $con->prepare($update_sql);
+      if ($stmt) {
+          $stmt->bind_param("ssssssssss", $email, $gender, $blood_group, $dob, $hno, $street, $city, $zip, $country, $patient_id);
+          if ($stmt->execute()) {
+              echo "<script>alert('Profile updated successfully!'); window.location.href='patient_dashboard.php';</script>";
+          } else {
+              echo "<script>alert('Error updating profile. Please try again.');</script>";
+          }
+          $stmt->close();
+      } else {
+          echo "<script>alert('Database error. Please try again.');</script>";
+      }
+  } else {
+      echo "<script>alert('Doctor ID missing. Cannot update profile.');</script>";
+  }
+}
 
 //fetching doctors
 function display_specs() {
@@ -60,58 +114,43 @@ if (isset($_POST['app-submit'])) {
     }
   }
 
-function display_pending_tests()
-{
-    global $con;
-    if (!isset($_SESSION['user_id'])) {
-        echo '<tr><td colspan="4" class="text-center text-danger">Session expired. Please log in again.</td></tr>';
-        return;
-    }
+// function display_pending_tests()
+// {
+//     global $con;
 
-    // Assuming patient is logged in
-    $patient_id = $_SESSION['user_id'];
+//     // Assuming patient is logged in
+//     $patient_id = $_SESSION['user_id'];
 
-    $query = "SELECT 
-                t.test_name,
-                CONCAT(d.first_name, ' ', d.last_name) AS doctor_name,
-                d.specialization,
-                dtp.pres_date
-              FROM `doc-test-patient` dtp
-              JOIN `test` t ON dtp.test_id = t.test_id
-              JOIN `doctor` d ON dtp.doctor_user_id = d.user_id
-              WHERE dtp.patient_user_id = ? AND dtp.test_date IS NULL";
+//     $query = "SELECT 
+//                 t.test_name,
+//                 CONCAT(d.first_name, ' ', d.last_name) AS doctor_name,
+//                 d.specialization,
+//                 dtp.pres_date
+//               FROM `doc-test-patient` dtp
+//               JOIN `test` t ON dtp.test_id = t.test_id
+//               JOIN `doctor` d ON dtp.doctor_user_id = d.user_id
+//               WHERE dtp.patient_user_id = '$patient_id' AND dtp.test_date IS NULL";
 
-    $stmt = mysqli_prepare($con, $query);
-    if (!$stmt) {
-        echo '<tr><td colspan="4" class="text-danger text-center">Database error: Unable to prepare statement.</td></tr>';
-        return;
-    }
+//     $result = mysqli_query($con, $query);
 
-    mysqli_stmt_bind_param($stmt, "s", $patient_id);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
+//     if (!$result) {
+//         echo '<tr><td colspan="4">Error retrieving data.</td></tr>';
+//         return;
+//     }
 
-    if (!$result) {
-        echo '<tr><td colspan="4" class="text-danger text-center">Error fetching data.</td></tr>';
-        return;
-    }
+//     if (mysqli_num_rows($result) === 0) {
+//         echo '<tr><td colspan="4" class="text-center">No pending tests found.</td></tr>';
+//         return;
+//     }
 
-    if (mysqli_num_rows($result) === 0) {
-        echo '<tr><td colspan="5" class="text-center">No pending tests found.</td></tr>';
-    } else {
-        // $counter = 1;
-        while ($row = mysqli_fetch_assoc($result)) {
-            echo '<tr>';
-            // echo '<td>' . $counter++ . '</td>';
-            echo '<td>' . htmlspecialchars($row['test_name']) . '</td>';
-            echo '<td>' . htmlspecialchars($row['doctor_name']) . '</td>';
-            echo '<td>' . htmlspecialchars($row['specialization']) . '</td>';
-            echo '<td>' . htmlspecialchars($row['pres_date']) . '</td>';
-            echo '</tr>';
-        }
-    }
-
-    mysqli_stmt_close($stmt);
-}
+//     while ($row = mysqli_fetch_assoc($result)) {
+//         echo '<tr>';
+//         echo '<td>' . htmlspecialchars($row['test_name']) . '</td>';
+//         echo '<td>' . htmlspecialchars($row['doctor_name']) . '</td>';
+//         echo '<td>' . htmlspecialchars($row['specialization']) . '</td>';
+//         echo '<td>' . htmlspecialchars($row['pres_date']) . '</td>';
+//         echo '</tr>';
+//     }
+// }
 
 ?>
