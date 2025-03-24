@@ -126,6 +126,76 @@ if ($stmt) {
     $stmt->close();
 }
 
+// Fetch Test Results
+$patientTests = [];
+
+$sql = "SELECT 
+            p.first_name, 
+            p.last_name, 
+            t.test_name, 
+            dtp.test_date, 
+            dtp.result,
+            dtp.patient_user_id
+        FROM Doc_Test_Patient dtp
+        JOIN Patient p ON dtp.patient_user_id = p.user_id
+        JOIN Test t ON dtp.test_id = t.test_id
+        WHERE dtp.doctor_user_id = ?
+        ORDER BY dtp.pres_date DESC";
+
+$stmt = $conn->prepare($sql);
+if ($stmt) {
+    $stmt->bind_param("s", $doctor_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $patientTests[$row['patient_user_id']]['patient_name'] = $row['first_name'] . ' ' . $row['last_name'];
+            $patientTests[$row['patient_user_id']]['tests'][] = [
+                'test_name' => $row['test_name'],
+                'test_date' => $row['test_date'],
+                'result' => $row['result']
+            ];
+        }
+    }
+    $stmt->close();
+}
+// Fetch Treatment Plans for Logged-in Doctor
+$treatmentPlans = [];
+
+$sql = "SELECT 
+            p.first_name, 
+            p.last_name, 
+            tp.trtplan_id,
+            tp.prescribe_date, 
+            tp.dosage, 
+            tp.suggestion,
+            tp.patient_user_id
+        FROM TreatmentPlan tp
+        JOIN Patient p ON tp.patient_user_id = p.user_id
+        WHERE tp.doctor_user_id = ?
+        ORDER BY tp.prescribe_date DESC";
+
+$stmt = $conn->prepare($sql);
+if ($stmt) {
+    $stmt->bind_param("s", $doctor_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $treatmentPlans[$row['patient_user_id']]['patient_name'] = $row['first_name'] . ' ' . $row['last_name'];
+            $treatmentPlans[$row['patient_user_id']]['plans'][] = [
+                'trtplan_id' => $row['trtplan_id'],
+                'prescribe_date' => $row['prescribe_date'],
+                'dosage' => $row['dosage'],
+                'suggestion' => $row['suggestion']
+            ];
+        }
+    }
+    $stmt->close();
+}
+
 $conn->close();
 ?>
 
@@ -197,7 +267,7 @@ $conn->close();
                                             <p><strong>Gender:</strong> <?php echo htmlspecialchars($doctor['gender']); ?></p>
                                             <p><strong>Phone:</strong> <?php echo htmlspecialchars($doctor['phone']); ?></p>
                                             <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($doctor['dob']); ?></p>
-                            
+
                                         </div>
                                         <div class="col-md-6">
                                             <p><strong>Salary:</strong> <?php echo htmlspecialchars($doctor['salary']); ?></p>
@@ -408,49 +478,205 @@ $conn->close();
                     <!-- Test Results -->
                     <div class="tab-pane fade" id="list-tests">
                         <h4>Test Results</h4>
-                        <input type="text" class="form-control mb-2" placeholder="Search by Patient Name/ID">
-
-                        <table class="table table-hover">
+                        <input type="text" class="form-control mb-2" placeholder="Search by Patient Name">
+                        <table class="table table-hover" id="testResultsTable">
                             <thead>
                                 <tr>
                                     <th style="width: 10%;">#</th>
                                     <th style="width: 20%;">Patient</th>
                                     <th style="width: 20%;">Test Name</th>
-                                    <th style="width: 20%;"> Performed Date</th>
+                                    <th style="width: 20%;">Performed Date</th>
                                     <th style="width: 20%;">Result</th>
-
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                    <!-- Treatment Plans -->
-                    <div class="tab-pane fade" id="list-trtplans">
-                        <h4>Treatment Plans</h4>
-                        <input type="text" class="form-control mb-2" placeholder="Search by Patient Name/ID">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Patient</th>
-                                    <th>Dosage</th>
-                                    <th>Suggestions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>John Doe</td>
-                                    <td>500mg</td>
-                                    <td>Twice a day after food</td>
-                                </tr>
+                                <?php if (count($patientTests) > 0): ?>
+                                    <?php $index = 1;
+                                    foreach ($patientTests as $patientId => $patientData): ?>
+                                        <tr data-tests='<?= json_encode($patientData['tests']) ?>'>
+                                            <td><?= $index++ ?></td>
+                                            <td><?= htmlspecialchars($patientData['patient_name']) ?></td>
+
+                                            <td>
+                                                <select class="form-control test-select">
+                                                    <?php foreach ($patientData['tests'] as $test): ?>
+                                                        <option value="<?= htmlspecialchars($test['test_name']) ?>">
+                                                            <?= htmlspecialchars($test['test_name']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </td>
+                                            <td class="test-date">
+                                                <?= !empty($patientData['tests'][0]['test_date'])
+                                                    ? htmlspecialchars($patientData['tests'][0]['test_date'])
+                                                    : '<span class="text-muted">Not Yet Performed</span>' ?>
+                                            </td>
+                                            <td class="test-result">
+                                                <?= !empty($patientData['tests'][0]['result'])
+                                                    ? htmlspecialchars($patientData['tests'][0]['result'])
+                                                    : '<span class="text-muted">Pending</span>' ?>
+                                            </td>
+
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="5">No test results found.</td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Treatment Plans -->
+                    <div class="tab-pane fade" id="list-trtplans">
+                        <h4>Treatment Plans</h4>
+                        <input type="text" class="form-control mb-2" placeholder="Search by Patient Name">
+                        <table class="table table-hover" id="treatmentPlanTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">#</th>
+                                    <th style="width: 20%;">Patient</th>
+                                    <th style="width: 20%;">Prescribed Date</th>
+                                    <th style="width: 20%;">Dosage</th>
+                                    <th style="width: 20%;">Suggestion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (count($treatmentPlans) > 0): ?>
+                                    <?php $index = 1;
+                                    foreach ($treatmentPlans as $patientId => $patientData): ?>
+                                        <tr data-plans='<?= json_encode($patientData['plans']) ?>'>
+                                            <td><?= $index++ ?></td>
+                                            <td><?= htmlspecialchars($patientData['patient_name']) ?></td>
+                                            <td>
+                                                <select class="form-control plan-select">
+                                                    <?php foreach ($patientData['plans'] as $plan): ?>
+                                                        <option value="<?= htmlspecialchars($plan['trtplan_id']) ?>">
+                                                            <?= htmlspecialchars($plan['prescribe_date'] ?? 'Not Yet Prescribed') ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </td>
+                                            <td class="dosage">
+                                                <?= !empty($patientData['plans'][0]['dosage']) ? htmlspecialchars($patientData['plans'][0]['dosage']) : '<span class="text-muted">No Dosage Given</span>' ?>
+                                            </td>
+                                            <td class="suggestion">
+                                                <?= !empty($patientData['plans'][0]['suggestion']) ? htmlspecialchars($patientData['plans'][0]['suggestion']) : '<span class="text-muted">No Suggestion</span>' ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="5">No treatment plans found.</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
+    <!-- JavaScript for Test Tab -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[placeholder="Search by Patient Name"]');
+            const table = document.querySelector('#testResultsTable');
+            if (!searchInput || !table) return; // Prevent errors if elements are missing
 
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+            // Search Functionality
+            searchInput.addEventListener('input', function() {
+                const searchText = this.value.toLowerCase();
+                rows.forEach(row => {
+                    const patientName = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase();
+                    row.style.display = patientName.includes(searchText) ? '' : 'none';
+                });
+            });
+
+            // Test Selection Functionality
+            table.addEventListener('change', function(event) {
+                if (!event.target.classList.contains('test-select')) return; // Ensure event is triggered by select
+
+                const select = event.target;
+                const row = select.closest('tr');
+                if (!row || !row.dataset.tests) return; // Ensure row and data exist
+
+                let tests;
+                try {
+                    tests = JSON.parse(row.dataset.tests);
+                } catch (e) {
+                    console.error("Invalid JSON in dataset.tests", e);
+                    return;
+                }
+
+                const selectedTest = tests.find(test => test.test_name === select.value);
+                if (selectedTest) {
+                    row.querySelector('.test-date').textContent = selectedTest.test_date || 'Not Yet Performed';
+                    row.querySelector('.test-result').textContent = selectedTest.result || 'Pending';
+                }
+            });
+        });
+
+        //JavaScript for Treatmentplan Tab
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('#list-trtplans input[placeholder="Search by Patient Name"]');
+            const table = document.querySelector('#treatmentPlanTable');
+
+            if (!searchInput || !table) return; // Prevents errors if elements are missing
+
+            const rows = Array.from(table.querySelectorAll('tbody tr')); // Store rows in an array
+
+            // Search Functionality: Filters only by Patient Name (2nd column)
+            searchInput.addEventListener('input', function() {
+                const searchText = this.value.toLowerCase();
+                rows.forEach(row => {
+                    const patientNameCell = row.querySelector('td:nth-child(2)');
+                    if (patientNameCell) {
+                        const patientName = patientNameCell.textContent.toLowerCase();
+                        row.style.display = patientName.includes(searchText) ? '' : 'none';
+                    }
+                });
+            });
+
+            // Handle Dropdown Change for Treatment Plan
+            table.addEventListener('change', function(event) {
+                if (!event.target.classList.contains('plan-select')) return; // Ensure event is triggered by select
+
+                const select = event.target;
+                const row = select.closest('tr');
+                if (!row || !row.dataset.plans) return; // Ensure row and data exists
+
+                let plans;
+                try {
+                    plans = JSON.parse(row.dataset.plans);
+                } catch (e) {
+                    console.error("Invalid JSON in dataset.plans", e);
+                    return;
+                }
+
+                const selectedPlan = plans.find(plan => plan.trtplan_id == select.value);
+                if (selectedPlan) {
+                    row.querySelector('.dosage').innerHTML = selectedPlan.dosage ?
+                        htmlspecialchars(selectedPlan.dosage) : '<span class="text-muted">No Dosage Given</span>';
+                    row.querySelector('.suggestion').innerHTML = selectedPlan.suggestion ?
+                        htmlspecialchars(selectedPlan.suggestion) : '<span class="text-muted">No Suggestion</span>';
+                }
+            });
+
+            // Function to escape HTML for security
+            function htmlspecialchars(str) {
+                return str.replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+        });
+    </script>
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

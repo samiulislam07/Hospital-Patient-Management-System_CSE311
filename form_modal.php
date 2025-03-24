@@ -1,14 +1,4 @@
-<?php
-include 'config.php';
-// Fetch available tests
-$testQuery = "SELECT test_name FROM test";
-$testResult = $conn->query($testQuery);
-$testList = [];
-while ($row = $testResult->fetch_assoc()) {
-    $testList[] = $row['test_name'];
-}
-?>
-
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -22,7 +12,18 @@ while ($row = $testResult->fetch_assoc()) {
 </head>
 
 <body>
+    
+    <?php
+    include 'config.php';
 
+    // Fetch available tests
+    $testQuery = "SELECT test_name FROM test";
+    $testResult = $conn->query($testQuery);
+    $testList = [];
+    while ($row = $testResult->fetch_assoc()) {
+        $testList[] = $row['test_name'];
+    }
+    ?>
     <!-- Order Test Pop-up Form -->
     <div id="orderTestPopup" class="popup">
         <button class="pclose-btn">&times;</button> <!-- Close Button -->
@@ -145,7 +146,7 @@ while ($row = $testResult->fetch_assoc()) {
             <input type="hidden" id="patientId" name="patientId">
             <div class="pform-group">
                 <label for="dosage">Dosage:</label>
-                <textarea id="dosage" name="dosage" class="form-control" rows="2" required></textarea>
+                <textarea id="dosage" name="dosage" class="form-control" rows="2"></textarea>
             </div>
             <div class="pform-group">
                 <label for="suggestion">Suggestion:</label>

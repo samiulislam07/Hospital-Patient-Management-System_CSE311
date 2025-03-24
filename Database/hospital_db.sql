@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 24, 2025 at 01:41 AM
+-- Generation Time: Mar 24, 2025 at 04:41 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -156,7 +156,7 @@ CREATE TABLE `doctor` (
 --
 
 INSERT INTO `doctor` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `doc_fee`, `specialization`, `availability`, `dept_id`, `created_at`, `updated_at`) VALUES
-('d001', 'Dr. Kamal', 'Hossain', 'dr.kamal.hossain@gmail.com', 'password123', 'Male', '01812345678', '1985-02-25', 60000.00, 700.00, 'Orthopedics', '9AM - 5PM', 1, '2025-03-19 16:31:47', '2025-03-23 23:55:06'),
+('d001', 'Dr. Kamal', 'Hossain', 'dr.kamal.hossain@gmail.com', 'password123', 'Female', '01812345678', '1985-02-25', 60000.00, 700.00, 'Orthopedics', 'Mon-Wed-Fri 10 AM - 12 PM', 1, '2025-03-19 16:31:47', '2025-03-24 03:32:02'),
 ('d002', 'Dr. Shilpi', 'Begum', 'dr.shilpi.begum@gmail.com', 'password123', 'Female', '01887654321', '1988-06-15', 65000.00, 750.00, 'Dermatology', '10AM - 4PM', 2, '2025-03-19 16:31:47', '2025-03-19 16:31:47');
 
 -- --------------------------------------------------------
@@ -181,12 +181,19 @@ CREATE TABLE `doc_test_patient` (
 --
 
 INSERT INTO `doc_test_patient` (`doctor_user_id`, `test_id`, `patient_user_id`, `pres_date`, `test_date`, `result`, `created_at`, `updated_at`) VALUES
-('d001', 1, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 22:01:28', '2025-03-23 22:01:28'),
+('d001', 1, 'p001', '2025-03-04', '2025-03-06', 'Low RBC', '2025-03-23 22:01:28', '2025-03-24 03:34:39'),
 ('d001', 2, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 22:01:28', '2025-03-23 22:01:28'),
+('d001', 2, 'p002', '2024-10-09', '2025-03-08', 'broken bone', '2025-03-24 01:30:49', '2025-03-24 03:40:50'),
 ('d001', 3, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 22:10:00', '2025-03-23 22:10:00'),
+('d001', 3, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 01:30:49', '2025-03-24 01:30:49'),
+('d001', 4, 'p001', '2025-03-04', NULL, NULL, '2025-03-24 02:25:34', '2025-03-24 02:25:34'),
+('d001', 4, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 01:30:49', '2025-03-24 01:30:49'),
 ('d001', 5, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 22:18:49', '2025-03-23 22:18:49'),
 ('d001', 6, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 23:21:40', '2025-03-23 23:21:40'),
-('d001', 7, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 22:18:49', '2025-03-23 22:18:49');
+('d001', 7, 'p001', '2025-03-04', '2025-03-07', 'Positive', '2025-03-23 22:18:49', '2025-03-24 03:39:57'),
+('d001', 8, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 01:30:49', '2025-03-24 01:30:49'),
+('d001', 9, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 01:30:49', '2025-03-24 01:30:49'),
+('d002', 7, 'p001', '2025-03-04', '2025-03-10', 'Positive', '2025-03-23 22:18:49', '2025-03-23 22:18:49');
 
 -- --------------------------------------------------------
 
@@ -392,8 +399,9 @@ CREATE TABLE `treatmentplan` (
 INSERT INTO `treatmentplan` (`trtplan_id`, `prescribe_date`, `dosage`, `suggestion`, `patient_user_id`, `doctor_user_id`, `updated_at`) VALUES
 (1, '2025-03-01', 'Ibuprofen 400mg, twice a day for 7 days', 'Rest and avoid physical strain.', 'p001', 'd001', '2025-03-19 16:33:59'),
 (2, '2025-03-02', 'Paracetamol 500mg, every 6 hours as needed for pain', 'Monitor temperature and stay hydrated.', 'p002', 'd002', '2025-03-19 16:33:59'),
-(3, '2025-03-04', 'meow', 'meow', 'p001', 'd001', '2025-03-23 23:16:32'),
-(4, '2025-03-04', 'meow', 'meow', 'p001', 'd001', '2025-03-23 23:30:12');
+(3, '2025-03-04', NULL, NULL, 'p001', 'd001', '2025-03-24 02:48:34'),
+(4, '2025-03-04', 'meow', 'meow', 'p001', 'd001', '2025-03-23 23:30:12'),
+(5, '2024-10-09', 'hello', 'hi', 'p002', 'd001', '2025-03-24 02:45:51');
 
 -- --------------------------------------------------------
 
@@ -592,7 +600,7 @@ ALTER TABLE `test`
 -- AUTO_INCREMENT for table `treatmentplan`
 --
 ALTER TABLE `treatmentplan`
-  MODIFY `trtplan_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `trtplan_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
