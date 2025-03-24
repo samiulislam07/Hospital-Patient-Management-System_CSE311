@@ -1,4 +1,66 @@
-<?php include 'config.php'; include 'patient_func.php';?>
+<?php 
+include 'config.php'; 
+include 'patient_func.php'; 
+session_start();
+// Redirect if not logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+// $con=mysqli_connect("localhost","root","","hospital_db");
+// if (!$con) {
+//     die("Connection failed: " . mysqli_connect_error());
+// }
+
+$patient_id = $_SESSION['user_id'];
+
+// Fetch patient details
+$sql = "SELECT user_id, first_name, last_name, email, gender, blood_group, dob, hno, street, city, zip, country FROM Patient WHERE user_id = ?";
+$stmt = $con->prepare($sql);
+if ($stmt) {
+    $stmt->bind_param("s", $patient_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 1) {
+        $patient = $result->fetch_assoc();
+    }else {
+        die("Database error: " . mysqli_error($con));
+    }
+    $stmt->close();
+}
+
+// Update Patient Profile
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
+    $email = $_POST['email'];
+    $gender = $_POST['gender'];
+    $blood_group = $_POST['blood_group'];
+    $dob = $_POST['dob'];
+    $hno = $_POST['hno'];
+    $street = $_POST['street'];
+    $city = $_POST['city'];
+    $zip = $_POST['zip'];
+    $country = $_POST['country'];
+  
+    // Ensure patient ID is set
+    if (!empty($patient_id)) {
+        $update_sql = "UPDATE Patient SET email = ?, gender = ?, blood_group = ?, dob = ?, hno = ?, street = ?, city = ?, zip = ?, country = ? WHERE user_id = ?";
+        $stmt = $con->prepare($update_sql);
+        if ($stmt) {
+            $stmt->bind_param("ssssssssss", $email, $gender, $blood_group, $dob, $hno, $street, $city, $zip, $country, $patient_id);
+            if ($stmt->execute()) {
+                echo "<script>alert('Profile updated successfully!'); window.location.href='patient_dashboard.php';</script>";
+            } else {
+                echo "<script>alert('Error updating profile. Please try again.');</script>";
+            }
+            $stmt->close();
+        } else {
+            echo "<script>alert('Database error. Please try again.');</script>";
+        }
+    } else {
+        echo "<script>alert('Doctor ID missing. Cannot update profile.');</script>";
+    }
+  }
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -299,7 +361,7 @@
                             </thead>
                             <tbody>
                                 <?php
-                                    //display_pending_tests();
+                                    display_pending_tests();
                                 ?>
                             </tbody>
 
@@ -334,7 +396,7 @@
     </div>
 
     <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.10.1/sweetalert2.all.min.js">
