@@ -13,8 +13,8 @@ if ($testData) {
         $result = $test['result'];
 
         $sql = "UPDATE Doc_Test_Patient
-                SET test_date = '$testDate', result = '$result'
-                WHERE patient_user_id = '$patientId' AND test_id = '$testId'";
+                    SET test_date = '$testDate', result = '$result'
+                    WHERE patient_user_id = '$patientId' AND test_id = '$testId'";
 
         if (!$con->query($sql)) {
             $success = false;
@@ -22,12 +22,34 @@ if ($testData) {
         }
 
         // Insert into Nurse_Test_Patient
-        $nurse_Id = $_SESSION['user_id']; 
+        $nurse_Id = $_SESSION['user_id'];
         $sqlNurse = "INSERT INTO Nurse_Test_Patient (nurse_user_id, test_id, patient_user_id) VALUES ('$nurse_Id', '$testId', '$patientId')";
 
         if (!$con->query($sqlNurse)) {
             $success = false;
             break;
+        }
+
+        // Check if test date and result are not null, then add to Bill_detail
+        if ($testDate !== null && $result !== null) {
+            // Get test cost from Test table
+            $sqlTestCost = "SELECT test_cost FROM Test WHERE test_id = '$testId'";
+            $resultTestCost = $con->query($sqlTestCost);
+
+            if ($resultTestCost && $rowTestCost = $resultTestCost->fetch_assoc()) {
+                $testCost = $rowTestCost['test_cost'];
+
+                // Insert into Bill_detail
+                $sqlBillDetail = "INSERT INTO Bill_detail (patient_user_id, test_id, charge_amount) VALUES ('$patientId', '$testId', '$testCost')";
+
+                if (!$con->query($sqlBillDetail)) {
+                    $success = false;
+                    break;
+                }
+            } else {
+                $success = false;
+                break;
+            }
         }
     }
 
@@ -35,5 +57,4 @@ if ($testData) {
 } else {
     echo json_encode(['success' => false]);
 }
-
 ?>

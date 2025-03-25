@@ -139,17 +139,57 @@ if ($stmt) {
     $stmt->close();
 }
 
-// Update Appointment Status 
+
+// Update Appointment Status
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $appt_id = $_POST['appt_id'];
     $appt_status = $_POST['appt_status'];
 
     $update_sql = "UPDATE checkup SET appt_status = ? WHERE appt_id = ? AND doctor_user_id = ?";
     $stmt = $con->prepare($update_sql);
+
     if ($stmt) {
-        $stmt->bind_param("sss", $appt_status, $appt_id, $doctor_id);
+        $stmt->bind_param("sis", $appt_status, $appt_id, $doctor_id);
+
         if ($stmt->execute()) {
-            echo "<script>alert('Appointment status updated successfully!'); window.location.href='doctor_dashboard.php';</script>";
+            if ($appt_status === 'Completed') {
+                // Get patient_user_id and doctor_user_id from checkup table
+                $select_checkup_sql = "SELECT patient_user_id, doctor_user_id FROM checkup WHERE appt_id = ?";
+                $select_checkup_stmt = $con->prepare($select_checkup_sql);
+                $select_checkup_stmt->bind_param("i", $appt_id);
+                $select_checkup_stmt->execute();
+                $select_checkup_stmt->bind_result($patient_user_id, $doctor_user_id);
+                $select_checkup_stmt->fetch();
+                $select_checkup_stmt->close();
+
+                // Get doc_fee from Doctor table
+                $select_doctor_sql = "SELECT doc_fee FROM Doctor WHERE user_id = ?";
+                $select_doctor_stmt = $con->prepare($select_doctor_sql);
+                $select_doctor_stmt->bind_param("s", $doctor_user_id);
+                $select_doctor_stmt->execute();
+                $select_doctor_stmt->bind_result($doc_fee);
+                $select_doctor_stmt->fetch();
+                $select_doctor_stmt->close();
+
+                // Add record to Bill_detail table
+                $insert_sql = "INSERT INTO Bill_detail (patient_user_id, doctor_user_id, test_id, charge_amount) VALUES (?, ?, NULL, ?)";
+                $insert_stmt = $con->prepare($insert_sql);
+
+                if ($insert_stmt) {
+                    $insert_stmt->bind_param("sss", $patient_user_id, $doctor_user_id, $doc_fee);
+
+                    if ($insert_stmt->execute()) {
+                        echo "<script>alert('Appointment status updated and bill detail added successfully!'); window.location.href='doctor_dashboard.php';</script>";
+                    } else {
+                        echo "<script>alert('Appointment status updated, but error adding bill detail. Please try again.'); window.location.href='doctor_dashboard.php';</script>";
+                    }
+                    $insert_stmt->close();
+                } else {
+                    echo "<script>alert('Appointment status updated, but database error adding bill detail. Please try again.'); window.location.href='doctor_dashboard.php';</script>";
+                }
+            } else {
+                echo "<script>alert('Appointment status updated successfully!'); window.location.href='doctor_dashboard.php';</script>";
+            }
         } else {
             echo "<script>alert('Error updating appointment status. Please try again.');</script>";
         }
@@ -412,7 +452,12 @@ $con->close();
 
                     <!-- Appointments -->
                     <div class="tab-pane fade" id="list-appt">
-                        <h4>Appointments</h4>
+                        <div class="row">
+                            <div class="col-md-4 filter-group">
+                                <label for="testDateFilter">Filter by Test Date:</label>
+                                <input type="date" class="form-control form-control-sm" id="testDateFilter" placeholder="Enter Test Date">
+                            </div>
+                        </div><br>
                         <table class="table table-hover">
                             <thead>
                                 <tr>
@@ -426,7 +471,7 @@ $con->close();
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id= "appointments" >
                                 <?php if (count($appointments) > 0): ?>
                                     <?php foreach ($appointments as $index => $appointment): ?>
                                         <tr>
@@ -489,7 +534,6 @@ $con->close();
 
                     <!-- Ongoing Patients -->
                     <div class="tab-pane fade" id="list-patients">
-                        <h4>Ongoing Patients</h4>
                         <table class="table table-hover">
                             <thead>
                                 <tr>
@@ -549,7 +593,6 @@ $con->close();
                     </div>
                     <!-- Test Results -->
                     <div class="tab-pane fade" id="list-tests">
-                        <h4>Test Results</h4>
                         <input type="text" class="form-control mb-2 form-control-sm" style="width: 40%;" placeholder="Search by Patient Name">
                         <table class="table table-hover" id="testResultsTable">
                             <thead>
@@ -571,7 +614,7 @@ $con->close();
 
                                             <td>
                                                 <select class="form-control test-select">
-                                                    <option value="">Select Date</option>
+                                                    <option value="">Select Test</option>
                                                     <?php foreach ($patientData['tests'] as $test): ?>
                                                         <option value="<?= htmlspecialchars($test['test_name']) ?>">
                                                             <?= htmlspecialchars($test['test_name']) ?>
@@ -596,7 +639,6 @@ $con->close();
 
                     <!-- Treatment Plans -->
                     <div class="tab-pane fade" id="list-trtplans">
-                        <h4>Treatment Plans</h4>
                         <input type="text" class="form-control mb-2 form-control-sm" style="width: 40%;" placeholder="Search by Patient Name">
                         <table class="table table-hover" id="treatmentPlanTable">
                             <thead>
@@ -643,6 +685,23 @@ $con->close();
         </div>
     </div>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const testDateFilter = document.getElementById("testDateFilter");
+            const tableBody = document.getElementById("appointments");
+
+            testDateFilter.addEventListener("input", filterRows); 
+            function filterRows() {
+                const dateFilter = testDateFilter.value.trim(); 
+
+                const rows = tableBody.querySelectorAll("tr");
+                rows.forEach(row => {
+                    const testDateCell = row.children[3].textContent.trim();
+                    const matchDate = dateFilter === "" || testDateCell === dateFilter;
+                    // If both conditions are met, show the row; otherwise hide it.
+                    row.style.display = (matchDate) ? "" : "none";
+                });
+            }
+        });
         //JavaScript for Test Tab
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.querySelector('input[placeholder="Search by Patient Name"]');
