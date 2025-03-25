@@ -130,19 +130,6 @@ if ($result === false) {
     echo "SQL Error: " . $con->error;
     die();
 }
-$sql = "SELECT tp.trtplan_id, tp.prescribe_date, tp.dosage, tp.suggestion,
-               p.first_name AS patient_first_name, p.last_name AS patient_last_name, p.user_id AS patient_user_id,
-               d.first_name AS doctor_first_name, d.last_name AS doctor_last_name
-        FROM TreatmentPlan tp
-        JOIN Patient p ON tp.patient_user_id = p.user_id
-        LEFT JOIN Doctor d ON tp.doctor_user_id = d.user_id";
-
-$result = $con->query($sql);
-
-if ($result === false) {
-    echo "SQL Error: " . $con->error;
-    die();
-}
 
 $treatmentPlans = [];
 if ($result->num_rows > 0) {
