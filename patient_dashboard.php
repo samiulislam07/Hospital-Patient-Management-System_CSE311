@@ -305,14 +305,15 @@ include 'patient_func.php'; ?>
                     </div>
                     <!-- Pending Tests Tab -->
                     <div class="tab-pane fade" id="list-test" role="tabpanel" aria-labelledby="list-test-list">
-                        <!-- ... existing pending tests content ... -->
+                        <!-- ... pending tests content ... -->
                         <table class="table table-hover">
                             <thead>
                                 <tr>
+                                    <th scope="col">#</th>
                                     <th scope="col">Test Name</th>
                                     <th scope="col">Doctor Name</th>
                                     <th scope="col">Specialization</th>
-                                    <th scope="col">Prescribed Date</th>
+                                    <th scope="col">Prescribed Date</th>                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -332,14 +333,18 @@ include 'patient_func.php'; ?>
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th style="width: 10%;">#</th>
-                                    <th style="width: 20%;">Patient</th>
-                                    <th style="width: 20%;">Test Name</th>
-                                    <th style="width: 20%;">Date</th>
-                                    <th style="width: 20%;">Result</th>
-
+                                    <th scope="col">#</th>
+                                    <th scope="col">Test Name</th>
+                                    <th scope="col">Test Date</th>
+                                    <th scope="col">Test Result</th>
+                                    <th scope="col">Doctor Name</th>
+                                    <th scope="col">Specialization</th>
+                                    <th scope="col">Prescribed Date</th>
                                 </tr>
                             </thead>
+                            <tbody>
+                                <?php display_test_results(); ?>
+                            </tbody>
                         </table>
                     </div>
                     <!-- Pay Bill -->

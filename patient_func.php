@@ -184,17 +184,19 @@ function display_pending_tests()
     $result = mysqli_query($con, $query);
 
     if (!$result) {
-        echo '<tr><td colspan="4">Error retrieving data.</td></tr>';
+        echo '<tr><td colspan="5">Error retrieving data.</td></tr>';
         return;
     }
 
     if (mysqli_num_rows($result) === 0) {
-        echo '<tr><td colspan="4" class="text-center">No pending tests found.</td></tr>';
+        echo '<tr><td colspan="5" class="text-center">No pending tests found.</td></tr>';
         return;
     }
 
+    $counter = 1;
     while ($row = mysqli_fetch_assoc($result)) {
         echo '<tr>';
+        echo '<td>' . $counter++ . '</td>';
         echo '<td>' . htmlspecialchars($row['test_name']) . '</td>';
         echo '<td>' . htmlspecialchars($row['doctor_name']) . '</td>';
         echo '<td>' . htmlspecialchars($row['specialization']) . '</td>';
@@ -202,5 +204,72 @@ function display_pending_tests()
         echo '</tr>';
     }
 }
+
+//fetch Test Results
+function display_test_results()
+{
+    global $con;
+    if (!isset($_SESSION['user_id'])) {
+        echo "<tr><td colspan='7' class='text-center text-danger'>Session expired. Please log in again.</td></tr>";
+        return;
+    }
+
+    $patient_id = $_SESSION['user_id'];
+
+    // Query: fetch test_name, test_date, result, doctor name, specialization, pres_date
+    // Only rows with test_date and result not null
+    // Sort by test_date descending
+    $sql = "SELECT 
+                dtp.test_date,
+                dtp.result,
+                dtp.pres_date,
+                t.test_name,
+                CONCAT(d.first_name, ' ', d.last_name) AS doctor_name,
+                d.specialization
+            FROM doc_test_patient dtp
+            JOIN test t ON dtp.test_id = t.test_id
+            JOIN doctor d ON dtp.doctor_user_id = d.user_id
+            WHERE dtp.patient_user_id = ?
+              AND dtp.test_date IS NOT NULL
+              AND dtp.result IS NOT NULL
+            ORDER BY dtp.test_date DESC";
+
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        echo "<tr><td colspan='7' class='text-danger text-center'>Database error: Unable to prepare statement.</td></tr>";
+        return;
+    }
+
+    // patient_id is varchar, so bind as string "s"
+    $stmt->bind_param("s", $patient_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if (!$result) {
+        echo "<tr><td colspan='7' class='text-danger text-center'>Error fetching data.</td></tr>";
+        $stmt->close();
+        return;
+    }
+
+    if ($result->num_rows === 0) {
+        echo "<tr><td colspan='7' class='text-center'>No test result found.</td></tr>";
+    } else {
+        $counter = 1;
+        while ($row = $result->fetch_assoc()) {
+            echo "<tr>";
+            echo "<td>" . $counter++ . "</td>";
+            echo "<td>" . htmlspecialchars($row['test_name']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['test_date']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['result']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['doctor_name']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['specialization']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['pres_date']) . "</td>";
+            echo "</tr>";
+        }
+    }
+
+    $stmt->close();
+}
+
 
 ?>
