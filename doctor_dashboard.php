@@ -314,19 +314,19 @@ $con->close();
                                     <div class="profile-card">
                                         <div class="row">
                                             <div class="col-md-6">
-                                            <p><strong>User ID:</strong> <?php echo htmlspecialchars($doctor['user_id']); ?></p>
-                                            <p><strong>Phone:</strong> <?php echo htmlspecialchars($doctor['phone']); ?></p>
+                                                <p><strong>User ID:</strong> <?php echo htmlspecialchars($doctor['user_id']); ?></p>
+                                                <p><strong>Phone:</strong> <?php echo htmlspecialchars($doctor['phone']); ?></p>
                                                 <p><strong>Gender:</strong> <?php echo htmlspecialchars($doctor['gender']); ?></p>
                                                 <p><strong>Specialization:</strong> <?php echo htmlspecialchars($doctor['specialization']); ?></p>
                                                 <p><strong>Availability:</strong> <?php echo htmlspecialchars($doctor['availability']); ?></p>
                                             </div>
                                             <div class="col-md-6">
-                                            <p><strong>Full Name:</strong> <?php echo htmlspecialchars($doctor['first_name'] . ' ' . $doctor['last_name']); ?></p>
+                                                <p><strong>Full Name:</strong> <?php echo htmlspecialchars($doctor['first_name'] . ' ' . $doctor['last_name']); ?></p>
                                                 <p><strong>Email:</strong> <?php echo htmlspecialchars($doctor['email']); ?></p>
                                                 <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($doctor['dob']); ?></p>
                                                 <p><strong>Salary:</strong> <?php echo htmlspecialchars($doctor['salary']); ?></p>
                                                 <p><strong>Fees:</strong> <?php echo htmlspecialchars($doctor['doc_fee']); ?></p>
-                                               
+
                                             </div>
                                         </div>
                                     </div>
@@ -341,19 +341,19 @@ $con->close();
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label>User ID:</label>
-                                    <input type="text" class="form-control form-control-sm" value="<?= $doctor['user_id'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control" value="<?= $doctor['user_id'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>First Name:</label>
-                                    <input type="text" class="form-control form-control-sm" value="<?= $doctor['first_name'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control" value="<?= $doctor['first_name'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Last Name:</label>
-                                    <input type="text" class="form-control form-control-sm" value="<?= $doctor['last_name'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control" value="<?= $doctor['last_name'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
-                                    <select class="form-control form-control-sm" name="gender">
+                                    <select class="form-control" name="gender">
                                         <option value="Male" <?= isset($doctor['gender']) && $doctor['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
                                         <option value="Female" <?= isset($doctor['gender']) && $doctor['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
                                         <option value="Other" <?= isset($doctor['gender']) && $doctor['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
@@ -364,15 +364,15 @@ $con->close();
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label>Email:</label>
-                                    <input type="email" name="email" class="form-control form-control-sm" value="<?= $doctor['email'] ?? '' ?>">
+                                    <input type="email" name="email" class="form-control" value="<?= $doctor['email'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Phone:</label>
-                                    <input type="text" name="phone" class="form-control form-control-sm" value="<?= $doctor['phone'] ?? '' ?>">
+                                    <input type="text" name="phone" class="form-control" value="<?= $doctor['phone'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Date of Birth:</label>
-                                    <input type="date" class="form-control form-control-sm" name="dob" value="<?= htmlspecialchars($doctor['dob'] ?? '') ?>">
+                                    <input type="date" class="form-control" name="dob" value="<?= htmlspecialchars($doctor['dob'] ?? '') ?>">
                                 </div>
                             </div>
 
@@ -381,11 +381,11 @@ $con->close();
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label>Salary:</label>
-                                    <input type="text" class="form-control form-control-sm" value="<?= $doctor['salary'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control " value="<?= $doctor['salary'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Specialization:</label>
-                                    <select name="specialization" class="form-control form-control-sm">
+                                    <select name="specialization" class="form-control">
                                         <?php foreach ($departments as $dept): ?>
                                             <option value="<?= $dept ?>" <?= ($doctor['specialization'] ?? '') == $dept ? 'selected' : '' ?>><?= $dept ?></option>
                                         <?php endforeach; ?>
@@ -393,11 +393,11 @@ $con->close();
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Doctor Fee:</label>
-                                    <input type="text" name="doc_fee" class="form-control form-control-sm" value="<?= $doctor['doc_fee'] ?? '' ?>">
+                                    <input type="text" name="doc_fee" class="form-control" value="<?= $doctor['doc_fee'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Availability:</label>
-                                    <input type="text" name="availability" class="form-control form-control-sm" value="<?= $doctor['availability'] ?? '' ?>">
+                                    <input type="text" name="availability" class="form-control" value="<?= $doctor['availability'] ?? '' ?>">
                                 </div>
                             </div>
                         </form>
@@ -549,7 +549,7 @@ $con->close();
                     <!-- Test Results -->
                     <div class="tab-pane fade" id="list-tests">
                         <h4>Test Results</h4>
-                        <input type="text" class="form-control mb-2" style="width: 40%;" placeholder="Search by Patient Name">
+                        <input type="text" class="form-control mb-2 form-control-sm" style="width: 40%;" placeholder="Search by Patient Name">
                         <table class="table table-hover" id="testResultsTable">
                             <thead>
                                 <tr>
@@ -570,6 +570,7 @@ $con->close();
 
                                             <td>
                                                 <select class="form-control test-select">
+                                                    <option value="">Select Date</option>
                                                     <?php foreach ($patientData['tests'] as $test): ?>
                                                         <option value="<?= htmlspecialchars($test['test_name']) ?>">
                                                             <?= htmlspecialchars($test['test_name']) ?>
@@ -578,15 +579,8 @@ $con->close();
                                                 </select>
                                             </td>
                                             <td class="test-date">
-                                                <?= !empty($patientData['tests'][0]['test_date'])
-                                                    ? htmlspecialchars($patientData['tests'][0]['test_date'])
-                                                    : '<span class="text-muted">Not Yet Performed</span>' ?>
                                             </td>
-                                            <td class="test-result">
-                                                <?= !empty($patientData['tests'][0]['result'])
-                                                    ? htmlspecialchars($patientData['tests'][0]['result'])
-                                                    : '<span class="text-muted">Pending</span>' ?>
-                                            </td>
+                                            <td class="test-result"></td>
 
                                         </tr>
                                     <?php endforeach; ?>
@@ -602,7 +596,7 @@ $con->close();
                     <!-- Treatment Plans -->
                     <div class="tab-pane fade" id="list-trtplans">
                         <h4>Treatment Plans</h4>
-                        <input type="text" class="form-control mb-2" style="width: 40%;" placeholder="Search by Patient Name">
+                        <input type="text" class="form-control mb-2 form-control-sm" style="width: 40%;" placeholder="Search by Patient Name">
                         <table class="table table-hover" id="treatmentPlanTable">
                             <thead>
                                 <tr>
@@ -622,6 +616,7 @@ $con->close();
                                             <td><?= htmlspecialchars($patientData['patient_name']) ?></td>
                                             <td>
                                                 <select class="form-control plan-select">
+                                                    <option value="">Select Date</option>
                                                     <?php foreach ($patientData['plans'] as $plan): ?>
                                                         <option value="<?= htmlspecialchars($plan['trtplan_id']) ?>">
                                                             <?= htmlspecialchars($plan['prescribe_date'] ?? 'Not Yet Prescribed') ?>
@@ -629,12 +624,8 @@ $con->close();
                                                     <?php endforeach; ?>
                                                 </select>
                                             </td>
-                                            <td class="dosage">
-                                                <?= !empty($patientData['plans'][0]['dosage']) ? htmlspecialchars($patientData['plans'][0]['dosage']) : '<span class="text-muted">No Dosage Given</span>' ?>
-                                            </td>
-                                            <td class="suggestion">
-                                                <?= !empty($patientData['plans'][0]['suggestion']) ? htmlspecialchars($patientData['plans'][0]['suggestion']) : '<span class="text-muted">No Suggestion</span>' ?>
-                                            </td>
+                                            <td class="dosage"></td>
+                                            <td class="suggestion"></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
@@ -688,6 +679,9 @@ $con->close();
                 if (selectedTest) {
                     row.querySelector('.test-date').textContent = selectedTest.test_date || 'Not Yet Performed';
                     row.querySelector('.test-result').textContent = selectedTest.result || 'Pending';
+                } else {
+                    row.querySelector('.test-date').textContent = '';
+                    row.querySelector('.test-result').textContent = '';
                 }
             });
         });
@@ -735,6 +729,9 @@ $con->close();
                         htmlspecialchars(selectedPlan.dosage) : '<span class="text-muted">No Dosage Given</span>';
                     row.querySelector('.suggestion').innerHTML = selectedPlan.suggestion ?
                         htmlspecialchars(selectedPlan.suggestion) : '<span class="text-muted">No Suggestion</span>';
+                } else {
+                    row.querySelector('.dosage').innerHTML = '';
+                    row.querySelector('.suggestion').innerHTML = '';
                 }
             });
 

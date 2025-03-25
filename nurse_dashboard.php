@@ -117,34 +117,59 @@ if ($result->num_rows > 0) {
 
 // Fetch treatment plans data with doctor and patient names
 $sql = "SELECT tp.trtplan_id, tp.prescribe_date, tp.dosage, tp.suggestion,
-               p.patient_name, d.doctor_name
+               p.first_name AS patient_first_name, p.last_name AS patient_last_name, p.user_id AS patient_user_id,
+               d.first_name AS doctor_first_name, d.last_name AS doctor_last_name
         FROM TreatmentPlan tp
-        JOIN Patients p ON tp.patient_user_id = p.user_id
-        LEFT JOIN Doctors d ON tp.doctor_user_id = d.user_id";
+        JOIN Patient p ON tp.patient_user_id = p.user_id
+        LEFT JOIN Doctor d ON tp.doctor_user_id = d.user_id
+        ORDER BY p.first_name, p.last_name, d.first_name, d.last_name"; // Order by patient, doctor
 
 $result = $con->query($sql);
+
+if ($result === false) {
+    echo "SQL Error: " . $con->error;
+    die();
+}
+$sql = "SELECT tp.trtplan_id, tp.prescribe_date, tp.dosage, tp.suggestion,
+               p.first_name AS patient_first_name, p.last_name AS patient_last_name, p.user_id AS patient_user_id,
+               d.first_name AS doctor_first_name, d.last_name AS doctor_last_name
+        FROM TreatmentPlan tp
+        JOIN Patient p ON tp.patient_user_id = p.user_id
+        LEFT JOIN Doctor d ON tp.doctor_user_id = d.user_id
+        ORDER BY p.user_id, d.first_name, d.last_name, tp.prescribe_date";
+
+$result = $con->query($sql);
+
+if ($result === false) {
+    echo "SQL Error: " . $con->error;
+    die();
+}
 
 $treatmentPlans = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        $patientId = $row['patient_name']; // Using patient name as identifier
+        $patientId = $row['patient_user_id'];
+        $doctorName = $row['doctor_first_name'] . ' ' . $row['doctor_last_name'];
+
         if (!isset($treatmentPlans[$patientId])) {
             $treatmentPlans[$patientId] = [
-                'patient_name' => $row['patient_name'],
-                'plans' => []
+                'patient_name' => $row['patient_first_name'] . ' ' . $row['patient_last_name'],
+                'doctors' => []
             ];
         }
-        $treatmentPlans[$patientId]['plans'][] = [
+
+        if (!isset($treatmentPlans[$patientId]['doctors'][$doctorName])) {
+            $treatmentPlans[$patientId]['doctors'][$doctorName] = [];
+        }
+
+        $treatmentPlans[$patientId]['doctors'][$doctorName][] = [
             'trtplan_id' => $row['trtplan_id'],
             'prescribe_date' => $row['prescribe_date'],
             'dosage' => $row['dosage'],
-            'suggestion' => $row['suggestion'],
-            'doctor_name' => $row['doctor_name']
+            'suggestion' => $row['suggestion']
         ];
     }
 }
-
-
 $con->close();
 
 ?>
@@ -236,19 +261,19 @@ $con->close();
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label>User ID:</label>
-                                    <input type="text" class="form-control form-control-sm" value="<?= $nurse['user_id'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control  " value="<?= $nurse['user_id'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>First Name:</label>
-                                    <input type="text" class="form-control form-control-sm" value="<?= $nurse['first_name'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control  " value="<?= $nurse['first_name'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Last Name:</label>
-                                    <input type="text" class="form-control form-control-sm" value="<?= $nurse['last_name'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control  " value="<?= $nurse['last_name'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
-                                    <select class="form-control form-control-sm" name="gender">
+                                    <select class="form-control  " name="gender">
                                         <option value="Male" <?= isset($nurse['gender']) && $nurse['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
                                         <option value="Female" <?= isset($nurse['gender']) && $nurse['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
                                         <option value="Other" <?= isset($nurse['gender']) && $nurse['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
@@ -258,26 +283,26 @@ $con->close();
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label>Email:</label>
-                                    <input type="email" name="email" class="form-control form-control-sm" value="<?= $nurse['email'] ?? '' ?>">
+                                    <input type="email" name="email" class="form-control  " value="<?= $nurse['email'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Phone:</label>
-                                    <input type="text" name="phone" class="form-control form-control-sm" value="<?= $nurse['phone'] ?? '' ?>">
+                                    <input type="text" name="phone" class="form-control  " value="<?= $nurse['phone'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Date of Birth:</label>
-                                    <input type="date" class="form-control form-control-sm" name="dob" value="<?= htmlspecialchars($nurse['dob'] ?? '') ?>">
+                                    <input type="date" class="form-control  " name="dob" value="<?= htmlspecialchars($nurse['dob'] ?? '') ?>">
                                 </div>
                             </div>
                             <h4 class="mt-4">Professional Information</h4>
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label>Salary:</label>
-                                    <input type="text" class="form-control form-control-sm" value="<?= $nurse['salary'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control  " value="<?= $nurse['salary'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Duty Hour:</label>
-                                    <input type="text" name="duty_hour" class="form-control form-control-sm" value="<?= $nurse['duty_hour'] ?? '' ?>">
+                                    <input type="text" name="duty_hour" class="form-control  " value="<?= $nurse['duty_hour'] ?? '' ?>">
                                 </div>
                             </div>
                         </form>
@@ -294,11 +319,11 @@ $con->close();
                             <div class="row">
                                 <div class="col-md-3 filter-group">
                                     <label for="patientSearch">Filter by Name:</label>
-                                    <input type="text" class="form-control form-control-sm" id="patientSearch" placeholder="Enter Name">
+                                    <input type="text" class="form-control form-control-sm " id="patientSearch" placeholder="Enter Name">
                                 </div>
                                 <div class="col-md-3 filter-group">
                                     <label for="ageFilter">Filter by Age:</label>
-                                    <select class="form-control form-control-sm" id="ageFilter">
+                                    <select class="form-control form-control-sm " id="ageFilter">
                                         <option value="">All Ages</option>
                                         <option value="0-18">0-18</option>
                                         <option value="19-35">19-35</option>
@@ -308,7 +333,7 @@ $con->close();
                                 </div>
                                 <div class="col-md-3 filter-group">
                                     <label for="bloodGroupFilter">Filter by Blood Group:</label>
-                                    <select class="form-control form-control-sm" id="bloodGroupFilter">
+                                    <select class="form-control form-control-sm " id="bloodGroupFilter">
                                         <option value="">All Blood Groups</option>
                                         <option value="A+">A+</option>
                                         <option value="A-">A-</option>
@@ -376,18 +401,18 @@ $con->close();
                             </tbody>
                         </table>
                     </div>
+
                     <!-- Patient Medical Details -->
                     <div class="tab-pane fade" id="list-pdetails">
                         <div class="medical-details-section">
-                            <h4>Patient Medical Details</h4>
                             <div class="row">
                                 <div class="col-md-4 filter-group">
                                     <label for="patientNameFilter">Filter by Patient Name:</label>
-                                    <input type="text" class="form-control form-control-sm" id="patientNameFilter" placeholder="Enter Name">
+                                    <input type="text" class="form-control form-control-sm " id="patientNameFilter" placeholder="Enter Name">
                                 </div>
                                 <div class="col-md-4 filter-group">
                                     <label for="doctorNameFilter">Filter by Doctor Name:</label>
-                                    <input type="text" class="form-control form-control-sm" id="doctorNameFilter" placeholder="Enter Doctor Name">
+                                    <input type="text" class="form-control form-control-sm " id="doctorNameFilter" placeholder="Enter Doctor Name">
                                 </div>
                             </div>
                         </div>
@@ -397,49 +422,38 @@ $con->close();
                                     <th style="width: 5%;">#</th>
                                     <th style="width: 20%;">Patient Name</th>
                                     <th style="width: 20%;">Doctor Name</th>
-                                    <th style="width: 15%;">Date of Treatment</th>
-                                    <th style="width: 15%;">Dosage</th>
+                                    <th style="width: 20%;">Date of Treatment</th>
+                                    <th style="width: 20%;">Dosage</th>
                                     <th style="width: 25%;">Suggestions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            <?php if (count($treatmentPlans) > 0): ?>
-                <?php $index = 1;
-                foreach ($treatmentPlans as $patientId => $patientData): ?>
-                    <tr data-plans='<?= json_encode($patientData['plans']) ?>'>
-                        <td><?= $index++ ?></td>
-                        <td><?= htmlspecialchars($patientData['patient_name']) ?></td>
-                        <td>
-                            <select class="form-control form-control-sm plan-select doctor-select">
-                                <?php foreach ($patientData['plans'] as $plan): ?>
-                                    <option value="<?= htmlspecialchars($plan['trtplan_id']) ?>">
-                                        <?= htmlspecialchars($plan['doctor_name'] ?? 'Doctor Not Assigned') ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="form-control form-control-sm plan-select date-select">
-                                <?php foreach ($patientData['plans'] as $plan): ?>
-                                    <option value="<?= htmlspecialchars($plan['trtplan_id']) ?>">
-                                        <?= htmlspecialchars($plan['prescribe_date'] ?? 'Not Yet Prescribed') ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </td>
-                        <td class="dosage">
-                            <?= !empty($patientData['plans'][0]['dosage']) ? htmlspecialchars($patientData['plans'][0]['dosage']) : 'Not Available' ?>
-                        </td>
-                        <td class="suggestion">
-                            <?= !empty($patientData['plans'][0]['suggestion']) ? htmlspecialchars($patientData['plans'][0]['suggestion']) : 'Not Available' ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="6">No medical details found.</td>
-                </tr>
-            <?php endif; ?>
+                                <?php if (count($treatmentPlans) > 0): ?>
+                                    <?php $index = 1;
+                                    foreach ($treatmentPlans as $patientId => $patientData): ?>
+                                        <?php foreach ($patientData['doctors'] as $doctorName => $doctorPlans): ?>
+                                            <tr data-plans='<?= json_encode($doctorPlans) ?>' data-patient-name='<?= htmlspecialchars($patientData['patient_name']) ?>' data-doctor-name='<?= htmlspecialchars($doctorName) ?>'>
+                                                <td><?= $index++ ?></td>
+                                                <td><?= htmlspecialchars($patientData['patient_name']) ?></td>
+                                                <td><?= htmlspecialchars($doctorName) ?></td>
+                                                <td>
+                                                    <select class="form-control  date-select">
+                                                        <option value="">Select Date</option>
+                                                        <?php foreach ($doctorPlans as $plan): ?>
+                                                            <option value="<?= htmlspecialchars($plan['trtplan_id']) ?>"><?= htmlspecialchars($plan['prescribe_date'] ?? 'Not Yet Prescribed') ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </td>
+                                                <td class="dosage"></td>
+                                                <td class="suggestion"></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="6">No medical details found.</td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -498,8 +512,77 @@ $con->close();
             ageFilterSelect.addEventListener('change', filterPatients);
             bloodGroupFilterSelect.addEventListener('change', filterPatients);
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Patient and Doctor Name Filters
+            const patientNameFilter = document.getElementById('patientNameFilter');
+            patientNameFilter.addEventListener('keyup', function() {
+                filterTable();
+            });
+
+            const doctorNameFilter = document.getElementById('doctorNameFilter');
+            doctorNameFilter.addEventListener('keyup', function() {
+                filterTable();
+            });
+
+            // Date Selection
+            const table = document.getElementById('medicalDetailsTable');
+            table.addEventListener('change', function(event) {
+                if (event.target.classList.contains('date-select')) {
+                    const select = event.target;
+                    const row = select.closest('tr');
+                    if (!row || !row.dataset.plans) return;
+
+                    let plans;
+                    try {
+                        plans = JSON.parse(row.dataset.plans);
+                    } catch (e) {
+                        console.error("Invalid JSON in dataset.plans", e);
+                        return;
+                    }
+
+                    const selectedPlan = plans.find(plan => plan.trtplan_id == select.value);
+
+                    if (selectedPlan) {
+                        row.querySelector('.dosage').innerHTML = selectedPlan.dosage ?
+                            htmlspecialchars(selectedPlan.dosage) : '<span class="text-muted">No Dosage Given</span>';
+                        row.querySelector('.suggestion').innerHTML = selectedPlan.suggestion ?
+                            htmlspecialchars(selectedPlan.suggestion) : '<span class="text-muted">No Suggestion</span>';
+                    } else {
+                        row.querySelector('.dosage').innerHTML = '<span class="text-muted">No Dosage Given</span>';
+                        row.querySelector('.suggestion').innerHTML = '<span class="text-muted">No Suggestion</span>';
+                    }
+                }
+            });
+
+            // Helper function to filter the table
+            function filterTable() {
+                const patientFilter = document.getElementById('patientNameFilter').value.toLowerCase();
+                const doctorFilter = document.getElementById('doctorNameFilter').value.toLowerCase();
+                const rows = document.querySelectorAll('#medicalDetailsTable tbody tr');
+
+                rows.forEach(row => {
+                    const patientName = row.dataset.patientName.toLowerCase();
+                    const doctorName = row.dataset.doctorName.toLowerCase();
+                    const shouldShow = patientName.includes(patientFilter) && doctorName.includes(doctorFilter);
+                    row.style.display = shouldShow ? '' : 'none';
+                });
+            }
+
+            // Helper function for HTML escaping
+            function htmlspecialchars(str) {
+                if (typeof(str) == "string") {
+                    str = str.replace(/&/g, "&amp;");
+                    str = str.replace(/"/g, "&quot;");
+                    str = str.replace(/'/g, "&#039;");
+                    str = str.replace(/</g, "&lt;");
+                    str = str.replace(/>/g, "&gt;");
+                }
+                return str;
+            }
+        });
     </script>
-    </script>
+
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
