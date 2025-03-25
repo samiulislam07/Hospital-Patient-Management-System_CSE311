@@ -7,6 +7,7 @@ include 'patient_func.php'; ?>
 <head>
     <meta charset="utf-8">
     <link rel="shortcut icon" type="image/x-icon" href="images/favicon.png" />
+    <title>Patient Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" type="text/css" href="font-awesome-4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/dashboard_style.css">
@@ -70,6 +71,8 @@ include 'patient_func.php'; ?>
                                             <p><strong>First Name:</strong> <?php echo htmlspecialchars($patient['first_name']); ?></p>
                                             <p><strong>Last Name:</strong> <?php echo htmlspecialchars($patient['last_name']); ?></p>
                                             <p><strong>Email:</strong> <?php echo htmlspecialchars($patient['email']); ?></p>
+                                            <p><strong>Contact 1:</strong> <?php echo htmlspecialchars($patient['phno1']); ?></p>
+                                            <p><strong>Contact 2:</strong> <?php echo htmlspecialchars($patient['phno2']); ?></p>
                                         </div>
                                         <div class="col-md-6">
                                             <p><strong>Gender:</strong> <?php echo htmlspecialchars($patient['gender']); ?></p>
@@ -123,9 +126,17 @@ include 'patient_func.php'; ?>
                                                 <label>Last Name:</label>
                                                 <input type="text" class="form-control" value="<?= $patient['last_name'] ?>" disabled>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 <label>Email:</label>
                                                 <input type="email" name="email" class="form-control" value="<?= $patient['email'] ?>">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Contact 1:</label>
+                                                <input type="tel" name="phno1" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="<?= isset($phoneNumbers[0]) ? htmlspecialchars($phoneNumbers[0]) : '' ?>">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Contact 2:</label>
+                                                <input type="tel" name="phno2" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="<?= isset($phoneNumbers[0]) ? htmlspecialchars($phoneNumbers[1]) : '' ?>">
                                             </div>
                                         </div>
 

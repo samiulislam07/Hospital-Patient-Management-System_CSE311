@@ -259,6 +259,7 @@ $con->close();
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" type="image/x-icon" href="images/favicon.png" />
     <title>Doctor Dashboard</title>
     <link rel="stylesheet" href="css/dashboard_style.css">
     <!-- External Stylesheets -->
