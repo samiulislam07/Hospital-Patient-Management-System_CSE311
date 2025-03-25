@@ -389,10 +389,10 @@ include 'patient_func.php'; ?>
                                     <h5 class="mb-0">Subtotal: <span class="text-primary">$<?= htmlspecialchars($subtotal) ?></span></h5>
                                     <!-- Action Buttons -->
                                     <div>
-                                        <button class="btn btn-primary mr-2">
+                                        <button id="payNowBtn" class="btn btn-primary mr-2">
                                             <i class="fa fa-credit-card"></i> Pay Now
                                         </button>
-                                        <button class="btn btn-success">
+                                        <button id="downloadInvoiceBtn" class="btn btn-success">
                                             <i class="fa fa-download"></i> Download Invoice
                                         </button>
                                     </div>
@@ -456,6 +456,53 @@ include 'patient_func.php'; ?>
         }
     });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const payButton = document.getElementById('payNowBtn');
+            if(payButton){
+                payButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Use the Fetch API to call the endpoint
+                    fetch('pay_bill.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: 'action=pay_bill'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // You can use SweetAlert2 or a simple alert
+                            alert("Bill is paid successfully!");
+                            // Optionally, reload the page to update the bill list
+                            location.reload();
+                        } else {
+                            alert("Error: " + (data.error || "Payment could not be processed."));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("There was a problem processing your payment.");
+                    });
+                });
+            }
+        });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const downloadInvoiceBtn = document.getElementById('downloadInvoiceBtn');
+                if(downloadInvoiceBtn){
+                    downloadInvoiceBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // Redirect to the PDF generation endpoint
+                        window.location.href = 'download_invoice.php';
+                    });
+                }
+            });
+        </script>
+
+
 
 </body>
 

@@ -386,5 +386,34 @@ function display_due_bills_and_subtotal()
     return $subtotal;
 }
 
+function pay_due_bills() {
+    global $con;
+    
+    // Check if the user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        return array("error" => "Unauthorized");
+    }
+    
+    $patient_id = $_SESSION['user_id'];
+    
+    // Update all due bills for this patient to 'Paid'
+    $sql = "UPDATE Bill_detail SET status = 'Paid' WHERE patient_user_id = ? AND status = 'Due'";
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        return array("error" => "Database error: Unable to prepare statement.");
+    }
+    
+    // Since patient_user_id is varchar, we bind as a string ("s")
+    $stmt->bind_param("s", $patient_id);
+    if ($stmt->execute()) {
+        $stmt->close();
+        return array("success" => true);
+    } else {
+        $stmt->close();
+        return array("error" => "Could not update bill status.");
+    }
+}
+
+
 
 ?>
