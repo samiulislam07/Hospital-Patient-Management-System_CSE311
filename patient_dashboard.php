@@ -368,15 +368,14 @@ include 'patient_func.php'; ?>
                                             <thead class="thead-light">
                                                 <tr>
                                                     <th>#</th>
-                                                    <th>Bill Type</th>
-                                                    <th>Description</th>
+                                                    <th>Bill Type</th>                                                    
                                                     <th>Doctor Name</th>
                                                     <th>Test Name</th>
                                                     <th>Bill Amount</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                
+                                                <?php $subtotal = display_due_bills_and_subtotal(); ?>
                                             </tbody>
                                         </table>
                                     </div>
@@ -387,10 +386,7 @@ include 'patient_func.php'; ?>
                             <div class="card mt-4">
                                 <div class="card-body d-flex justify-content-between align-items-center">
                                     <!-- Subtotal or Amount Due -->
-                                    <h5 class="mb-0">Subtotal: <span class="text-primary">
-                                        
-                                    </span></h5>
-
+                                    <h5 class="mb-0">Subtotal: <span class="text-primary">$<?= htmlspecialchars($subtotal) ?></span></h5>
                                     <!-- Action Buttons -->
                                     <div>
                                         <button class="btn btn-primary mr-2">

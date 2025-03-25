@@ -291,6 +291,100 @@ function display_test_results()
     $stmt->close();
 }
 
+//fetch bills
+function display_due_bills_and_subtotal()
+{
+    global $con;
+    
+    // Ensure user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        echo '<tr><td colspan="5" class="text-center text-danger">Session expired. Please log in again.</td></tr>';
+        return 0;
+    }
+
+    $patient_id = $_SESSION['user_id'];
+    
+    // Fetch Due bills, left-joining doctor and test tables
+    $sql = "SELECT 
+                b.bill_detail_id,
+                b.patient_user_id,
+                b.doctor_user_id,
+                b.test_id,
+                b.charge_amount,
+                b.status,
+                d.first_name AS doc_fname,
+                d.last_name AS doc_lname,
+                t.test_name
+            FROM Bill_detail b
+            LEFT JOIN doctor d ON b.doctor_user_id = d.user_id
+            LEFT JOIN test t ON b.test_id = t.test_id
+            WHERE b.patient_user_id = ? AND b.status = 'Due'";
+
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        echo '<tr><td colspan="5" class="text-danger text-center">Database error: Unable to prepare statement.</td></tr>';
+        return 0;
+    }
+
+    // patient_user_id is varchar, so bind as string
+    $stmt->bind_param("s", $patient_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if (!$result) {
+        echo '<tr><td colspan="5" class="text-danger text-center">Error fetching data.</td></tr>';
+        $stmt->close();
+        return 0;
+    }
+
+    // Subtotal accumulator
+    $subtotal = 0;
+    $counter = 1;
+
+    if ($result->num_rows === 0) {
+        // No due bills found
+        echo '<tr><td colspan="5" class="text-center">No Due Bills Found.</td></tr>';
+    } else {
+        // Populate each row
+        while ($row = $result->fetch_assoc()) {
+            $billType = "";
+            $doctorName = "";
+            $testName = "";
+
+            // Determine if it's Test Fee or Consultancy Fee
+            if (!empty($row['test_id'])) {
+                // Test Fee
+                $billType = "Test Fee";
+                $testName = $row['test_name'] ?? "-";
+                $doctorName = "-";
+            } else {
+                // Consultancy Fee
+                $billType = "Consultancy Fee";
+                $doctorName = ($row['doc_fname'] || $row['doc_lname'])
+                    ? $row['doc_fname'] . " " . $row['doc_lname']
+                    : "-";
+                $testName = "-";
+            }
+
+            $amount = $row['charge_amount'];
+            $subtotal += (float)$amount;
+
+            echo "<tr>
+                    <td>{$counter}</td>
+                    <td>{$billType}</td>
+                    <td>{$doctorName}</td>
+                    <td>{$testName}</td>
+                    <td>\${$amount}</td>
+                  </tr>";
+
+            $counter++;
+        }
+    }
+
+    $stmt->close();
+    // Return the total
+    return $subtotal;
+}
 
 
 ?>
