@@ -497,10 +497,10 @@ $con->close();
                                                 <td><?= htmlspecialchars($test['patient_first_name'] . ' ' . $test['patient_last_name']) ?></td>
                                                 <td><?= htmlspecialchars($test['test_name']) ?></td>
                                                 <td>
-                                                    <input type="date" class="form-control form-control-sm test-date-input" name="test_date[]">
+                                                    <input type="date" class="form-control test-date-input" name="test_date[]">
                                                 </td>
                                                 <td>
-                                                    <input type="text" class="form-control form-control-sm test-result-input" name="result[]">
+                                                    <input type="text" class="form-control test-result-input" name="result[]">
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -511,7 +511,7 @@ $con->close();
                                     <?php endif; ?>
                                 </tbody>
                             </table>
-                            <button type="submit" class="btn btn-primary">Submit Results</button>
+                            <button style="margin-bottom: 20px;" type="submit" class="btn btn-primary">Submit Results</button>
                         </form>
                     </div>
 
