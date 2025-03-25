@@ -89,13 +89,13 @@ include 'patient_func.php'; ?>
                                         <div class="col-md-3">
                                             <p><strong>Street:</strong> <?php echo htmlspecialchars($patient['street']); ?></p>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <p><strong>City:</strong> <?php echo htmlspecialchars($patient['city']); ?></p>
                                         </div>
                                         <div class="col-md-2">
                                             <p><strong>ZIP:</strong> <?php echo htmlspecialchars($patient['zip']); ?></p>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <p><strong>Country:</strong> <?php echo htmlspecialchars($patient['country']); ?></p>
                                         </div>
                                     </div>
@@ -358,7 +358,51 @@ include 'patient_func.php'; ?>
                     </div>
                     <!-- Pay Bill -->
                     <div class="tab-pane fade" id="list-bill" role="tabpanel" aria-labelledby="list-bill-list">
+                        <div class="container-fluid py-3">
+                            <!-- Bill Breakdown -->
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-3">Bill Breakdown</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-striped">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Bill Type</th>
+                                                    <th>Description</th>
+                                                    <th>Doctor Name</th>
+                                                    <th>Test Name</th>
+                                                    <th>Bill Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <!-- Payment Container -->
+                            <div class="card mt-4">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <!-- Subtotal or Amount Due -->
+                                    <h5 class="mb-0">Subtotal: <span class="text-primary">
+                                        
+                                    </span></h5>
+
+                                    <!-- Action Buttons -->
+                                    <div>
+                                        <button class="btn btn-primary mr-2">
+                                            <i class="fa fa-credit-card"></i> Pay Now
+                                        </button>
+                                        <button class="btn btn-success">
+                                            <i class="fa fa-download"></i> Download Invoice
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
