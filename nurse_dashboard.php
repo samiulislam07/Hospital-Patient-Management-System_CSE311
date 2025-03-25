@@ -134,9 +134,8 @@ $sql = "SELECT tp.trtplan_id, tp.prescribe_date, tp.dosage, tp.suggestion,
                p.first_name AS patient_first_name, p.last_name AS patient_last_name, p.user_id AS patient_user_id,
                d.first_name AS doctor_first_name, d.last_name AS doctor_last_name
         FROM TreatmentPlan tp
-        JOIN Patient p ON tp.patient_user_id = p.user_id
-        LEFT JOIN Doctor d ON tp.doctor_user_id = d.user_id
-        ORDER BY p.user_id, d.first_name, d.last_name, tp.prescribe_date";
+        JOIN Patients p ON tp.patient_user_id = p.user_id
+        LEFT JOIN Doctors d ON tp.doctor_user_id = d.user_id";
 
 $result = $con->query($sql);
 
@@ -180,6 +179,7 @@ $con->close();
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" type="image/x-icon" href="images/favicon.png" />
     <title>Nurse Dashboard</title>
     <link rel="stylesheet" href="css/dashboard_style.css">
     <!-- External Stylesheets -->

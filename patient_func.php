@@ -24,6 +24,26 @@ if ($stmt) {
     $stmt->close();
 }
 
+// Fetch patient's phone numbers (up to 2) from Patient_Mobile table
+$sqlPhones = "SELECT mobile FROM Patient_Mobile WHERE patient_user_id = ? LIMIT 2";
+$stmtPhones = $con->prepare($sqlPhones);
+if ($stmtPhones) {
+    $stmtPhones->bind_param("s", $patient_id);
+    $stmtPhones->execute();
+    $resultPhones = $stmtPhones->get_result();
+    $phoneNumbers = [];
+    while ($row = $resultPhones->fetch_assoc()) {
+        $phoneNumbers[] = $row['mobile'];
+    }
+    $stmtPhones->close();
+    $patient['phno1'] = isset($phoneNumbers[0]) ? $phoneNumbers[0] : "";
+    $patient['phno2'] = isset($phoneNumbers[1]) ? $phoneNumbers[1] : "";
+} else {
+    // If the phone query fails, default to empty strings
+    $patient['phno1'] = "";
+    $patient['phno2'] = "";
+}
+
 // Update Patient Profile
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
   $email = $_POST['email'];
@@ -36,13 +56,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
   $zip = $_POST['zip'];
   $country = $_POST['country'];
 
+  // Get phone numbers from the form
+  $phno1 = trim($_POST['phno1']);
+  $phno2 = trim($_POST['phno2']);
+
   // Ensure patient ID is set
   if (!empty($patient_id)) {
+    // Update Patient table
       $update_sql = "UPDATE Patient SET email = ?, gender = ?, blood_group = ?, dob = ?, hno = ?, street = ?, city = ?, zip = ?, country = ? WHERE user_id = ?";
       $stmt = $con->prepare($update_sql);
       if ($stmt) {
           $stmt->bind_param("ssssssssss", $email, $gender, $blood_group, $dob, $hno, $street, $city, $zip, $country, $patient_id);
           if ($stmt->execute()) {
+            // Now update the phone numbers.
+            // Delete existing phone numbers for this patient
+            $delete_sql = "DELETE FROM Patient_Mobile WHERE patient_user_id = ?";
+            $stmt_del = $con->prepare($delete_sql);
+            if ($stmt_del) {
+                $stmt_del->bind_param("s", $patient_id);
+                $stmt_del->execute();
+                $stmt_del->close();
+            }
+
+            // Insert new phone numbers (if provided)
+            $insert_sql = "INSERT INTO Patient_Mobile (patient_user_id, mobile) VALUES (?, ?)";
+            $stmt_ins = $con->prepare($insert_sql);
+            if ($stmt_ins) {
+                if (!empty($phno1)) {
+                    $stmt_ins->bind_param("ss", $patient_id, $phno1);
+                    $stmt_ins->execute();
+                }
+                if (!empty($phno2)) {
+                    $stmt_ins->bind_param("ss", $patient_id, $phno2);
+                    $stmt_ins->execute();
+                }
+                $stmt_ins->close();
+            }
               echo "<script>alert('Profile updated successfully!'); window.location.href='patient_dashboard.php';</script>";
           } else {
               echo "<script>alert('Error updating profile. Please try again.');</script>";
@@ -114,6 +163,7 @@ if (isset($_POST['app-submit'])) {
     }
   }
 
+//fetch Pending Tests
 function display_pending_tests()
 {
     global $con;
