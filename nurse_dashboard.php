@@ -115,6 +115,36 @@ if ($result->num_rows > 0) {
     }
 }
 
+// Fetch treatment plans data with doctor and patient names
+$sql = "SELECT tp.trtplan_id, tp.prescribe_date, tp.dosage, tp.suggestion,
+               p.patient_name, d.doctor_name
+        FROM TreatmentPlan tp
+        JOIN Patients p ON tp.patient_user_id = p.user_id
+        LEFT JOIN Doctors d ON tp.doctor_user_id = d.user_id";
+
+$result = $con->query($sql);
+
+$treatmentPlans = [];
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $patientId = $row['patient_name']; // Using patient name as identifier
+        if (!isset($treatmentPlans[$patientId])) {
+            $treatmentPlans[$patientId] = [
+                'patient_name' => $row['patient_name'],
+                'plans' => []
+            ];
+        }
+        $treatmentPlans[$patientId]['plans'][] = [
+            'trtplan_id' => $row['trtplan_id'],
+            'prescribe_date' => $row['prescribe_date'],
+            'dosage' => $row['dosage'],
+            'suggestion' => $row['suggestion'],
+            'doctor_name' => $row['doctor_name']
+        ];
+    }
+}
+
+
 $con->close();
 
 ?>
@@ -138,7 +168,7 @@ $con->close();
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <a class="navbar-brand" href="#">
-            <i class="fa fa-hospital-o"></i>Hospital Management System</a>
+            <i class="fa fa-hospital-o"></i> Hospital Management System</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -163,8 +193,8 @@ $con->close();
                 <div class="list-group" id="list-tab" role="tablist">
                     <a class="list-group-item list-group-item-action active" href="#list-dash" data-toggle="list">Dashboard</a>
                     <a class="list-group-item list-group-item-action" href="#list-profile" data-toggle="list">Update Profile</a>
-                    <a class="list-group-item list-group-item-action" href="#list-patients" data-toggle="list">View All Patients</a>
-                    <a class="list-group-item list-group-item-action" href="#list-pdetails" data-toggle="list">Patients Medical Details</a>
+                    <a class="list-group-item list-group-item-action" href="#list-patients" data-toggle="list">Patient Overview</a>
+                    <a class="list-group-item list-group-item-action" href="#list-pdetails" data-toggle="list">Patient Medical Details</a>
                     <a class="list-group-item list-group-item-action" href="#list-performtest" data-toggle="list">Perform Tests</a>
                 </div>
             </div>
@@ -175,21 +205,24 @@ $con->close();
                     <div class="tab-pane fade show active" id="list-dash">
                         <div class="container-fluid bg-white p-4">
                             <div class="row">
-                                <!-- Nurse Profile -->
                                 <div class="col-12">
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <p><strong>User ID:</strong> <?php echo htmlspecialchars($nurse['user_id']); ?></p>
-                                            <p><strong>First Name:</strong> <?php echo htmlspecialchars($nurse['first_name']); ?></p>
-                                            <p><strong>Last Name:</strong> <?php echo htmlspecialchars($nurse['last_name']); ?></p>
-                                            <p><strong>Email:</strong> <?php echo htmlspecialchars($nurse['email']); ?></p>
-                                            <p><strong>Gender:</strong> <?php echo htmlspecialchars($nurse['gender']); ?></p>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p><strong>Phone:</strong> <?php echo htmlspecialchars($nurse['phone']); ?></p>
-                                            <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($nurse['dob']); ?></p>
-                                            <p><strong>Salary:</strong> <?php echo htmlspecialchars($nurse['salary']); ?></p>
-                                            <p><strong>Duty Hour: </strong> <?php echo htmlspecialchars($nurse['duty_hour']); ?></p>
+                                    <div class="profile-card">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>User ID:</strong> <?php echo htmlspecialchars($nurse['user_id']); ?></p>
+                                                <p><strong>Phone:</strong> <?php echo htmlspecialchars($nurse['phone']); ?></p>
+                                                <p><strong>Gender:</strong> <?php echo htmlspecialchars($nurse['gender']); ?></p>
+                                                <p><strong>Duty Hour:</strong> <?php echo htmlspecialchars($nurse['duty_hour']); ?></p>
+
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p><strong>Full Name:</strong> <?php echo htmlspecialchars($nurse['first_name'] . ' ' . $nurse['last_name']); ?></p>
+                                                <p><strong>Email:</strong> <?php echo htmlspecialchars($nurse['email']); ?></p>
+                                                <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($nurse['dob']); ?></p>
+                                                <p><strong>Salary:</strong> <?php echo htmlspecialchars($nurse['salary']); ?></p>
+
+
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -198,68 +231,97 @@ $con->close();
                     </div>
                     <!-- Update Profile -->
                     <div class="tab-pane fade show" id="list-profile">
-                        <h3>Update Profile</h3>
+                        <h4>Personal Information</h4>
                         <form method="POST">
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label>User ID:</label>
-                                    <input type="text" class="form-control" value="<?= $nurse['user_id'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control form-control-sm" value="<?= $nurse['user_id'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>First Name:</label>
-                                    <input type="text" class="form-control" value="<?= $nurse['first_name'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control form-control-sm" value="<?= $nurse['first_name'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Last Name:</label>
-                                    <input type="text" class="form-control" value="<?= $nurse['last_name'] ?? '' ?>" disabled>
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label>Email:</label>
-                                    <input type="email" name="email" class="form-control" value="<?= $nurse['email'] ?? '' ?>">
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group col-md-3">
-                                    <label>Phone:</label>
-                                    <input type="text" name="phone" class="form-control" value="<?= $nurse['phone'] ?? '' ?>">
+                                    <input type="text" class="form-control form-control-sm" value="<?= $nurse['last_name'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
-                                    <select class="form-control" name="gender">
+                                    <select class="form-control form-control-sm" name="gender">
                                         <option value="Male" <?= isset($nurse['gender']) && $nurse['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
                                         <option value="Female" <?= isset($nurse['gender']) && $nurse['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
                                         <option value="Other" <?= isset($nurse['gender']) && $nurse['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
                                     </select>
                                 </div>
-
-                                <div class="form-group col-md-3">
-                                    <label>Date of Birth:</label>
-                                    <input type="date" class="form-control" name="dob" value="<?= htmlspecialchars($nurse['dob'] ?? '') ?>">
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label>Salary:</label>
-                                    <input type="text" class="form-control" value="<?= $nurse['salary'] ?? '' ?>" disabled>
-                                </div>
                             </div>
-
                             <div class="form-row">
-                                <div class="form-group col-md-3">
-                                    <label>Duty Hour:</label>
-                                    <input type="text" name="duty_hour" class="form-control" value="<?= $nurse['duty_hour'] ?? '' ?>">
+                                <div class="form-group col-md-4">
+                                    <label>Email:</label>
+                                    <input type="email" name="email" class="form-control form-control-sm" value="<?= $nurse['email'] ?? '' ?>">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label>Phone:</label>
+                                    <input type="text" name="phone" class="form-control form-control-sm" value="<?= $nurse['phone'] ?? '' ?>">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label>Date of Birth:</label>
+                                    <input type="date" class="form-control form-control-sm" name="dob" value="<?= htmlspecialchars($nurse['dob'] ?? '') ?>">
                                 </div>
                             </div>
-
-                            <br>
-                            <div class="text-left">
-                                <button type="submit" name="update_nurse" class="btn btn-primary">Update</button>
+                            <h4 class="mt-4">Professional Information</h4>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label>Salary:</label>
+                                    <input type="text" class="form-control form-control-sm" value="<?= $nurse['salary'] ?? '' ?>" disabled>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label>Duty Hour:</label>
+                                    <input type="text" name="duty_hour" class="form-control form-control-sm" value="<?= $nurse['duty_hour'] ?? '' ?>">
+                                </div>
                             </div>
                         </form>
+                        <br>
+                        <div class="text-left">
+                            <button type="submit" name="update_nurse" class="btn btn-primary">Update</button>
+                        </div>
+                        </form>
                     </div>
-                    <!-- Patient Information -->
+
+                    <!-- Patient Overview -->
                     <div class="tab-pane fade" id="list-patients">
-                        <h4>Patients Information</h4>
-                        <input type="text" class="form-control mb-2" id="patientSearch" placeholder="Search by Patient Name">
+                        <div class="overview-section">
+                            <div class="row">
+                                <div class="col-md-3 filter-group">
+                                    <label for="patientSearch">Filter by Name:</label>
+                                    <input type="text" class="form-control form-control-sm" id="patientSearch" placeholder="Enter Name">
+                                </div>
+                                <div class="col-md-3 filter-group">
+                                    <label for="ageFilter">Filter by Age:</label>
+                                    <select class="form-control form-control-sm" id="ageFilter">
+                                        <option value="">All Ages</option>
+                                        <option value="0-18">0-18</option>
+                                        <option value="19-35">19-35</option>
+                                        <option value="36-50">36-50</option>
+                                        <option value="51+">51+</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 filter-group">
+                                    <label for="bloodGroupFilter">Filter by Blood Group:</label>
+                                    <select class="form-control form-control-sm" id="bloodGroupFilter">
+                                        <option value="">All Blood Groups</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <table class="table table-hover" id="patientsTable">
                             <thead>
                                 <tr>
@@ -280,7 +342,16 @@ $con->close();
                                             <td><?= $index++ ?></td>
                                             <td><?= htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']) ?></td>
                                             <td><?= htmlspecialchars($patient['gender']) ?></td>
-                                            <td>
+                                            <td data-age="<?php
+                                                            if (!empty($patient['dob'])) {
+                                                                $dob = new DateTime($patient['dob']);
+                                                                $today = new DateTime();
+                                                                $age = $today->diff($dob)->y;
+                                                                echo $age;
+                                                            } else {
+                                                                echo 'N/A';
+                                                            }
+                                                            ?>">
                                                 <?php
                                                 if (!empty($patient['dob'])) {
                                                     $dob = new DateTime($patient['dob']);
@@ -292,7 +363,7 @@ $con->close();
                                                 }
                                                 ?>
                                             </td>
-                                            <td><?= htmlspecialchars($patient['blood_group']) ?></td>
+                                            <td data-blood-group="<?= htmlspecialchars($patient['blood_group']) ?>"><?= htmlspecialchars($patient['blood_group']) ?></td>
                                             <td><?= htmlspecialchars($patient['allergies'] ?: 'N/A') ?></td>
                                             <td><?= htmlspecialchars($patient['pre_conditions'] ?: 'N/A') ?></td>
                                         </tr>
@@ -302,6 +373,73 @@ $con->close();
                                         <td colspan="7">No patient information found.</td>
                                     </tr>
                                 <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Patient Medical Details -->
+                    <div class="tab-pane fade" id="list-pdetails">
+                        <div class="medical-details-section">
+                            <h4>Patient Medical Details</h4>
+                            <div class="row">
+                                <div class="col-md-4 filter-group">
+                                    <label for="patientNameFilter">Filter by Patient Name:</label>
+                                    <input type="text" class="form-control form-control-sm" id="patientNameFilter" placeholder="Enter Name">
+                                </div>
+                                <div class="col-md-4 filter-group">
+                                    <label for="doctorNameFilter">Filter by Doctor Name:</label>
+                                    <input type="text" class="form-control form-control-sm" id="doctorNameFilter" placeholder="Enter Doctor Name">
+                                </div>
+                            </div>
+                        </div>
+                        <table class="table table-hover" id="medicalDetailsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%;">#</th>
+                                    <th style="width: 20%;">Patient Name</th>
+                                    <th style="width: 20%;">Doctor Name</th>
+                                    <th style="width: 15%;">Date of Treatment</th>
+                                    <th style="width: 15%;">Dosage</th>
+                                    <th style="width: 25%;">Suggestions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php if (count($treatmentPlans) > 0): ?>
+                <?php $index = 1;
+                foreach ($treatmentPlans as $patientId => $patientData): ?>
+                    <tr data-plans='<?= json_encode($patientData['plans']) ?>'>
+                        <td><?= $index++ ?></td>
+                        <td><?= htmlspecialchars($patientData['patient_name']) ?></td>
+                        <td>
+                            <select class="form-control form-control-sm plan-select doctor-select">
+                                <?php foreach ($patientData['plans'] as $plan): ?>
+                                    <option value="<?= htmlspecialchars($plan['trtplan_id']) ?>">
+                                        <?= htmlspecialchars($plan['doctor_name'] ?? 'Doctor Not Assigned') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-control form-control-sm plan-select date-select">
+                                <?php foreach ($patientData['plans'] as $plan): ?>
+                                    <option value="<?= htmlspecialchars($plan['trtplan_id']) ?>">
+                                        <?= htmlspecialchars($plan['prescribe_date'] ?? 'Not Yet Prescribed') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                        <td class="dosage">
+                            <?= !empty($patientData['plans'][0]['dosage']) ? htmlspecialchars($patientData['plans'][0]['dosage']) : 'Not Available' ?>
+                        </td>
+                        <td class="suggestion">
+                            <?= !empty($patientData['plans'][0]['suggestion']) ? htmlspecialchars($patientData['plans'][0]['suggestion']) : 'Not Available' ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="6">No medical details found.</td>
+                </tr>
+            <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -315,28 +453,58 @@ $con->close();
     <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-        // Patient Information Search
-        const patientSearchInput = document.getElementById('patientSearch');
-        const patientsTableBody = document.querySelector('#patientsTable tbody');
+            const patientSearchInput = document.getElementById('patientSearch');
+            const ageFilterSelect = document.getElementById('ageFilter');
+            const bloodGroupFilterSelect = document.getElementById('bloodGroupFilter');
+            const patientsTableBody = document.querySelector('#patientsTable tbody');
 
-        patientSearchInput.addEventListener('keyup', function() {
-            const searchValue = this.value.toLowerCase();
-            const rows = patientsTableBody.querySelectorAll('tr');
+            function filterPatients() {
+                const searchValue = patientSearchInput.value.toLowerCase();
+                const ageFilterValue = ageFilterSelect.value;
+                const bloodGroupFilterValue = bloodGroupFilterSelect.value;
+                const rows = patientsTableBody.querySelectorAll('tr');
 
-            rows.forEach(row => {
-                const rowText = row.textContent.toLowerCase();
-                if (rowText.includes(searchValue)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+                rows.forEach(row => {
+                    const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    const age = row.querySelector('td:nth-child(4)').dataset.age;
+                    const bloodGroup = row.querySelector('td:nth-child(5)').dataset.bloodGroup;
+
+                    let nameMatch = name.includes(searchValue);
+                    let ageMatch = true;
+                    let bloodGroupMatch = true;
+
+                    if (ageFilterValue) {
+                        if (ageFilterValue === '51+') {
+                            ageMatch = parseInt(age) >= 51;
+                        } else {
+                            const [minAge, maxAge] = ageFilterValue.split('-').map(Number);
+                            ageMatch = parseInt(age) >= minAge && parseInt(age) <= maxAge;
+                        }
+                    }
+
+                    if (bloodGroupFilterValue) {
+                        bloodGroupMatch = bloodGroup === bloodGroupFilterValue;
+                    }
+
+                    if (nameMatch && ageMatch && bloodGroupMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            patientSearchInput.addEventListener('keyup', filterPatients);
+            ageFilterSelect.addEventListener('change', filterPatients);
+            bloodGroupFilterSelect.addEventListener('change', filterPatients);
         });
-        </script>
+    </script>
+    </script>
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 </body>
+
 </html>

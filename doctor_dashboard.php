@@ -272,7 +272,7 @@ $con->close();
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <a class="navbar-brand" href="#">
-            <i class="fa fa-hospital-o"></i>Hospital Management System</a>
+            <i class="fa fa-hospital-o"></i> Hospital Management System</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -310,24 +310,24 @@ $con->close();
                     <div class="tab-pane fade show active" id="list-dash">
                         <div class="container-fluid bg-white p-4">
                             <div class="row">
-                                <!-- Doctor Profile -->
                                 <div class="col-12">
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
+                                    <div class="profile-card">
+                                        <div class="row">
+                                            <div class="col-md-6">
                                             <p><strong>User ID:</strong> <?php echo htmlspecialchars($doctor['user_id']); ?></p>
-                                            <p><strong>First Name:</strong> <?php echo htmlspecialchars($doctor['first_name']); ?></p>
-                                            <p><strong>Last Name:</strong> <?php echo htmlspecialchars($doctor['last_name']); ?></p>
-                                            <p><strong>Email:</strong> <?php echo htmlspecialchars($doctor['email']); ?></p>
-                                            <p><strong>Gender:</strong> <?php echo htmlspecialchars($doctor['gender']); ?></p>
                                             <p><strong>Phone:</strong> <?php echo htmlspecialchars($doctor['phone']); ?></p>
-                                            <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($doctor['dob']); ?></p>
-
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p><strong>Salary:</strong> <?php echo htmlspecialchars($doctor['salary']); ?></p>
-                                            <p><strong>Specialization</strong> <?php echo htmlspecialchars($doctor['specialization']); ?></p>
-                                            <p><strong>Fees:</strong> <?php echo htmlspecialchars($doctor['doc_fee']); ?></p>
-                                            <p><strong>Availability:</strong> <?php echo htmlspecialchars($doctor['availability']); ?></p>
+                                                <p><strong>Gender:</strong> <?php echo htmlspecialchars($doctor['gender']); ?></p>
+                                                <p><strong>Specialization:</strong> <?php echo htmlspecialchars($doctor['specialization']); ?></p>
+                                                <p><strong>Availability:</strong> <?php echo htmlspecialchars($doctor['availability']); ?></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                            <p><strong>Full Name:</strong> <?php echo htmlspecialchars($doctor['first_name'] . ' ' . $doctor['last_name']); ?></p>
+                                                <p><strong>Email:</strong> <?php echo htmlspecialchars($doctor['email']); ?></p>
+                                                <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($doctor['dob']); ?></p>
+                                                <p><strong>Salary:</strong> <?php echo htmlspecialchars($doctor['salary']); ?></p>
+                                                <p><strong>Fees:</strong> <?php echo htmlspecialchars($doctor['doc_fee']); ?></p>
+                                               
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -336,75 +336,76 @@ $con->close();
                     </div>
                     <!-- Update Profile -->
                     <div class="tab-pane fade show" id="list-profile">
-                        <h3>Update Profile</h3>
+                        <h4>Personal Information</h4>
                         <form method="POST">
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label>User ID:</label>
-                                    <input type="text" class="form-control" value="<?= $doctor['user_id'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control form-control-sm" value="<?= $doctor['user_id'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>First Name:</label>
-                                    <input type="text" class="form-control" value="<?= $doctor['first_name'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control form-control-sm" value="<?= $doctor['first_name'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Last Name:</label>
-                                    <input type="text" class="form-control" value="<?= $doctor['last_name'] ?? '' ?>" disabled>
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label>Email:</label>
-                                    <input type="email" name="email" class="form-control" value="<?= $doctor['email'] ?? '' ?>">
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group col-md-3">
-                                    <label>Phone:</label>
-                                    <input type="text" name="phone" class="form-control" value="<?= $doctor['phone'] ?? '' ?>">
+                                    <input type="text" class="form-control form-control-sm" value="<?= $doctor['last_name'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
-                                    <select class="form-control" name="gender">
+                                    <select class="form-control form-control-sm" name="gender">
                                         <option value="Male" <?= isset($doctor['gender']) && $doctor['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
                                         <option value="Female" <?= isset($doctor['gender']) && $doctor['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
                                         <option value="Other" <?= isset($doctor['gender']) && $doctor['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
                                     </select>
                                 </div>
+                            </div>
 
-                                <div class="form-group col-md-3">
-                                    <label>Date of Birth:</label>
-                                    <input type="date" class="form-control" name="dob" value="<?= htmlspecialchars($doctor['dob'] ?? '') ?>">
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label>Email:</label>
+                                    <input type="email" name="email" class="form-control form-control-sm" value="<?= $doctor['email'] ?? '' ?>">
                                 </div>
-
-                                <div class="form-group col-md-3">
-                                    <label>Doctor Fee:</label>
-                                    <input type="text" name="doc_fee" class="form-control" value="<?= $doctor['doc_fee'] ?? '' ?>">
+                                <div class="form-group col-md-4">
+                                    <label>Phone:</label>
+                                    <input type="text" name="phone" class="form-control form-control-sm" value="<?= $doctor['phone'] ?? '' ?>">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label>Date of Birth:</label>
+                                    <input type="date" class="form-control form-control-sm" name="dob" value="<?= htmlspecialchars($doctor['dob'] ?? '') ?>">
                                 </div>
                             </div>
+
+                            <h4 class="mt-4">Professional Information</h4>
 
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label>Salary:</label>
-                                    <input type="text" class="form-control" value="<?= $doctor['salary'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control form-control-sm" value="<?= $doctor['salary'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Specialization:</label>
-                                    <select name="specialization" class="form-control">
+                                    <select name="specialization" class="form-control form-control-sm">
                                         <?php foreach ($departments as $dept): ?>
                                             <option value="<?= $dept ?>" <?= ($doctor['specialization'] ?? '') == $dept ? 'selected' : '' ?>><?= $dept ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
                                 <div class="form-group col-md-3">
+                                    <label>Doctor Fee:</label>
+                                    <input type="text" name="doc_fee" class="form-control form-control-sm" value="<?= $doctor['doc_fee'] ?? '' ?>">
+                                </div>
+                                <div class="form-group col-md-3">
                                     <label>Availability:</label>
-                                    <input type="text" name="availability" class="form-control" value="<?= $doctor['availability'] ?? '' ?>">
+                                    <input type="text" name="availability" class="form-control form-control-sm" value="<?= $doctor['availability'] ?? '' ?>">
                                 </div>
                             </div>
+                        </form>
 
-                            <br>
-                            <div class="text-left">
-                                <button type="submit" name="update_doctor" class="btn btn-primary">Update</button>
-                            </div>
+                        <br>
+                        <div class="text-left">
+                            <button type="submit" name="update_doctor" class="btn btn-primary">Update</button>
+                        </div>
                         </form>
                     </div>
 
@@ -438,7 +439,7 @@ $con->close();
                                                 $status_class = '';
                                                 switch ($appointment['appt_status']) {
                                                     case 'Scheduled':
-                                                        $status_class = 'badge-info';
+                                                        $status_class = 'badge-warning';
                                                         break;
                                                     case 'Ongoing':
                                                         $status_class = 'badge-info';
@@ -450,7 +451,7 @@ $con->close();
                                                         $status_class = 'badge-danger';
                                                         break;
                                                     case 'Missed':
-                                                        $status_class = 'badge-warning';
+                                                        $status_class = 'badge-secondary';
                                                         break;
                                                     default:
                                                         $status_class = 'badge-secondary';
@@ -463,6 +464,7 @@ $con->close();
                                                 <form method="POST">
                                                     <input type="hidden" name="appt_id" value="<?= htmlspecialchars($appointment['appt_id']) ?>">
                                                     <select class="form-control form-control-sm" name="appt_status">
+                                                        <option value="Scheduled" <?= $appointment['appt_status'] == 'Scheduled' ? 'selected' : '' ?>>Scheduled</option>
                                                         <option value="Ongoing" <?= $appointment['appt_status'] == 'Ongoing' ? 'selected' : '' ?>>Ongoing</option>
                                                         <option value="Completed" <?= $appointment['appt_status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
                                                         <option value="Cancelled" <?= $appointment['appt_status'] == 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
@@ -492,6 +494,7 @@ $con->close();
                                 <tr>
                                     <th>#</th>
                                     <th>Name</th>
+                                    <th>Age</th>
                                     <th>Blood Group</th>
                                     <th>Allergy</th>
                                     <th>Preconditions</th>
@@ -505,7 +508,19 @@ $con->close();
                                         <tr>
                                             <td><?= $index + 1 ?></td>
                                             <td><?= htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']) ?></td>
-                                            <td><?= htmlspecialchars($patient['blood_group']) ?></td>
+                                            <td>
+                                                <?php
+                                                if (!empty($patient['dob'])) {
+                                                    $dob = new DateTime($patient['dob']);
+                                                    $today = new DateTime();
+                                                    $age = $today->diff($dob)->y;
+                                                    echo $age;
+                                                } else {
+                                                    echo 'N/A';
+                                                }
+                                                ?>
+                                            </td>
+                                            <td><?= htmlspecialchars($patient['blood_group'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($patient['allergies'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($patient['pre_conditions'] ?? 'N/A') ?></td>
                                             <td>
@@ -534,7 +549,7 @@ $con->close();
                     <!-- Test Results -->
                     <div class="tab-pane fade" id="list-tests">
                         <h4>Test Results</h4>
-                        <input type="text" class="form-control mb-2" placeholder="Search by Patient Name">
+                        <input type="text" class="form-control mb-2" style="width: 40%;" placeholder="Search by Patient Name">
                         <table class="table table-hover" id="testResultsTable">
                             <thead>
                                 <tr>
@@ -587,7 +602,7 @@ $con->close();
                     <!-- Treatment Plans -->
                     <div class="tab-pane fade" id="list-trtplans">
                         <h4>Treatment Plans</h4>
-                        <input type="text" class="form-control mb-2" placeholder="Search by Patient Name">
+                        <input type="text" class="form-control mb-2" style="width: 40%;" placeholder="Search by Patient Name">
                         <table class="table table-hover" id="treatmentPlanTable">
                             <thead>
                                 <tr>
