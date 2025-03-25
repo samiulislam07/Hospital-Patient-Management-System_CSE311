@@ -114,6 +114,7 @@ if (isset($_POST['app-submit'])) {
     }
   }
 
+//fetch Pending Tests
 function display_pending_tests()
 {
     global $con;

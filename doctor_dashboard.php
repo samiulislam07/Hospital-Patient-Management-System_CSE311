@@ -341,19 +341,19 @@ $con->close();
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label>User ID:</label>
-                                    <input type="text" class="form-control form-control-sm" value="<?= $doctor['user_id'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control" value="<?= $doctor['user_id'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>First Name:</label>
-                                    <input type="text" class="form-control form-control-sm" value="<?= $doctor['first_name'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control" value="<?= $doctor['first_name'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Last Name:</label>
-                                    <input type="text" class="form-control form-control-sm" value="<?= $doctor['last_name'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control" value="<?= $doctor['last_name'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
-                                    <select class="form-control form-control-sm" name="gender">
+                                    <select class="form-control" name="gender">
                                         <option value="Male" <?= isset($doctor['gender']) && $doctor['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
                                         <option value="Female" <?= isset($doctor['gender']) && $doctor['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
                                         <option value="Other" <?= isset($doctor['gender']) && $doctor['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
@@ -364,15 +364,15 @@ $con->close();
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label>Email:</label>
-                                    <input type="email" name="email" class="form-control form-control-sm" value="<?= $doctor['email'] ?? '' ?>">
+                                    <input type="email" name="email" class="form-control" value="<?= $doctor['email'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Phone:</label>
-                                    <input type="text" name="phone" class="form-control form-control-sm" value="<?= $doctor['phone'] ?? '' ?>">
+                                    <input type="text" name="phone" class="form-control" value="<?= $doctor['phone'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Date of Birth:</label>
-                                    <input type="date" class="form-control form-control-sm" name="dob" value="<?= htmlspecialchars($doctor['dob'] ?? '') ?>">
+                                    <input type="date" class="form-control" name="dob" value="<?= htmlspecialchars($doctor['dob'] ?? '') ?>">
                                 </div>
                             </div>
 
@@ -381,11 +381,11 @@ $con->close();
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label>Salary:</label>
-                                    <input type="text" class="form-control form-control-sm" value="<?= $doctor['salary'] ?? '' ?>" disabled>
+                                    <input type="text" class="form-control " value="<?= $doctor['salary'] ?? '' ?>" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Specialization:</label>
-                                    <select name="specialization" class="form-control form-control-sm">
+                                    <select name="specialization" class="form-control">
                                         <?php foreach ($departments as $dept): ?>
                                             <option value="<?= $dept ?>" <?= ($doctor['specialization'] ?? '') == $dept ? 'selected' : '' ?>><?= $dept ?></option>
                                         <?php endforeach; ?>
@@ -393,11 +393,11 @@ $con->close();
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Doctor Fee:</label>
-                                    <input type="text" name="doc_fee" class="form-control form-control-sm" value="<?= $doctor['doc_fee'] ?? '' ?>">
+                                    <input type="text" name="doc_fee" class="form-control" value="<?= $doctor['doc_fee'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Availability:</label>
-                                    <input type="text" name="availability" class="form-control form-control-sm" value="<?= $doctor['availability'] ?? '' ?>">
+                                    <input type="text" name="availability" class="form-control" value="<?= $doctor['availability'] ?? '' ?>">
                                 </div>
                             </div>
                         </form>
