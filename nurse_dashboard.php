@@ -156,6 +156,29 @@ if ($result->num_rows > 0) {
         ];
     }
 }
+
+// Fetch tests with null test_date and result
+$sql = "SELECT dtp.test_id, dtp.patient_user_id, dtp.pres_date,
+               p.first_name AS patient_first_name, p.last_name AS patient_last_name,
+               t.test_name
+        FROM Doc_Test_Patient dtp
+        JOIN Patient p ON dtp.patient_user_id = p.user_id
+        JOIN Test t ON dtp.test_id = t.test_id
+        WHERE dtp.test_date IS NULL AND dtp.result IS NULL";
+
+$result = $con->query($sql);
+
+if ($result === false) {
+    echo "SQL Error: " . $con->error;
+    die();
+}
+
+$tests = [];
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $tests[] = $row;
+    }
+}
 $con->close();
 
 ?>
@@ -444,6 +467,54 @@ $con->close();
                             </tbody>
                         </table>
                     </div>
+                    <!-- Perform Tests -->
+                    <div class="tab-pane fade" id="list-performtest">
+                        <div class="test-details-section">
+                            <div class="row">
+                                <div class="col-md-4 filter-group">
+                                    <label for="patientNameFilterNurse">Filter by Patient Name:</label>
+                                    <input type="text" class="form-control form-control-sm" id="patientNameFilterNurse" placeholder="Enter Name">
+                                </div>
+                            </div>
+                        </div>
+                        <form id="nurseTestForm" method="post" action="perform_test.php">
+                            <table class="table table-hover" id="nurseTestsTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 5%;">#</th>
+                                        <th style="width: 20%;">Patient Name</th>
+                                        <th style="width: 20%;">Test Name</th>
+                                        <th style="width: 15%;">Test Date</th>
+                                        <th style="width: 25%;">Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (count($tests) > 0): ?>
+                                        <?php $index = 1;
+                                        foreach ($tests as $test): ?>
+                                            <tr data-patient-id="<?= $test['patient_user_id'] ?>" data-test-id="<?= $test['test_id'] ?>">
+                                                <td><?= $index++ ?></td>
+                                                <td><?= htmlspecialchars($test['patient_first_name'] . ' ' . $test['patient_last_name']) ?></td>
+                                                <td><?= htmlspecialchars($test['test_name']) ?></td>
+                                                <td>
+                                                    <input type="date" class="form-control form-control-sm test-date-input" name="test_date[]">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm test-result-input" name="result[]">
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="5">No tests found.</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                            <button type="submit" class="btn btn-primary">Submit Results</button>
+                        </form>
+                    </div>
+
 
                 </div>
             </div>
@@ -499,7 +570,8 @@ $con->close();
             ageFilterSelect.addEventListener('change', filterPatients);
             bloodGroupFilterSelect.addEventListener('change', filterPatients);
         });
-
+    </script>
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Patient and Doctor Name Filters
             const patientNameFilter = document.getElementById('patientNameFilter');
@@ -567,6 +639,68 @@ $con->close();
                 }
                 return str;
             }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Patient Name Filter
+            const patientNameFilterNurse = document.getElementById('patientNameFilterNurse');
+            patientNameFilterNurse.addEventListener('keyup', function() {
+                const filter = patientNameFilterNurse.value.toLowerCase();
+                const rows = document.querySelectorAll('#nurseTestsTable tbody tr');
+
+                rows.forEach(row => {
+                    const patientName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    row.style.display = patientName.includes(filter) ? '' : 'none';
+                });
+            });
+
+            // Form Submission
+            const nurseTestForm = document.getElementById('nurseTestForm');
+            nurseTestForm.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                const rows = document.querySelectorAll('#nurseTestsTable tbody tr');
+                const testData = [];
+
+                rows.forEach(row => {
+                    const patientId = row.dataset.patientId;
+                    const testId = row.dataset.testId;
+                    const testDate = row.querySelector('.test-date-input').value;
+                    const result = row.querySelector('.test-result-input').value;
+
+                    if (testDate && result) {
+                        testData.push({
+                            patientId,
+                            testId,
+                            testDate,
+                            result
+                        });
+                    }
+                });
+
+                // Send data to PHP for processing
+                fetch('perform_test.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(testData),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Test results submitted successfully!');
+                            location.reload(); // Reload the page to update the table
+                        } else {
+                            alert('Error submitting test results.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred.');
+                    });
+            });
         });
     </script>
 
