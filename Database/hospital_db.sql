@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 25, 2025 at 07:42 PM
+-- Generation Time: Mar 25, 2025 at 11:51 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -45,7 +45,9 @@ INSERT INTO `appointment` (`appt_id`, `appt_date`, `appt_time`, `updated_at`) VA
 (4, '2024-10-09', '14:39:53', '2025-03-22 03:40:08'),
 (5, '2025-03-22', '00:00:10', '2025-03-24 16:03:10'),
 (6, '2025-03-24', '00:00:00', '2025-03-24 19:32:49'),
-(7, '2025-03-26', '10:00:00', '2025-03-24 19:52:48');
+(7, '2025-03-26', '10:00:00', '2025-03-24 19:52:48'),
+(8, '2025-03-29', '10:45:00', '2025-03-25 19:45:12'),
+(9, '2025-03-29', '00:00:00', '2025-03-25 20:42:08');
 
 -- --------------------------------------------------------
 
@@ -54,11 +56,11 @@ INSERT INTO `appointment` (`appt_id`, `appt_date`, `appt_time`, `updated_at`) VA
 --
 
 CREATE TABLE `bill_detail` (
-  `bill_detail_id` int(10) NOT NULL,
-  `patient_user_id` varchar(6) NOT NULL,
-  `doctor_user_id` varchar(6) DEFAULT NULL,
-  `test_id` int(3) DEFAULT NULL,
-  `charge_amount` int(6) NOT NULL,
+  `bill_detail_id` int(11) NOT NULL,
+  `patient_user_id` varchar(20) NOT NULL,
+  `doctor_user_id` varchar(20) DEFAULT NULL,
+  `test_id` int(11) DEFAULT NULL,
+  `charge_amount` decimal(10,2) NOT NULL,
   `status` enum('Due','Paid') NOT NULL DEFAULT 'Due',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -69,9 +71,11 @@ CREATE TABLE `bill_detail` (
 --
 
 INSERT INTO `bill_detail` (`bill_detail_id`, `patient_user_id`, `doctor_user_id`, `test_id`, `charge_amount`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'p003', 'd001', NULL, 700, 'Due', '2025-03-25 18:12:31', '2025-03-25 18:12:31'),
-(2, 'p003', NULL, 1, 350, 'Due', '2025-03-25 18:12:56', '2025-03-25 18:12:56'),
-(3, 'p003', NULL, 2, 50, 'Due', '2025-03-25 18:35:58', '2025-03-25 18:35:58');
+(1, 'p003', 'd001', NULL, 700.00, 'Due', '2025-03-25 18:12:31', '2025-03-25 18:12:31'),
+(2, 'p003', NULL, 1, 350.00, 'Due', '2025-03-25 18:12:56', '2025-03-25 18:12:56'),
+(3, 'p003', NULL, 2, 50.00, 'Due', '2025-03-25 18:35:58', '2025-03-25 18:35:58'),
+(4, 'p004', 'd001', NULL, 700.00, 'Paid', '2025-03-25 20:44:26', '2025-03-25 20:44:26'),
+(5, 'p004', NULL, 7, 800.00, 'Paid', '2025-03-25 20:50:44', '2025-03-25 20:50:44');
 
 -- --------------------------------------------------------
 
@@ -97,9 +101,11 @@ INSERT INTO `checkup` (`appt_id`, `patient_user_id`, `doctor_user_id`, `appt_sta
 (2, 'p001', 'd002', 'Ongoing', '2025-03-22 03:40:37', '2025-03-22 03:40:37'),
 (3, 'p002', 'd002', 'Ongoing', '2025-03-22 03:40:50', '2025-03-22 03:40:50'),
 (4, 'p002', 'd001', 'Ongoing', '2025-03-22 03:41:25', '2025-03-24 10:30:29'),
-(5, 'p004', 'd002', 'Ongoing', '2025-03-24 16:03:10', '2025-03-24 16:03:10'),
-(6, 'p004', 'd001', 'Ongoing', '2025-03-24 19:32:49', '2025-03-24 19:32:49'),
-(7, 'p004', 'd001', 'Ongoing', '2025-03-24 19:52:48', '2025-03-24 19:53:19');
+(5, 'p004', 'd002', 'Missed', '2025-03-24 16:03:10', '2025-03-25 19:47:31'),
+(6, 'p004', 'd001', 'Completed', '2025-03-24 19:32:49', '2025-03-25 20:44:26'),
+(7, 'p004', 'd001', 'Completed', '2025-03-24 19:52:48', '2025-03-25 20:28:59'),
+(8, 'p004', 'd002', 'Completed', '2025-03-25 19:45:12', '2025-03-25 19:49:19'),
+(9, 'p004', 'd001', 'Completed', '2025-03-25 20:42:08', '2025-03-25 20:42:30');
 
 -- --------------------------------------------------------
 
@@ -125,7 +131,10 @@ INSERT INTO `department` (`dept_id`, `dept_name`, `dept_head`, `staff_count`, `c
 (2, 'Dermatology', NULL, NULL, '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
 (3, 'Cardiology', NULL, NULL, '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
 (4, 'Neurology', NULL, NULL, '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
-(5, 'Pediatrics', NULL, NULL, '2025-03-19 16:31:47', '2025-03-19 16:31:47');
+(5, 'Pediatrics', NULL, NULL, '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
+(6, '', NULL, NULL, '2025-03-25 21:04:24', '2025-03-25 21:04:24'),
+(7, '', NULL, NULL, '2025-03-25 21:07:10', '2025-03-25 21:07:10'),
+(8, '', NULL, NULL, '2025-03-25 21:13:34', '2025-03-25 21:13:34');
 
 -- --------------------------------------------------------
 
@@ -183,8 +192,8 @@ CREATE TABLE `doc_test_patient` (
 INSERT INTO `doc_test_patient` (`doctor_user_id`, `test_id`, `patient_user_id`, `pres_date`, `test_date`, `result`, `created_at`, `updated_at`) VALUES
 ('d001', 1, 'p001', '2025-03-04', '2025-03-06', 'Low RBC', '2025-03-23 22:01:28', '2025-03-24 03:34:39'),
 ('d001', 1, 'p003', '2025-03-24', '2025-03-25', 'Low RBC', '2025-03-25 04:57:48', '2025-03-25 07:22:45'),
-('d001', 1, 'p004', '2025-03-24', NULL, NULL, '2025-03-24 19:33:45', '2025-03-24 19:33:45'),
-('d001', 1, 'p004', '2025-03-26', NULL, NULL, '2025-03-24 19:54:21', '2025-03-24 19:54:21'),
+('d001', 1, 'p004', '2025-03-24', '2025-03-31', 'die', '2025-03-24 19:33:45', '2025-03-25 19:54:24'),
+('d001', 1, 'p004', '2025-03-26', '2025-03-31', 'die', '2025-03-24 19:54:21', '2025-03-25 19:54:24'),
 ('d001', 2, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 22:01:28', '2025-03-23 22:01:28'),
 ('d001', 2, 'p002', '2024-10-09', '2025-03-08', 'broken bone', '2025-03-24 01:30:49', '2025-03-24 03:40:50'),
 ('d001', 3, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 22:10:00', '2025-03-23 22:10:00'),
@@ -195,16 +204,18 @@ INSERT INTO `doc_test_patient` (`doctor_user_id`, `test_id`, `patient_user_id`, 
 ('d001', 5, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 22:18:49', '2025-03-23 22:18:49'),
 ('d001', 6, 'p001', '2025-03-04', NULL, NULL, '2025-03-23 23:21:40', '2025-03-23 23:21:40'),
 ('d001', 7, 'p001', '2025-03-04', '2025-03-07', 'Positive', '2025-03-23 22:18:49', '2025-03-24 03:39:57'),
-('d001', 7, 'p004', '2025-03-26', NULL, NULL, '2025-03-24 19:53:57', '2025-03-24 19:53:57'),
+('d001', 7, 'p004', '2025-03-26', '2025-03-27', 'positive', '2025-03-24 19:53:57', '2025-03-25 20:50:44'),
 ('d001', 8, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 01:30:49', '2025-03-24 01:30:49'),
 ('d001', 8, 'p004', '2025-03-26', NULL, NULL, '2025-03-24 19:54:21', '2025-03-24 19:54:21'),
 ('d001', 9, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 01:30:49', '2025-03-24 01:30:49'),
 ('d001', 10, 'p001', '2025-03-04', NULL, NULL, '2025-03-25 05:04:03', '2025-03-25 05:04:03'),
 ('d001', 10, 'p002', '2024-10-09', NULL, NULL, '2025-03-24 10:59:03', '2025-03-24 10:59:03'),
-('d001', 10, 'p004', '2025-03-24', NULL, NULL, '2025-03-24 19:33:50', '2025-03-24 19:33:50'),
-('d001', 10, 'p004', '2025-03-26', NULL, NULL, '2025-03-24 19:54:21', '2025-03-24 19:54:21'),
+('d001', 10, 'p004', '2025-03-24', '2025-03-28', 'die', '2025-03-24 19:33:50', '2025-03-25 20:04:55'),
+('d001', 10, 'p004', '2025-03-26', '2025-03-28', 'die', '2025-03-24 19:54:21', '2025-03-25 20:04:55'),
+('d002', 1, 'p004', '2025-03-29', '2025-03-31', 'die', '2025-03-25 19:47:09', '2025-03-25 19:54:24'),
 ('d002', 4, 'p003', '2025-03-17', '2025-03-20', 'mathay somossa', '2025-03-25 04:58:37', '2025-03-25 07:24:04'),
-('d002', 7, 'p001', '2025-03-04', '2025-03-10', 'Positive', '2025-03-23 22:18:49', '2025-03-23 22:18:49');
+('d002', 7, 'p001', '2025-03-04', '2025-03-10', 'Positive', '2025-03-23 22:18:49', '2025-03-23 22:18:49'),
+('d002', 10, 'p004', '2025-03-29', '2025-03-28', 'die', '2025-03-25 19:47:09', '2025-03-25 20:04:55');
 
 -- --------------------------------------------------------
 
@@ -285,6 +296,15 @@ CREATE TABLE `nurse_test_patient` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `nurse_test_patient`
+--
+
+INSERT INTO `nurse_test_patient` (`nurse_user_id`, `test_id`, `patient_user_id`, `created_at`, `updated_at`) VALUES
+('n001', 1, 'p004', '2025-03-25 19:54:24', '2025-03-25 19:54:24'),
+('n001', 7, 'p004', '2025-03-25 20:50:44', '2025-03-25 20:50:44'),
+('n001', 10, 'p004', '2025-03-25 20:04:13', '2025-03-25 20:04:13');
 
 -- --------------------------------------------------------
 
@@ -430,7 +450,8 @@ INSERT INTO `treatmentplan` (`trtplan_id`, `prescribe_date`, `dosage`, `suggesti
 (4, '2025-03-04', 'meow', 'meow', 'p001', 'd001', '2025-03-23 23:30:12'),
 (5, '2024-10-09', 'hello', 'hi', 'p002', 'd001', '2025-03-24 02:45:51'),
 (6, '2025-03-24', 'hfh', 'hfh', 'p004', 'd001', '2025-03-24 19:34:08'),
-(7, '2025-03-04', 'Paraceetamol', '2 bela', 'p001', 'd001', '2025-03-25 05:04:29');
+(7, '2025-03-04', 'Paraceetamol', '2 bela', 'p001', 'd001', '2025-03-25 05:04:29'),
+(8, '2025-03-29', 'khao', 'ghumao', 'p004', 'd002', '2025-03-25 19:48:48');
 
 -- --------------------------------------------------------
 
@@ -590,19 +611,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `appointment`
 --
 ALTER TABLE `appointment`
-  MODIFY `appt_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `appt_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `bill_detail`
 --
 ALTER TABLE `bill_detail`
-  MODIFY `bill_detail_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `bill_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `department`
 --
 ALTER TABLE `department`
-  MODIFY `dept_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `dept_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `test`
@@ -614,7 +635,7 @@ ALTER TABLE `test`
 -- AUTO_INCREMENT for table `treatmentplan`
 --
 ALTER TABLE `treatmentplan`
-  MODIFY `trtplan_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `trtplan_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables
