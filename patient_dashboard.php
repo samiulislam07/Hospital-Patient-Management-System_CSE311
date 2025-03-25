@@ -327,8 +327,17 @@ include 'patient_func.php'; ?>
 
                     <!-- Test Results Tab -->
                     <div class="tab-pane fade" id="list-result" role="tabpanel" aria-labelledby="list-result-list">
-                        <h4>Test Results</h4>
-                        <input type="text" class="form-control mb-2" placeholder="Search by Patient Name/ID">
+                        <!-- <h4>Test Results</h4> -->
+                        <div class="row">
+                            <div class="col-md-4 filter-group">
+                                <label for="testNameFilter">Filter by Test Name:</label>
+                                <input type="text" class="form-control form-control-sm" id="testNameFilter" placeholder="Enter Test Name">
+                            </div>
+                            <div class="col-md-4 filter-group">
+                                <label for="testDateFilter">Filter by Test Date:</label>
+                                <input type="date" class="form-control form-control-sm" id="testDateFilter" placeholder="Enter Test Date">
+                            </div>
+                        </div><br>
 
                         <table class="table table-hover">
                             <thead>
@@ -342,7 +351,7 @@ include 'patient_func.php'; ?>
                                     <th scope="col">Prescribed Date</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="testResultsBody">
                                 <?php display_test_results(); ?>
                             </tbody>
                         </table>
@@ -368,6 +377,46 @@ include 'patient_func.php'; ?>
             $('#list-tab a').tab();
         });
     </script>
+
+    <!-- Test result search filter -->
+    <script>
+    // Wait until the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get references to the filter fields and table body
+        const testNameFilter = document.getElementById("testNameFilter");
+        const testDateFilter = document.getElementById("testDateFilter");
+        const tableBody = document.getElementById("testResultsBody");
+
+        // Attach event listeners to filter fields
+        testNameFilter.addEventListener("input", filterRows);
+        testDateFilter.addEventListener("input", filterRows); // "input" works for type=date in modern browsers
+
+        function filterRows() {
+            // Get current filter values (trim and lowercase for text)
+            const nameFilter = testNameFilter.value.toLowerCase().trim();
+            const dateFilter = testDateFilter.value.trim(); // Expected in YYYY-MM-DD format
+
+            // Iterate over each row in the table body
+            const rows = tableBody.querySelectorAll("tr");
+            rows.forEach(row => {
+                // Assuming the table columns are as follows:
+                // 0: counter, 1: Test Name, 2: Test Date, 3: Test Result, 4: Doctor Name, 5: Specialization, 6: Prescribed Date
+                const testNameCell = row.children[1].textContent.toLowerCase();
+                const testDateCell = row.children[2].textContent.trim();
+
+                // Check if row matches the filters:
+                // For test name, use a partial match.
+                // For test date, check for an exact match (if a date is provided).
+                const matchName = nameFilter === "" || testNameCell.includes(nameFilter);
+                const matchDate = dateFilter === "" || testDateCell === dateFilter;
+
+                // If both conditions are met, show the row; otherwise hide it.
+                row.style.display = (matchName && matchDate) ? "" : "none";
+            });
+        }
+    });
+    </script>
+
 </body>
 
 </html>

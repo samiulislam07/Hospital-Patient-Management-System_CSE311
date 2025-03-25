@@ -216,9 +216,7 @@ function display_test_results()
 
     $patient_id = $_SESSION['user_id'];
 
-    // Query: fetch test_name, test_date, result, doctor name, specialization, pres_date
-    // Only rows with test_date and result not null
-    // Sort by test_date descending
+    // Base query
     $sql = "SELECT 
                 dtp.test_date,
                 dtp.result,
@@ -229,10 +227,29 @@ function display_test_results()
             FROM doc_test_patient dtp
             JOIN test t ON dtp.test_id = t.test_id
             JOIN doctor d ON dtp.doctor_user_id = d.user_id
-            WHERE dtp.patient_user_id = ?
-              AND dtp.test_date IS NOT NULL
-              AND dtp.result IS NOT NULL
-            ORDER BY dtp.test_date DESC";
+            WHERE dtp.patient_user_id = ? 
+              AND dtp.test_date IS NOT NULL 
+              AND dtp.result IS NOT NULL";
+
+    // Collect filter parameters from GET if available
+    $filters = [];
+    $types = "s";  // initial type for patient_id
+
+    // If a test name filter is provided, add it to the query.
+    if (!empty($_GET['testNameFilter'])) {
+        $sql .= " AND t.test_name LIKE ?";
+        $filters[] = "%" . $_GET['testNameFilter'] . "%";
+        $types .= "s";
+    }
+
+    // If a test date filter is provided, add it to the query.
+    if (!empty($_GET['testDateFilter'])) {
+        $sql .= " AND dtp.test_date = ?";
+        $filters[] = $_GET['testDateFilter'];
+        $types .= "s";
+    }
+
+    $sql .= " ORDER BY dtp.test_date DESC";
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {
@@ -240,8 +257,12 @@ function display_test_results()
         return;
     }
 
-    // patient_id is varchar, so bind as string "s"
-    $stmt->bind_param("s", $patient_id);
+    // Prepare the parameters: first parameter is patient_id, then the filters
+    $params = array_merge([$patient_id], $filters);
+
+    // Bind parameters dynamically
+    $stmt->bind_param($types, ...$params);
+
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -252,7 +273,7 @@ function display_test_results()
     }
 
     if ($result->num_rows === 0) {
-        echo "<tr><td colspan='7' class='text-center'>No test result found.</td></tr>";
+        echo "<tr><td colspan='7' class='text-center'>No test results found.</td></tr>";
     } else {
         $counter = 1;
         while ($row = $result->fetch_assoc()) {
@@ -267,9 +288,9 @@ function display_test_results()
             echo "</tr>";
         }
     }
-
     $stmt->close();
 }
+
 
 
 ?>
