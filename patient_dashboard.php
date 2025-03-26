@@ -49,6 +49,7 @@ include 'patient_func.php'; ?>
                     <a class="list-group-item list-group-item-action active" id="list-dash-list" data-toggle="list" href="#list-dash" role="tab" aria-controls="list-dash">Dashboard</a>
                     <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="list-profile">Update Profile</a>
                     <a class="list-group-item list-group-item-action" id="list-appt-list" data-toggle="list" href="#list-appt" role="tab" aria-controls="list-appt">Book Appointments</a>
+                    <a class="list-group-item list-group-item-action" id="list-apptHis-list" data-toggle="list" href="#list-apptHis" role="tab" aria-controls="list-apptHis">Appointment History</a>
                     <a class="list-group-item list-group-item-action" id="list-test-list" data-toggle="list" href="#list-test" role="tab" aria-controls="list-test">Pending Tests</a>
                     <a class="list-group-item list-group-item-action" id="list-result-list" data-toggle="list" href="#list-result" role="tab" aria-controls="list-result">Test Results</a>
                     <a class="list-group-item list-group-item-action" id="list-bill-list" data-toggle="list" href="#list-bill" role="tab" aria-controls="list-bill">Pay Bill</a>
@@ -130,11 +131,11 @@ include 'patient_func.php'; ?>
                                                 <label>Email:</label>
                                                 <input type="email" name="email" class="form-control" value="<?= $patient['email'] ?>">
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label>Contact 1:</label>
                                                 <input type="tel" name="phno1" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="<?= isset($phoneNumbers[0]) ? htmlspecialchars($phoneNumbers[0]) : '' ?>">
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label>Contact 2:</label>
                                                 <input type="tel" name="phno2" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="<?= isset($phoneNumbers[0]) ? htmlspecialchars($phoneNumbers[1]) : '' ?>">
                                             </div>
@@ -303,6 +304,27 @@ include 'patient_func.php'; ?>
                             </div>
                         </div><br>
                     </div>
+                    <!-- Appointment History Tab -->
+                     <div class="tab-pane fade" id="list-apptHis" role="tabpanel" aria-labelledby="list-apptHis-list">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Doctor</th>
+                                    <th scope="col">Specialization</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Time</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+
+                        </table>
+
+                     </div>
                     <!-- Pending Tests Tab -->
                     <div class="tab-pane fade" id="list-test" role="tabpanel" aria-labelledby="list-test-list">
                         <!-- ... pending tests content ... -->
