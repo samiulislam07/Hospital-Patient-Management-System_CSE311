@@ -163,6 +163,107 @@ if (isset($_POST['app-submit'])) {
     }
   }
 
+//Fetch Appointment History
+function display_appointment_history()
+{
+    global $con;
+
+    // Ensure the patient is logged in
+    if (!isset($_SESSION['user_id'])) {
+        echo '<tr><td colspan="7" class="text-center text-danger">Session expired. Please log in again.</td></tr>';
+        return;
+    }
+
+    $patient_id = $_SESSION['user_id'];
+
+    // Query to get all appointments for this patient
+    $sql = "SELECT 
+                A.appt_id,
+                A.appt_date,
+                A.appt_time,
+                C.appt_status,
+                CONCAT(D.first_name, ' ', D.last_name) AS doctor_name,
+                D.specialization
+            FROM checkup C
+            JOIN appointment A ON A.appt_id = C.appt_id
+            JOIN doctor D ON D.user_id = C.doctor_user_id
+            WHERE C.patient_user_id = ?
+            ORDER BY A.appt_date ASC, A.appt_time ASC";
+
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        echo '<tr><td colspan="7" class="text-center text-danger">Database error: Unable to prepare statement.</td></tr>';
+        return;
+    }
+
+    // Bind the parameter (assuming patient_user_id is a string/varchar)
+    $stmt->bind_param("s", $patient_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if (!$result) {
+        echo '<tr><td colspan="7" class="text-center text-danger">Error retrieving data.</td></tr>';
+        $stmt->close();
+        return;
+    }
+
+    if ($result->num_rows === 0) {
+        echo '<tr><td colspan="7" class="text-center">No appointments found.</td></tr>';
+    } else {
+        $count = 1;
+        while ($row = $result->fetch_assoc()) {
+            $appt_id   = $row['appt_id'];
+            $doctor    = $row['doctor_name'];
+            $spec      = $row['specialization'];
+            $date      = $row['appt_date'];
+            $time      = $row['appt_time'];
+            $status    = $row['appt_status'];
+
+            // If the appointment is already completed/cancelled/missed, disable the Cancel button
+            if (in_array($status, ['Completed', 'Cancelled', 'Missed'])) {
+                $actionBtn = '<button class="btn btn-secondary btn-sm" disabled>Cancel</button>';
+            } else {
+                // Otherwise, allow cancellation. You might pass appt_id to an AJAX or separate script.
+                $actionBtn = '<button class="btn btn-danger btn-sm" onclick="cancelAppointment('.$appt_id.')">Cancel</button>';
+            }
+
+            echo '<tr>';
+            echo '<td>'.$count++.'</td>';
+            echo '<td>'.htmlspecialchars($doctor).'</td>';
+            echo '<td>'.htmlspecialchars($spec).'</td>';
+            echo '<td>'.htmlspecialchars($date).'</td>';
+            echo '<td>'.htmlspecialchars($time).'</td>';
+            echo '<td>'.htmlspecialchars($status).'</td>';
+            echo '<td>'.$actionBtn.'</td>';
+            echo '</tr>';
+        }
+    }
+    $stmt->close();
+}
+
+function cancel_appointment($appt_id) {
+    global $con;
+    
+    // Prepare query to update appointment status to 'Cancelled'
+    $sql = "UPDATE checkup SET appt_status = 'Cancelled' 
+            WHERE appt_id = ? AND appt_status NOT IN ('Completed', 'Cancelled', 'Missed')";
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        return array("error" => "Database error: " . $con->error);
+    }
+    
+    $stmt->bind_param("i", $appt_id);
+    if ($stmt->execute()) {
+        $stmt->close();
+        return array("success" => true);
+    } else {
+        $stmt->close();
+        return array("error" => "Failed to cancel appointment.");
+    }
+}
+
+
+
 //fetch Pending Tests
 function display_pending_tests()
 {

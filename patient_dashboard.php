@@ -1,5 +1,14 @@
 <?php include 'config.php';
-include 'patient_func.php'; ?>
+include 'patient_func.php';
+// Handle AJAX cancellation requests
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
+    $appt_id = intval($_POST['cancel_appt_id']);
+    $response = cancel_appointment($appt_id);
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;  // Stop further processing so no HTML is output
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -319,7 +328,7 @@ include 'patient_func.php'; ?>
                                 </tr>
                             </thead>
                             <tbody>
-
+                                <?php display_appointment_history(); ?>
                             </tbody>
 
                         </table>
@@ -523,9 +532,36 @@ include 'patient_func.php'; ?>
                 }
             });
         </script>
-
-
-
+        <script>
+            function cancelAppointment(apptId) {
+                if (!confirm("Are you sure you want to cancel this appointment?")) {
+                    return;
+                }
+                
+                // Use Fetch API to post to the current page (which will handle the cancellation)
+                fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'cancel_appt_id=' + encodeURIComponent(apptId)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Appointment cancelled successfully.");
+                        // Optionally reload the page or update the table row to show the new status
+                        location.reload();
+                    } else {
+                        alert("Error: " + (data.error || "Could not cancel appointment."));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("There was a problem processing your request.");
+                });
+            }
+            </script>
 </body>
 
 </html>
