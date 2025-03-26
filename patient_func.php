@@ -25,19 +25,26 @@ if ($stmt) {
     $stmt->close();
 }
 
+//fetching medical history
 $sqlMedHis = "SELECT * FROM MedicalHistory WHERE patient_user_id = ?";
 $stmtMedHis = $con->prepare($sqlMedHis);
-if ($stmtMedHis) {
+if ($stmtMedHis !== false) {
     $stmtMedHis->bind_param("s", $patient_id);
-    $stmtMedHis->execute();
-    $resultMedHis = $stmtMedHis->get_result();
-    if ($resultMedHis->num_rows === 1) {
-        $medHistory = $resultMedHis->fetch_assoc();
-    }else{
+    if ($stmtMedHis->execute()) {
+        $resultMedHis = $stmtMedHis->get_result();
+        if ($resultMedHis !== false && $resultMedHis->num_rows > 0) {
+            $medHistory = $resultMedHis->fetch_assoc();
+        } else {
+            $medHistory = null;
+        }
+    } else {
         $medHistory = null;
     }
     $stmtMedHis->close();
+} else {
+    $medHistory = null;
 }
+
 
 // Fetch patient's phone numbers (up to 2) from Patient_Mobile table
 $sqlPhones = "SELECT mobile FROM Patient_Mobile WHERE patient_user_id = ? LIMIT 2";
@@ -111,13 +118,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
                 }
                 $stmt_ins->close();
             }
-            // Update Medical History table
+            // Update Medical History: try to update first
             $update_med_sql = "UPDATE MedicalHistory SET allergies = ?, pre_conditions = ? WHERE patient_user_id = ?";
             $stmt_med = $con->prepare($update_med_sql);
             if ($stmt_med) {
                 $stmt_med->bind_param("sss", $allergies, $preconditions, $patient_id);
                 $stmt_med->execute();
-                $stmt_med->close();
+                // If no rows were updated, insert a new record.
+                if ($stmt_med->affected_rows == 0) {
+                    $stmt_med->close();
+                    $insert_med_sql = "INSERT INTO MedicalHistory (patient_user_id, allergies, pre_conditions) VALUES (?, ?, ?)";
+                    $stmt_med = $con->prepare($insert_med_sql);
+                    if ($stmt_med) {
+                        $stmt_med->bind_param("sss", $patient_id, $allergies, $preconditions);
+                        $stmt_med->execute();
+                        $stmt_med->close();
+                    } else {
+                        echo "<script>alert('Database error while inserting medical history.');</script>";
+                    }
+                } else {
+                    $stmt_med->close();
+                }
+            } else {
+                echo "<script>alert('Database error while updating medical history.');</script>";
             }
               echo "<script>alert('Profile updated successfully!'); window.location.href='patient_dashboard.php';</script>";
           } else {

@@ -88,8 +88,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                                             <p><strong>Gender:</strong> <?php echo htmlspecialchars($patient['gender']); ?></p>
                                             <p><strong>Blood Group:</strong> <?php echo htmlspecialchars($patient['blood_group']); ?></p>
                                             <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($patient['dob']); ?></p>
-                                            <p><strong>Allergies:</strong> <?php echo htmlspecialchars($medHistory['allergies']); ?></p>
-                                            <p><strong>Preconditions:</strong> <?php echo htmlspecialchars($medHistory['pre_conditions']); ?></p>
+                                            <p><strong>Allergies:</strong> <?php echo $medHistory ? htmlspecialchars($medHistory['allergies']) : ''; ?></p>
+                                            <p><strong>Preconditions:</strong> <?php echo $medHistory ? htmlspecialchars($medHistory['pre_conditions']) : ''; ?></p>
+
                                         </div>
                                     </div>
 
@@ -181,11 +182,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                                             </div>
                                             <div class="col-md-3">
                                                 <label>Allergies:</label>
-                                                <input type="text" name="allergies" class="form-control" value="<?= $medHistory['allergies'] ?>">
+                                                <input type="text" name="allergies" class="form-control" value="<?= ($medHistory['allergies'] ?? '') ?>">
                                             </div>
                                             <div class="col-md-3">
                                                 <label>Preconditions:</label>
-                                                <input type="text" name="preconditions" class="form-control" value="<?= $medHistory['pre_conditions'] ?>">
+                                                <input type="text" name="preconditions" class="form-control" value="<?= ($medHistory['pre_conditions'] ?? '') ?>">
                                             </div>
                                         </div>
 
