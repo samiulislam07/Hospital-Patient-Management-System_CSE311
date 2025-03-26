@@ -10,6 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $patient_id = $_SESSION['user_id'];
 $patient = [];
+$medHistory = [];
 
 // Fetch patient details
 $sql = "SELECT user_id, first_name, last_name, email, gender, blood_group, dob, hno, street, city, zip, country FROM Patient WHERE user_id = ?";
@@ -22,6 +23,20 @@ if ($stmt) {
         $patient = $result->fetch_assoc();
     }
     $stmt->close();
+}
+
+$sqlMedHis = "SELECT * FROM MedicalHistory WHERE patient_user_id = ?";
+$stmtMedHis = $con->prepare($sqlMedHis);
+if ($stmtMedHis) {
+    $stmtMedHis->bind_param("s", $patient_id);
+    $stmtMedHis->execute();
+    $resultMedHis = $stmtMedHis->get_result();
+    if ($resultMedHis->num_rows === 1) {
+        $medHistory = $resultMedHis->fetch_assoc();
+    }else{
+        $medHistory = null;
+    }
+    $stmtMedHis->close();
 }
 
 // Fetch patient's phone numbers (up to 2) from Patient_Mobile table
@@ -60,6 +75,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
   $phno1 = trim($_POST['phno1']);
   $phno2 = trim($_POST['phno2']);
 
+  // Get medical histories from the form
+  $allergies = trim($_POST['allergies']);
+  $preconditions = trim($_POST['preconditions']);
+
   // Ensure patient ID is set
   if (!empty($patient_id)) {
     // Update Patient table
@@ -91,6 +110,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
                     $stmt_ins->execute();
                 }
                 $stmt_ins->close();
+            }
+            // Update Medical History table
+            $update_med_sql = "UPDATE MedicalHistory SET allergies = ?, pre_conditions = ? WHERE patient_user_id = ?";
+            $stmt_med = $con->prepare($update_med_sql);
+            if ($stmt_med) {
+                $stmt_med->bind_param("sss", $allergies, $preconditions, $patient_id);
+                $stmt_med->execute();
+                $stmt_med->close();
             }
               echo "<script>alert('Profile updated successfully!'); window.location.href='patient_dashboard.php';</script>";
           } else {

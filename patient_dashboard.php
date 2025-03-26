@@ -88,6 +88,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                                             <p><strong>Gender:</strong> <?php echo htmlspecialchars($patient['gender']); ?></p>
                                             <p><strong>Blood Group:</strong> <?php echo htmlspecialchars($patient['blood_group']); ?></p>
                                             <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($patient['dob']); ?></p>
+                                            <p><strong>Allergies:</strong> <?php echo htmlspecialchars($medHistory['allergies']); ?></p>
+                                            <p><strong>Preconditions:</strong> <?php echo htmlspecialchars($medHistory['pre_conditions']); ?></p>
                                         </div>
                                     </div>
 
@@ -152,7 +154,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
 
                                         <!-- Medical Information -->
                                         <div class="row mb-4">
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label>Gender:</label>
                                                 <select class="form-control" name="gender">
                                                     <option value="Male" <?= $patient['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
@@ -160,7 +162,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                                                     <option value="Other" <?= $patient['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label>Blood Group:</label>
                                                 <select name="blood_group" class="form-control">
                                                     <option value="A+" <?= $patient['blood_group'] == 'A+' ? 'selected' : '' ?>>A+</option>
@@ -173,9 +175,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                                                     <option value="O-" <?= $patient['blood_group'] == 'O-' ? 'selected' : '' ?>>O-</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label>Date of Birth:</label>
                                                 <input type="date" name="dob" class="form-control" value="<?= $patient['dob'] ?>">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Allergies:</label>
+                                                <input type="text" name="allergies" class="form-control" value="<?= $medHistory['allergies'] ?>">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Preconditions:</label>
+                                                <input type="text" name="preconditions" class="form-control" value="<?= $medHistory['pre_conditions'] ?>">
                                             </div>
                                         </div>
 
