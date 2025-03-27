@@ -1,296 +1,7 @@
 <?php
-
-session_start();
 include 'config.php';
-
-// Redirect if not logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
-    exit();
-}
+include 'doc_func.php';
 include 'form_modal.php';
-
-$doctor_id = $_SESSION['user_id'];
-$doctor = [];
-$departments = [];
-
-// Fetch doctor details
-$sql = "SELECT user_id, first_name, last_name, email, gender, phone, dob, salary, doc_fee, specialization, availability FROM Doctor WHERE user_id = ?";
-$stmt = $con->prepare($sql);
-if ($stmt) {
-    $stmt->bind_param("s", $doctor_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows === 1) {
-        $doctor = $result->fetch_assoc();
-    }
-    $stmt->close();
-}
-
-// Fetch specialization options from Department table
-$sql = "SELECT dept_name FROM Department";
-$result = $con->query($sql);
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $departments[] = $row['dept_name'];
-    }
-}
-
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
-    $email = $_POST['email'];
-    $gender = $_POST['gender'];
-    $phone = $_POST['phone'];
-    $dob = $_POST['dob'];
-    $doc_fee = $_POST['doc_fee'];
-    $specialization = $_POST['specialization'];
-    $availability = $_POST['availability'];
-
-    // Ensure user ID is set
-    if (!empty($doctor_id)) {
-
-        // Start a transaction (for atomicity)
-        $con->begin_transaction();
-
-        // Update Users Table (email only)
-        $update_users_sql = "UPDATE Users SET email = ? WHERE user_id = ?";
-        $stmt_users = $con->prepare($update_users_sql);
-
-        if ($stmt_users) {
-            $stmt_users->bind_param("ss", $email, $doctor_id);
-
-            if ($stmt_users->execute()) {
-                // Users table updated successfully, now update Staff table
-                $update_staff_sql = "UPDATE Staff SET email = ?, gender = ?, phone = ?, dob = ? WHERE user_id = ?";
-                $stmt_staff = $con->prepare($update_staff_sql);
-
-                if ($stmt_staff) {
-                    $stmt_staff->bind_param("sssss", $email, $gender, $phone, $dob, $doctor_id);
-
-                    if ($stmt_staff->execute()) {
-                        // Staff table updated successfully, now update Doctor table
-                        $update_doctor_sql = "UPDATE Doctor SET email = ?, gender = ?, phone = ?, dob = ?, doc_fee = ?, specialization = ?, availability = ? WHERE user_id = ?";
-                        $stmt_doctor = $con->prepare($update_doctor_sql);
-
-                        if ($stmt_doctor) {
-                            $stmt_doctor->bind_param("ssssssss", $email, $gender, $phone, $dob, $doc_fee, $specialization, $availability, $doctor_id);
-
-                            if ($stmt_doctor->execute()) {
-                                // All updates successful, commit the transaction
-                                $con->commit();
-                                echo "<script>alert('Profile updated successfully!'); window.location.href='doctor_dashboard.php';</script>";
-                            } else {
-                                // Doctor table update failed, rollback transaction
-                                $con->rollback();
-                                echo "<script>alert('Error updating Doctor profile. Please try again.');</script>";
-                            }
-                            $stmt_doctor->close();
-                        } else {
-                            // Doctor prepare failed, rollback transaction
-                            $con->rollback();
-                            echo "<script>alert('Database error updating Doctor. Please try again.');</script>";
-                        }
-                    } else {
-                        // Staff table update failed, rollback transaction
-                        $con->rollback();
-                        echo "<script>alert('Error updating Staff profile. Please try again.');</script>";
-                    }
-                    $stmt_staff->close();
-                } else {
-                    // Staff prepare failed, rollback transaction
-                    $con->rollback();
-                    echo "<script>alert('Database error updating Staff. Please try again.');</script>";
-                }
-            } else {
-                // Users table update failed, rollback transaction
-                $con->rollback();
-                echo "<script>alert('Error updating Users profile. Please try again.');</script>";
-            }
-            $stmt_users->close();
-        } else {
-            // User prepare failed, rollback transaction
-            $con->rollback();
-            echo "<script>alert('Database error updating Users. Please try again.');</script>";
-        }
-    } else {
-        echo "<script>alert('User ID missing. Cannot update profile.');</script>";
-    }
-}
-
-
-
-// Fetch Appointments 
-$appointments = [];
-$sql = "SELECT a.appt_id, a.appt_date, a.appt_time, c.appt_status, p.first_name AS patient_first_name, p.last_name AS patient_last_name, p.gender AS patient_gender
-        FROM Appointment a
-        INNER JOIN checkup c ON a.appt_id = c.appt_id
-        INNER JOIN Patient p ON c.patient_user_id = p.user_id
-        WHERE c.doctor_user_id = ?";
-$stmt = $con->prepare($sql);
-if ($stmt) {
-    $stmt->bind_param("s", $doctor_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $appointments[] = $row;
-        }
-    }
-    $stmt->close();
-}
-
-
-// Update Appointment Status
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
-    $appt_id = $_POST['appt_id'];
-    $appt_status = $_POST['appt_status'];
-
-    $update_sql = "UPDATE checkup SET appt_status = ? WHERE appt_id = ? AND doctor_user_id = ?";
-    $stmt = $con->prepare($update_sql);
-
-    if ($stmt) {
-        $stmt->bind_param("sis", $appt_status, $appt_id, $doctor_id);
-
-        if ($stmt->execute()) {
-            if ($appt_status === 'Completed') {
-                // Get patient_user_id and doctor_user_id from checkup table
-                $select_checkup_sql = "SELECT patient_user_id, doctor_user_id FROM checkup WHERE appt_id = ?";
-                $select_checkup_stmt = $con->prepare($select_checkup_sql);
-                $select_checkup_stmt->bind_param("i", $appt_id);
-                $select_checkup_stmt->execute();
-                $select_checkup_stmt->bind_result($patient_user_id, $doctor_user_id);
-                $select_checkup_stmt->fetch();
-                $select_checkup_stmt->close();
-
-                // Get doc_fee from Doctor table
-                $select_doctor_sql = "SELECT doc_fee FROM Doctor WHERE user_id = ?";
-                $select_doctor_stmt = $con->prepare($select_doctor_sql);
-                $select_doctor_stmt->bind_param("s", $doctor_user_id);
-                $select_doctor_stmt->execute();
-                $select_doctor_stmt->bind_result($doc_fee);
-                $select_doctor_stmt->fetch();
-                $select_doctor_stmt->close();
-
-                // Add record to Bill_detail table
-                $insert_sql = "INSERT INTO Bill_detail (patient_user_id, doctor_user_id, test_id, charge_amount) VALUES (?, ?, NULL, ?)";
-                $insert_stmt = $con->prepare($insert_sql);
-
-                if ($insert_stmt) {
-                    $insert_stmt->bind_param("sss", $patient_user_id, $doctor_user_id, $doc_fee);
-
-                    if ($insert_stmt->execute()) {
-                        echo "<script>alert('Appointment status updated and bill detail added successfully!'); window.location.href='doctor_dashboard.php';</script>";
-                    } else {
-                        echo "<script>alert('Appointment status updated, but error adding bill detail. Please try again.'); window.location.href='doctor_dashboard.php';</script>";
-                    }
-                    $insert_stmt->close();
-                } else {
-                    echo "<script>alert('Appointment status updated, but database error adding bill detail. Please try again.'); window.location.href='doctor_dashboard.php';</script>";
-                }
-            } else {
-                echo "<script>alert('Appointment status updated successfully!'); window.location.href='doctor_dashboard.php';</script>";
-            }
-        } else {
-            echo "<script>alert('Error updating appointment status. Please try again.');</script>";
-        }
-        $stmt->close();
-    } else {
-        echo "<script>alert('Database error. Please try again.');</script>";
-    }
-}
-
-
-// Fetch Ongoing Patients
-$ongoingPatients = [];
-$sql = "SELECT p.user_id, p.first_name, p.last_name, p.blood_group, mh.allergies, mh.pre_conditions
-        FROM Patient p
-        INNER JOIN checkup c ON p.user_id = c.patient_user_id
-        LEFT JOIN MedicalHistory mh ON p.user_id = mh.patient_user_id
-        WHERE c.doctor_user_id = ? AND c.appt_status = 'Ongoing'";
-$stmt = $con->prepare($sql);
-if ($stmt) {
-    $stmt->bind_param("s", $doctor_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $ongoingPatients[] = $row;
-        }
-    }
-    $stmt->close();
-}
-
-// Fetch Test Results
-$patientTests = [];
-$sql = "SELECT 
-            p.first_name, 
-            p.last_name, 
-            t.test_name, 
-            dtp.test_date, 
-            dtp.result,
-            dtp.patient_user_id
-        FROM Doc_Test_Patient dtp
-        JOIN Patient p ON dtp.patient_user_id = p.user_id
-        JOIN Test t ON dtp.test_id = t.test_id
-        WHERE dtp.doctor_user_id = ?
-        ORDER BY dtp.pres_date DESC";
-
-$stmt = $con->prepare($sql);
-if ($stmt) {
-    $stmt->bind_param("s", $doctor_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $patientTests[$row['patient_user_id']]['patient_name'] = $row['first_name'] . ' ' . $row['last_name'];
-            $patientTests[$row['patient_user_id']]['tests'][] = [
-                'test_name' => $row['test_name'],
-                'test_date' => $row['test_date'],
-                'result' => $row['result']
-            ];
-        }
-    }
-    $stmt->close();
-}
-
-// Fetch Treatment Plans for Logged-in Doctor
-$treatmentPlans = [];
-$sql = "SELECT 
-            p.first_name, 
-            p.last_name, 
-            tp.trtplan_id,
-            tp.prescribe_date, 
-            tp.dosage, 
-            tp.suggestion,
-            tp.patient_user_id
-        FROM TreatmentPlan tp
-        JOIN Patient p ON tp.patient_user_id = p.user_id
-        WHERE tp.doctor_user_id = ?
-        ORDER BY tp.prescribe_date DESC";
-
-$stmt = $con->prepare($sql);
-if ($stmt) {
-    $stmt->bind_param("s", $doctor_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $treatmentPlans[$row['patient_user_id']]['patient_name'] = $row['first_name'] . ' ' . $row['last_name'];
-            $treatmentPlans[$row['patient_user_id']]['plans'][] = [
-                'trtplan_id' => $row['trtplan_id'],
-                'prescribe_date' => $row['prescribe_date'],
-                'dosage' => $row['dosage'],
-                'suggestion' => $row['suggestion']
-            ];
-        }
-    }
-    $stmt->close();
-}
-
-$con->close();
-
 ?>
 
 <!DOCTYPE html>
@@ -310,7 +21,6 @@ $con->close();
 </head>
 
 <body style="padding-top: 50px;">
-
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <a class="navbar-brand" href="#">
             <i class="fa fa-hospital-o"></i> Hospital Management System</a>
@@ -394,11 +104,7 @@ $con->close();
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
-                                    <select class="form-control" name="gender">
-                                        <option value="Male" <?= isset($doctor['gender']) && $doctor['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
-                                        <option value="Female" <?= isset($doctor['gender']) && $doctor['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
-                                        <option value="Other" <?= isset($doctor['gender']) && $doctor['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
-                                    </select>
+                                    <input type="text" class="form-control" value="<?= $doctor['gender'] ?? '' ?>" disabled>
                                 </div>
                             </div>
 
@@ -426,10 +132,7 @@ $con->close();
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Specialization:</label>
-                                    <select name="specialization" class="form-control">
-                                        <?php foreach ($departments as $dept): ?>
-                                            <option value="<?= $dept ?>" <?= ($doctor['specialization'] ?? '') == $dept ? 'selected' : '' ?>><?= $dept ?></option>
-                                        <?php endforeach; ?>
+                                    <input type="text" class="form-control " value="<?= $doctor['specialization'] ?? '' ?>">
                                     </select>
                                 </div>
                                 <div class="form-group col-md-3">
@@ -449,13 +152,12 @@ $con->close();
                         </div>
                         </form>
                     </div>
-
                     <!-- Appointments -->
                     <div class="tab-pane fade" id="list-appt">
                         <div class="row">
                             <div class="col-md-4 filter-group">
                                 <label for="testDateFilter">Filter by Test Date:</label>
-                                <input type="date" class="form-control form-control-sm" id="testDateFilter" placeholder="Enter Test Date">
+                                <input type="date" class="form-control form-control-sm" id="apptDateFilter" placeholder="Enter Test Date">
                             </div>
                         </div><br>
                         <table class="table table-hover">
@@ -471,10 +173,12 @@ $con->close();
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody id= "appointments" >
+                            <tbody id="appointments">
                                 <?php if (count($appointments) > 0): ?>
+                                    <!-- Loop through each appointment and show patient details-->
                                     <?php foreach ($appointments as $index => $appointment): ?>
-                                        <tr>
+
+                                        <tr> <!-- Display row number and increment counter, patient details and appointment details -->
                                             <td><?= $index + 1 ?></td>
                                             <td><?= htmlspecialchars($appointment['patient_first_name'] . ' ' . $appointment['patient_last_name']) ?></td>
                                             <td><?= htmlspecialchars($appointment['patient_gender']) ?></td>
@@ -482,6 +186,7 @@ $con->close();
                                             <td><?= htmlspecialchars($appointment['appt_time']) ?></td>
                                             <td>
                                                 <?php
+                                                //Display appointment status
                                                 $status_class = '';
                                                 switch ($appointment['appt_status']) {
                                                     case 'Scheduled':
@@ -508,16 +213,15 @@ $con->close();
                                             </td>
                                             <td>
                                                 <form method="POST">
+                                                    <!-- Choose appointment status -->
                                                     <input type="hidden" name="appt_id" value="<?= htmlspecialchars($appointment['appt_id']) ?>">
                                                     <select class="form-control form-control-sm" name="appt_status">
-                                                        <option value="Scheduled" <?= $appointment['appt_status'] == 'Scheduled' ? 'selected' : '' ?>>Scheduled</option>
-                                                        <option value="Ongoing" <?= $appointment['appt_status'] == 'Ongoing' ? 'selected' : '' ?>>Ongoing</option>
                                                         <option value="Completed" <?= $appointment['appt_status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
-                                                        <option value="Cancelled" <?= $appointment['appt_status'] == 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                                                        <option value="Cancelled" <?= $appointment['appt_status'] == 'Cancelled' ? 'selected' : '' ?>>Cancel</option>
                                                         <option value="Missed" <?= $appointment['appt_status'] == 'Missed' ? 'selected' : '' ?>>Missed</option>
                                                     </select>
                                             </td>
-                                            <td>
+                                            <td> <!-- Button to update appointment status -->
                                                 <button type="submit" name="update_status" class="btn btn-sm btn-primary">Update</button>
                                                 </form>
                                             </td>
@@ -531,7 +235,31 @@ $con->close();
                             </tbody>
                         </table>
                     </div>
+                    <!-- JavaScript for Appointment Date Filter -->
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Get date filter input and table body.
+                            const apptDateFilter = document.getElementById("apptDateFilter");
+                            const tableBody = document.getElementById("appointments");
 
+                            // Filter rows on date input change.
+                            apptDateFilter.addEventListener("input", filterRows);
+
+                            function filterRows() {
+                                const dateFilter = apptDateFilter.value.trim();
+                                const rows = tableBody.querySelectorAll("tr");
+
+                                rows.forEach(row => {
+                                    // Get date from table cell.
+                                    const testDateCell = row.children[3].textContent.trim();
+                                    // Check for date match.
+                                    const matchDate = dateFilter === "" || testDateCell === dateFilter;
+                                    // Show/hide row based on match.
+                                    row.style.display = (matchDate) ? "" : "none";
+                                });
+                            }
+                        });
+                    </script>
                     <!-- Ongoing Patients -->
                     <div class="tab-pane fade" id="list-patients">
                         <table class="table table-hover">
@@ -549,12 +277,14 @@ $con->close();
                             </thead>
                             <tbody>
                                 <?php if (count($ongoingPatients) > 0): ?>
+                                    <!-- Loop through each scheduled patient and show their details-->
                                     <?php foreach ($ongoingPatients as $index => $patient): ?>
                                         <tr>
                                             <td><?= $index + 1 ?></td>
                                             <td><?= htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']) ?></td>
                                             <td>
                                                 <?php
+                                                // Calculate and display patient's age if date of birth is available.
                                                 if (!empty($patient['dob'])) {
                                                     $dob = new DateTime($patient['dob']);
                                                     $today = new DateTime();
@@ -564,17 +294,19 @@ $con->close();
                                                     echo 'N/A';
                                                 }
                                                 ?>
-                                            </td>
+                                            </td> <!-- Display patient details, if not set show N/A -->
                                             <td><?= htmlspecialchars($patient['blood_group'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($patient['allergies'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($patient['pre_conditions'] ?? 'N/A') ?></td>
                                             <td>
+                                                <!-- Button to Order Test -->
                                                 <button type="button" class="btn btn-warning btn-sm order-form-btn"
                                                     data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>">
                                                     Order
                                                 </button>
                                             </td>
                                             <td>
+                                                <!-- Button to Prescribe Treatmentplan -->
                                                 <button type="button" class="btn btn-info btn-sm treatment-form-btn"
                                                     data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>">
                                                     Prescribe
@@ -607,23 +339,30 @@ $con->close();
                             <tbody>
                                 <?php if (count($patientTests) > 0): ?>
                                     <?php $index = 1;
+                                    // Loop through each patient's test results, where $patientId is the patient's ID, 
+                                    // and $patientData contains the patient's name and their test results.
                                     foreach ($patientTests as $patientId => $patientData): ?>
                                         <tr data-tests='<?= json_encode($patientData['tests']) ?>'>
+                                            <!-- Display row number and increment counter and patient name -->
                                             <td><?= $index++ ?></td>
                                             <td><?= htmlspecialchars($patientData['patient_name']) ?></td>
 
                                             <td>
                                                 <select class="form-control test-select">
                                                     <option value="">Select Test</option>
+                                                    <!-- Loop through each test associated with the patient. -->
                                                     <?php foreach ($patientData['tests'] as $test): ?>
                                                         <option value="<?= htmlspecialchars($test['test_name']) ?>">
+                                                            <!-- Display test names -->
                                                             <?= htmlspecialchars($test['test_name']) ?>
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </td>
+                                            <!-- Placeholder for test date, populated by JavaScript -->
                                             <td class="test-date">
                                             </td>
+                                            <!-- Placeholder for test result, populated by JavaScript -->
                                             <td class="test-result"></td>
 
                                         </tr>
@@ -636,7 +375,52 @@ $con->close();
                             </tbody>
                         </table>
                     </div>
+                    <!-- JavaScript for Test Tab -->
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Search input and table selection.
+                            const searchInput = document.querySelector('input[placeholder="Search by Patient Name"]');
+                            const table = document.querySelector('#testResultsTable');
+                            if (!searchInput || !table) return;
 
+                            const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+                            // Search functionality.
+                            searchInput.addEventListener('input', function() {
+                                const searchText = this.value.toLowerCase();
+                                rows.forEach(row => {
+                                    const patientName = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase();
+                                    row.style.display = patientName.includes(searchText) ? '' : 'none';
+                                });
+                            });
+
+                            // Test selection functionality.
+                            table.addEventListener('change', function(event) {
+                                if (!event.target.classList.contains('test-select')) return;
+                                const select = event.target;
+                                const row = select.closest('tr');
+                                if (!row || !row.dataset.tests) return;
+
+                                let tests;
+                                try {
+                                    tests = JSON.parse(row.dataset.tests);
+                                } catch (e) {
+                                    console.error("Invalid JSON in dataset.tests", e);
+                                    return;
+                                }
+
+                                const selectedTest = tests.find(test => test.test_name === select.value);
+
+                                if (selectedTest) {
+                                    row.querySelector('.test-date').textContent = selectedTest.test_date || 'Not Yet Performed';
+                                    row.querySelector('.test-result').textContent = selectedTest.result || 'Pending';
+                                } else {
+                                    row.querySelector('.test-date').textContent = '';
+                                    row.querySelector('.test-result').textContent = '';
+                                }
+                            });
+                        });
+                    </script>
                     <!-- Treatment Plans -->
                     <div class="tab-pane fade" id="list-trtplans">
                         <input type="text" class="form-control mb-2 form-control-sm" style="width: 40%;" placeholder="Search by Patient Name">
@@ -653,13 +437,17 @@ $con->close();
                             <tbody>
                                 <?php if (count($treatmentPlans) > 0): ?>
                                     <?php $index = 1;
+                                    // Loop through each patient's treatment plans, where $patientId is the patient's ID, 
+                                    // and $patientData contains the patient's name and their treatment plans.
                                     foreach ($treatmentPlans as $patientId => $patientData): ?>
                                         <tr data-plans='<?= json_encode($patientData['plans']) ?>'>
+                                            <!-- Display row number and increment counter and patient name -->
                                             <td><?= $index++ ?></td>
                                             <td><?= htmlspecialchars($patientData['patient_name']) ?></td>
                                             <td>
                                                 <select class="form-control plan-select">
                                                     <option value="">Select Date</option>
+                                                    <!-- Loop through each trtplan date associated with the patient. -->
                                                     <?php foreach ($patientData['plans'] as $plan): ?>
                                                         <option value="<?= htmlspecialchars($plan['trtplan_id']) ?>">
                                                             <?= htmlspecialchars($plan['prescribe_date'] ?? 'Not Yet Prescribed') ?>
@@ -667,7 +455,9 @@ $con->close();
                                                     <?php endforeach; ?>
                                                 </select>
                                             </td>
+                                            <!-- Placeholder for dosage, populated by JavaScript -->
                                             <td class="dosage"></td>
+                                            <!-- Placeholder for suggestion, populated by JavaScript -->
                                             <td class="suggestion"></td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -679,132 +469,65 @@ $con->close();
                             </tbody>
                         </table>
                     </div>
+                    <!-- JavaScript for Treatment Plan Tab -->
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Search input and table selection.
+                            const searchInput = document.querySelector('#list-trtplans input[placeholder="Search by Patient Name"]');
+                            const table = document.querySelector('#treatmentPlanTable');
+                            if (!searchInput || !table) return;
+
+                            const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+                            // Search functionality.
+                            searchInput.addEventListener('input', function() {
+                                const searchText = this.value.toLowerCase();
+                                rows.forEach(row => {
+                                    const patientNameCell = row.querySelector('td:nth-child(2)');
+                                    if (patientNameCell) {
+                                        const patientName = patientNameCell.textContent.toLowerCase();
+                                        row.style.display = patientName.includes(searchText) ? '' : 'none';
+                                    }
+                                });
+                            });
+
+                            // Treatment plan selection dropdown change.
+                            table.addEventListener('change', function(event) {
+                                if (!event.target.classList.contains('plan-select')) return;
+                                const select = event.target;
+                                const row = select.closest('tr');
+                                if (!row || !row.dataset.plans) return;
+
+                                let plans;
+                                try {
+                                    plans = JSON.parse(row.dataset.plans);
+                                } catch (e) {
+                                    console.error("Invalid JSON in dataset.plans", e);
+                                    return;
+                                }
+
+                                const selectedPlan = plans.find(plan => plan.trtplan_id == select.value);
+
+                                if (selectedPlan) {
+                                    row.querySelector('.dosage').innerHTML = selectedPlan.dosage ? htmlspecialchars(selectedPlan.dosage) : '<span class="text-muted">No Dosage Given</span>';
+                                    row.querySelector('.suggestion').innerHTML = selectedPlan.suggestion ? htmlspecialchars(selectedPlan.suggestion) : '<span class="text-muted">No Suggestion</span>';
+                                } else {
+                                    row.querySelector('.dosage').innerHTML = '';
+                                    row.querySelector('.suggestion').innerHTML = '';
+                                }
+                            });
+
+                            // HTML escaping function.
+                            function htmlspecialchars(str) {
+                                return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+                            }
+                        });
+                    </script>
 
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const testDateFilter = document.getElementById("testDateFilter");
-            const tableBody = document.getElementById("appointments");
-
-            testDateFilter.addEventListener("input", filterRows); 
-            function filterRows() {
-                const dateFilter = testDateFilter.value.trim(); 
-
-                const rows = tableBody.querySelectorAll("tr");
-                rows.forEach(row => {
-                    const testDateCell = row.children[3].textContent.trim();
-                    const matchDate = dateFilter === "" || testDateCell === dateFilter;
-                    // If both conditions are met, show the row; otherwise hide it.
-                    row.style.display = (matchDate) ? "" : "none";
-                });
-            }
-        });
-        //JavaScript for Test Tab
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.querySelector('input[placeholder="Search by Patient Name"]');
-            const table = document.querySelector('#testResultsTable');
-            if (!searchInput || !table) return; // Prevent errors if elements are missing
-
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
-
-            // Search Functionality
-            searchInput.addEventListener('input', function() {
-                const searchText = this.value.toLowerCase();
-                rows.forEach(row => {
-                    const patientName = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase();
-                    row.style.display = patientName.includes(searchText) ? '' : 'none';
-                });
-            });
-
-            // Test Selection Functionality
-            table.addEventListener('change', function(event) {
-                if (!event.target.classList.contains('test-select')) return; // Ensure event is triggered by select
-
-                const select = event.target;
-                const row = select.closest('tr');
-                if (!row || !row.dataset.tests) return; // Ensure row and data exist
-
-                let tests;
-                try {
-                    tests = JSON.parse(row.dataset.tests);
-                } catch (e) {
-                    console.error("Invalid JSON in dataset.tests", e);
-                    return;
-                }
-
-                const selectedTest = tests.find(test => test.test_name === select.value);
-                if (selectedTest) {
-                    row.querySelector('.test-date').textContent = selectedTest.test_date || 'Not Yet Performed';
-                    row.querySelector('.test-result').textContent = selectedTest.result || 'Pending';
-                } else {
-                    row.querySelector('.test-date').textContent = '';
-                    row.querySelector('.test-result').textContent = '';
-                }
-            });
-        });
-
-        //JavaScript for Treatmentplan Tab
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.querySelector('#list-trtplans input[placeholder="Search by Patient Name"]');
-            const table = document.querySelector('#treatmentPlanTable');
-
-            if (!searchInput || !table) return; // Prevents errors if elements are missing
-
-            const rows = Array.from(table.querySelectorAll('tbody tr')); // Store rows in an array
-
-            // Search Functionality: Filters only by Patient Name (2nd column)
-            searchInput.addEventListener('input', function() {
-                const searchText = this.value.toLowerCase();
-                rows.forEach(row => {
-                    const patientNameCell = row.querySelector('td:nth-child(2)');
-                    if (patientNameCell) {
-                        const patientName = patientNameCell.textContent.toLowerCase();
-                        row.style.display = patientName.includes(searchText) ? '' : 'none';
-                    }
-                });
-            });
-
-            // Handle Dropdown Change for Treatment Plan
-            table.addEventListener('change', function(event) {
-                if (!event.target.classList.contains('plan-select')) return; // Ensure event is triggered by select
-
-                const select = event.target;
-                const row = select.closest('tr');
-                if (!row || !row.dataset.plans) return; // Ensure row and data exists
-
-                let plans;
-                try {
-                    plans = JSON.parse(row.dataset.plans);
-                } catch (e) {
-                    console.error("Invalid JSON in dataset.plans", e);
-                    return;
-                }
-
-                const selectedPlan = plans.find(plan => plan.trtplan_id == select.value);
-                if (selectedPlan) {
-                    row.querySelector('.dosage').innerHTML = selectedPlan.dosage ?
-                        htmlspecialchars(selectedPlan.dosage) : '<span class="text-muted">No Dosage Given</span>';
-                    row.querySelector('.suggestion').innerHTML = selectedPlan.suggestion ?
-                        htmlspecialchars(selectedPlan.suggestion) : '<span class="text-muted">No Suggestion</span>';
-                } else {
-                    row.querySelector('.dosage').innerHTML = '';
-                    row.querySelector('.suggestion').innerHTML = '';
-                }
-            });
-
-            // Function to escape HTML for security
-            function htmlspecialchars(str) {
-                return str.replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/'/g, "&#039;");
-            }
-        });
-    </script>
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

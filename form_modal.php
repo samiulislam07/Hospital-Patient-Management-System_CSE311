@@ -1,5 +1,6 @@
 <?php
 include 'config.php';
+
 // Fetch available tests
 $testQuery = "SELECT test_name FROM test";
 $testResult = $con->query($testQuery);
@@ -44,8 +45,7 @@ while ($row = $testResult->fetch_assoc()) {
         </form>
     </div>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <!-- JavaScript for Order Test -->
     <script>
         $(document).ready(function() {
             const testList = <?= json_encode($testList, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
@@ -155,7 +155,7 @@ while ($row = $testResult->fetch_assoc()) {
     </div>
 
 
-    <!-- JavaScript -->
+    <!-- JavaScript for Prescribe Treatment Plan-->
     <script>
         $(document).ready(function() {
             // Open pop-up when button is clicked
@@ -199,8 +199,7 @@ while ($row = $testResult->fetch_assoc()) {
         });
     </script>
 
-
-
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 
 </body>
 

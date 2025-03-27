@@ -1,186 +1,6 @@
 <?php
-
-session_start();
 include 'config.php';
-
-// Redirect if not logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
-    exit();
-}
-
-$nurse_id = $_SESSION['user_id'];
-$nurse = [];
-// Fetch nurse details
-$sql = "SELECT user_id, first_name, last_name, email, gender, phone, dob, salary, duty_hour FROM Nurse WHERE user_id = ?";
-$stmt = $con->prepare($sql);
-if ($stmt) {
-    $stmt->bind_param("s", $nurse_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows === 1) {
-        $nurse = $result->fetch_assoc();
-    }
-    $stmt->close();
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_nurse'])) {
-    $email = $_POST['email'];
-    $gender = $_POST['gender'];
-    $phone = $_POST['phone'];
-    $dob = $_POST['dob'];
-    $dutyhour = $_POST['duty_hour'];
-
-    // Ensure user ID is set
-    if (!empty($nurse_id)) {
-
-        // Start a transaction (for atomicity)
-        $con->begin_transaction();
-
-        // Update Users Table (email only)
-        $update_users_sql = "UPDATE Users SET email = ? WHERE user_id = ?";
-        $stmt_users = $con->prepare($update_users_sql);
-
-        if ($stmt_users) {
-            $stmt_users->bind_param("ss", $email, $nurse_id);
-
-            if ($stmt_users->execute()) {
-                // Users table updated successfully, now update Staff table
-                $update_staff_sql = "UPDATE Staff SET email = ?, gender = ?, phone = ?, dob = ? WHERE user_id = ?";
-                $stmt_staff = $con->prepare($update_staff_sql);
-
-                if ($stmt_staff) {
-                    $stmt_staff->bind_param("sssss", $email, $gender, $phone, $dob, $nurse_id);
-
-                    if ($stmt_staff->execute()) {
-                        // Staff table updated successfully, now update Nurse table
-                        $update_nurse_sql = "UPDATE Nurse SET email = ?, gender = ?, phone = ?, dob = ?, duty_hour = ? WHERE user_id = ?";
-                        $stmt_nurse = $con->prepare($update_nurse_sql);
-
-                        if ($stmt_nurse) {
-                            $stmt_nurse->bind_param("ssssss", $email, $gender, $phone, $dob, $dutyhour, $nurse_id);
-
-                            if ($stmt_nurse->execute()) {
-                                // All updates successful, commit the transaction
-                                $con->commit();
-                                echo "<script>alert('Profile updated successfully!'); window.location.href='nurse_dashboard.php';</script>";
-                            } else {
-                                // Nurse table update failed, rollback transaction
-                                $con->rollback();
-                                echo "<script>alert('Error updating Nurse profile. Please try again.');</script>";
-                            }
-                            $stmt_nurse->close();
-                        } else {
-                            // Nurse prepare failed, rollback transaction
-                            $con->rollback();
-                            echo "<script>alert('Database error updating Nurse. Please try again.');</script>";
-                        }
-                    } else {
-                        // Staff table update failed, rollback transaction
-                        $con->rollback();
-                        echo "<script>alert('Error updating Staff profile. Please try again.');</script>";
-                    }
-                    $stmt_staff->close();
-                } else {
-                    // Staff prepare failed, rollback transaction
-                    $con->rollback();
-                    echo "<script>alert('Database error updating Staff. Please try again.');</script>";
-                }
-            } else {
-                // Users table update failed, rollback transaction
-                $con->rollback();
-                echo "<script>alert('Error updating Users profile. Please try again.');</script>";
-            }
-            $stmt_users->close();
-        } else {
-            // User prepare failed, rollback transaction
-            $con->rollback();
-            echo "<script>alert('Database error updating Users. Please try again.');</script>";
-        }
-    } else {
-        echo "<script>alert('User ID missing. Cannot update profile.');</script>";
-    }
-}
-
-// Fetch Patient Information
-$patientInfo = [];
-$sql = "SELECT p.user_id, p.first_name, p.last_name, p.gender, p.dob, p.blood_group, mh.allergies, mh.pre_conditions
-        FROM Patient p
-        LEFT JOIN MedicalHistory mh ON p.user_id = mh.patient_user_id";
-$result = $con->query($sql);
-
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $patientInfo[] = $row;
-    }
-}
-
-// Fetch treatment plans data with doctor and patient names
-$sql = "SELECT tp.trtplan_id, tp.prescribe_date, tp.dosage, tp.suggestion,
-               p.first_name AS patient_first_name, p.last_name AS patient_last_name, p.user_id AS patient_user_id,
-               d.first_name AS doctor_first_name, d.last_name AS doctor_last_name
-        FROM TreatmentPlan tp
-        JOIN Patient p ON tp.patient_user_id = p.user_id
-        LEFT JOIN Doctor d ON tp.doctor_user_id = d.user_id
-        ORDER BY p.first_name, p.last_name, d.first_name, d.last_name"; // Order by patient, doctor
-
-$result = $con->query($sql);
-
-if ($result === false) {
-    echo "SQL Error: " . $con->error;
-    die();
-}
-
-$treatmentPlans = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $patientId = $row['patient_user_id'];
-        $doctorName = $row['doctor_first_name'] . ' ' . $row['doctor_last_name'];
-
-        if (!isset($treatmentPlans[$patientId])) {
-            $treatmentPlans[$patientId] = [
-                'patient_name' => $row['patient_first_name'] . ' ' . $row['patient_last_name'],
-                'doctors' => []
-            ];
-        }
-
-        if (!isset($treatmentPlans[$patientId]['doctors'][$doctorName])) {
-            $treatmentPlans[$patientId]['doctors'][$doctorName] = [];
-        }
-
-        $treatmentPlans[$patientId]['doctors'][$doctorName][] = [
-            'trtplan_id' => $row['trtplan_id'],
-            'prescribe_date' => $row['prescribe_date'],
-            'dosage' => $row['dosage'],
-            'suggestion' => $row['suggestion']
-        ];
-    }
-}
-
-// Fetch tests with null test_date and result
-$sql = "SELECT dtp.test_id, dtp.patient_user_id, dtp.pres_date,
-               p.first_name AS patient_first_name, p.last_name AS patient_last_name,
-               t.test_name
-        FROM Doc_Test_Patient dtp
-        JOIN Patient p ON dtp.patient_user_id = p.user_id
-        JOIN Test t ON dtp.test_id = t.test_id
-        WHERE dtp.test_date IS NULL AND dtp.result IS NULL";
-
-$result = $con->query($sql);
-
-if ($result === false) {
-    echo "SQL Error: " . $con->error;
-    die();
-}
-
-$tests = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $tests[] = $row;
-    }
-}
-$con->close();
-
+include 'nurse_func.php';
 ?>
 
 <!DOCTYPE html>
@@ -283,11 +103,7 @@ $con->close();
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
-                                    <select class="form-control  " name="gender">
-                                        <option value="Male" <?= isset($nurse['gender']) && $nurse['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
-                                        <option value="Female" <?= isset($nurse['gender']) && $nurse['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
-                                        <option value="Other" <?= isset($nurse['gender']) && $nurse['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
-                                    </select>
+                                    <input type="text" class="form-control" value="<?= $nurse['gender'] ?? '' ?>" disabled>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -312,7 +128,7 @@ $con->close();
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Duty Hour:</label>
-                                    <input type="text" name="duty_hour" class="form-control  " value="<?= $nurse['duty_hour'] ?? '' ?>">
+                                    <input type="text" name="duty_hour" class="form-control  " value="<?= $nurse['duty_hour'] ?? '' ?>" disabled>
                                 </div>
                             </div>
                         </form>
@@ -372,12 +188,13 @@ $con->close();
                             <tbody>
                                 <?php if (count($patientInfo) > 0): ?>
                                     <?php $index = 1;
+                                    // Loop through each patient's information.
                                     foreach ($patientInfo as $patient): ?>
                                         <tr>
                                             <td><?= $index++ ?></td>
                                             <td><?= htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']) ?></td>
                                             <td><?= htmlspecialchars($patient['gender']) ?></td>
-                                            <td data-age="<?php
+                                            <td data-age="<?php // Calculate and store patient's age as a data attribute.
                                                             if (!empty($patient['dob'])) {
                                                                 $dob = new DateTime($patient['dob']);
                                                                 $today = new DateTime();
@@ -387,7 +204,7 @@ $con->close();
                                                                 echo 'N/A';
                                                             }
                                                             ?>">
-                                                <?php
+                                                <?php  // Display patient's age.
                                                 if (!empty($patient['dob'])) {
                                                     $dob = new DateTime($patient['dob']);
                                                     $today = new DateTime();
@@ -397,7 +214,7 @@ $con->close();
                                                     echo 'N/A';
                                                 }
                                                 ?>
-                                            </td>
+                                            </td> 
                                             <td data-blood-group="<?= htmlspecialchars($patient['blood_group']) ?>"><?= htmlspecialchars($patient['blood_group']) ?></td>
                                             <td><?= htmlspecialchars($patient['allergies'] ?: 'N/A') ?></td>
                                             <td><?= htmlspecialchars($patient['pre_conditions'] ?: 'N/A') ?></td>
@@ -411,7 +228,50 @@ $con->close();
                             </tbody>
                         </table>
                     </div>
+                    <!-- JavaScript for Patient Overview -->
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Get filter elements and table body.
+                            const patientSearchInput = document.getElementById('patientSearch');
+                            const ageFilterSelect = document.getElementById('ageFilter');
+                            const bloodGroupFilterSelect = document.getElementById('bloodGroupFilter');
+                            const patientsTableBody = document.querySelector('#patientsTable tbody');
 
+                            function filterPatients() {
+                                const searchValue = patientSearchInput.value.toLowerCase();
+                                const ageFilterValue = ageFilterSelect.value;
+                                const bloodGroupFilterValue = bloodGroupFilterSelect.value;
+                                const rows = patientsTableBody.querySelectorAll('tr');
+
+                                rows.forEach(row => {
+                                    const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                                    const age = row.querySelector('td:nth-child(4)').dataset.age;
+                                    const bloodGroup = row.querySelector('td:nth-child(5)').dataset.bloodG;
+
+                                    let nameMatch = name.includes(searchValue);
+                                    let ageMatch = true;
+                                    let bloodGroupMatch = true;
+
+                                    if (ageFilterValue) {
+                                        ageMatch = (ageFilterValue === '51+') ? parseInt(age) >= 51 :
+                                            (parseInt(age) >= ageFilterValue.split('-').map(Number)[0] &&
+                                                parseInt(age) <= ageFilterValue.split('-').map(Number)[1]);
+                                    }
+
+                                    if (bloodGroupFilterValue) {
+                                        bloodGroupMatch = bloodGroup === bloodGroupFilterValue;
+                                    }
+
+                                    row.style.display = (nameMatch && ageMatch && bloodGroupMatch) ? '' : 'none';
+                                });
+                            }
+
+                            // Add event listeners for filtering.
+                            patientSearchInput.addEventListener('keyup', filterPatients);
+                            ageFilterSelect.addEventListener('change', filterPatients);
+                            bloodGroupFilterSelect.addEventListener('change', filterPatients);
+                        });
+                    </script>
                     <!-- Patient Medical Details -->
                     <div class="tab-pane fade" id="list-pdetails">
                         <div class="medical-details-section">
@@ -440,13 +300,15 @@ $con->close();
                             <tbody>
                                 <?php if (count($treatmentPlans) > 0): ?>
                                     <?php $index = 1;
+                                    // Loop through each patient's treatment plans.
                                     foreach ($treatmentPlans as $patientId => $patientData): ?>
+                                    <!-- Loop through each doctor associated with the patient. -->
                                         <?php foreach ($patientData['doctors'] as $doctorName => $doctorPlans): ?>
                                             <tr data-plans='<?= json_encode($doctorPlans) ?>' data-patient-name='<?= htmlspecialchars($patientData['patient_name']) ?>' data-doctor-name='<?= htmlspecialchars($doctorName) ?>'>
                                                 <td><?= $index++ ?></td>
                                                 <td><?= htmlspecialchars($patientData['patient_name']) ?></td>
                                                 <td><?= htmlspecialchars($doctorName) ?></td>
-                                                <td>
+                                                <td> <!-- Table row with plan data, patient name, and doctor name as data attributes for JavaScript access. -->
                                                     <select class="form-control  date-select">
                                                         <option value="">Select Date</option>
                                                         <?php foreach ($doctorPlans as $plan): ?>
@@ -467,6 +329,68 @@ $con->close();
                             </tbody>
                         </table>
                     </div>
+                    <!-- JavaScript for Patient Medical Details -->
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Patient and Doctor Name Filters
+                            const patientNameFilter = document.getElementById('patientNameFilter');
+                            const doctorNameFilter = document.getElementById('doctorNameFilter');
+
+                            // Filter on patient/doctor name input change.
+                            patientNameFilter.addEventListener('keyup', filterTable);
+                            doctorNameFilter.addEventListener('keyup', filterTable);
+
+                            // Date Selection Dropdown Change
+                            const table = document.getElementById('medicalDetailsTable');
+                            table.addEventListener('change', function(event) {
+                                if (event.target.classList.contains('date-select')) {
+                                    const select = event.target;
+                                    const row = select.closest('tr');
+                                    if (!row || !row.dataset.plans) return;
+
+                                    let plans;
+                                    try {
+                                        plans = JSON.parse(row.dataset.plans);
+                                    } catch (e) {
+                                        console.error("Invalid JSON in dataset.plans", e);
+                                        return;
+                                    }
+
+                                    const selectedPlan = plans.find(plan => plan.trtplan_id == select.value);
+
+                                    if (selectedPlan) {
+                                        row.querySelector('.dosage').innerHTML = selectedPlan.dosage ? htmlspecialchars(selectedPlan.dosage) : '<span class="text-muted">No Dosage Given</span>';
+                                        row.querySelector('.suggestion').innerHTML = selectedPlan.suggestion ? htmlspecialchars(selectedPlan.suggestion) : '<span class="text-muted">No Suggestion</span>';
+                                    } else {
+                                        row.querySelector('.dosage').innerHTML = '<span class="text-muted">No Dosage Given</span>';
+                                        row.querySelector('.suggestion').innerHTML = '<span class="text-muted">No Suggestion</span>';
+                                    }
+                                }
+                            });
+
+                            // Function to filter table rows based on patient and doctor names.
+                            function filterTable() {
+                                const patientFilter = document.getElementById('patientNameFilter').value.toLowerCase();
+                                const doctorFilter = document.getElementById('doctorNameFilter').value.toLowerCase();
+                                const rows = document.querySelectorAll('#medicalDetailsTable tbody tr');
+
+                                rows.forEach(row => {
+                                    const patientName = row.dataset.patientName.toLowerCase();
+                                    const doctorName = row.dataset.doctorName.toLowerCase();
+                                    const shouldShow = patientName.includes(patientFilter) && doctorName.includes(doctorFilter);
+                                    row.style.display = shouldShow ? '' : 'none';
+                                });
+                            }
+
+                            // Function to escape HTML for security.
+                            function htmlspecialchars(str) {
+                                if (typeof(str) == "string") {
+                                    str = str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                                }
+                                return str;
+                            }
+                        });
+                    </script>
                     <!-- Perform Tests -->
                     <div class="tab-pane fade" id="list-performtest">
                         <div class="test-details-section">
@@ -483,6 +407,7 @@ $con->close();
                                     <tr>
                                         <th style="width: 5%;">#</th>
                                         <th style="width: 20%;">Patient Name</th>
+                                        <th style="width: 20%;">Prescribed Date</th>
                                         <th style="width: 20%;">Test Name</th>
                                         <th style="width: 15%;">Test Date</th>
                                         <th style="width: 25%;">Result</th>
@@ -491,10 +416,13 @@ $con->close();
                                 <tbody>
                                     <?php if (count($tests) > 0): ?>
                                         <?php $index = 1;
+                                         // Loop through each test record.
                                         foreach ($tests as $test): ?>
                                             <tr data-patient-id="<?= $test['patient_user_id'] ?>" data-test-id="<?= $test['test_id'] ?>">
                                                 <td><?= $index++ ?></td>
+                                                <!--  Table row with patient and test IDs as data attributes for JavaScript access. -->
                                                 <td><?= htmlspecialchars($test['patient_first_name'] . ' ' . $test['patient_last_name']) ?></td>
+                                                <td><?= htmlspecialchars($test['pres_date']) ?></td>
                                                 <td><?= htmlspecialchars($test['test_name']) ?></td>
                                                 <td>
                                                     <input type="date" class="form-control test-date-input" name="test_date[]">
@@ -514,195 +442,70 @@ $con->close();
                             <button style="margin-bottom: 20px;" type="submit" class="btn btn-primary">Submit Results</button>
                         </form>
                     </div>
+                    <!-- JavaScript for Perform Tests -->
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Patient Name Filter
+                            const patientNameFilterNurse = document.getElementById('patientNameFilterNurse');
+                            patientNameFilterNurse.addEventListener('keyup', function() {
+                                const filter = patientNameFilterNurse.value.toLowerCase();
+                                const rows = document.querySelectorAll('#nurseTestsTable tbody tr');
+                                rows.forEach(row => {
+                                    const patientName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                                    row.style.display = patientName.includes(filter) ? '' : 'none';
+                                });
+                            });
 
+                            // Form Submission
+                            const nurseTestForm = document.getElementById('nurseTestForm');
+                            nurseTestForm.addEventListener('submit', function(event) {
+                                event.preventDefault(); // Prevent default form submission
+                                const rows = document.querySelectorAll('#nurseTestsTable tbody tr');
+                                const testData = [];
+                                rows.forEach(row => {
+                                    const patientId = row.dataset.patientId;
+                                    const testId = row.dataset.testId;
+                                    const testDate = row.querySelector('.test-date-input').value;
+                                    const result = row.querySelector('.test-result-input').value;
+                                    if (testDate && result) {
+                                        testData.push({
+                                            patientId,
+                                            testId,
+                                            testDate,
+                                            result
+                                        });
+                                    }
+                                });
+
+                                // Send data to PHP for processing
+                                fetch('perform_test.php', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify(testData),
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            alert('Test results submitted successfully!');
+                                            location.reload();
+                                        } else {
+                                            alert('Error submitting test results.');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+                                        alert('An error occurred.');
+                                    });
+                            });
+                        });
+                    </script>
 
                 </div>
             </div>
         </div>
     </div>
-
-
-    <!-- JavaScript -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const patientSearchInput = document.getElementById('patientSearch');
-            const ageFilterSelect = document.getElementById('ageFilter');
-            const bloodGroupFilterSelect = document.getElementById('bloodGroupFilter');
-            const patientsTableBody = document.querySelector('#patientsTable tbody');
-
-            function filterPatients() {
-                const searchValue = patientSearchInput.value.toLowerCase();
-                const ageFilterValue = ageFilterSelect.value;
-                const bloodGroupFilterValue = bloodGroupFilterSelect.value;
-                const rows = patientsTableBody.querySelectorAll('tr');
-
-                rows.forEach(row => {
-                    const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-                    const age = row.querySelector('td:nth-child(4)').dataset.age;
-                    const bloodGroup = row.querySelector('td:nth-child(5)').dataset.bloodGroup;
-
-                    let nameMatch = name.includes(searchValue);
-                    let ageMatch = true;
-                    let bloodGroupMatch = true;
-
-                    if (ageFilterValue) {
-                        if (ageFilterValue === '51+') {
-                            ageMatch = parseInt(age) >= 51;
-                        } else {
-                            const [minAge, maxAge] = ageFilterValue.split('-').map(Number);
-                            ageMatch = parseInt(age) >= minAge && parseInt(age) <= maxAge;
-                        }
-                    }
-
-                    if (bloodGroupFilterValue) {
-                        bloodGroupMatch = bloodGroup === bloodGroupFilterValue;
-                    }
-
-                    if (nameMatch && ageMatch && bloodGroupMatch) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            }
-
-            patientSearchInput.addEventListener('keyup', filterPatients);
-            ageFilterSelect.addEventListener('change', filterPatients);
-            bloodGroupFilterSelect.addEventListener('change', filterPatients);
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Patient and Doctor Name Filters
-            const patientNameFilter = document.getElementById('patientNameFilter');
-            patientNameFilter.addEventListener('keyup', function() {
-                filterTable();
-            });
-
-            const doctorNameFilter = document.getElementById('doctorNameFilter');
-            doctorNameFilter.addEventListener('keyup', function() {
-                filterTable();
-            });
-
-            // Date Selection
-            const table = document.getElementById('medicalDetailsTable');
-            table.addEventListener('change', function(event) {
-                if (event.target.classList.contains('date-select')) {
-                    const select = event.target;
-                    const row = select.closest('tr');
-                    if (!row || !row.dataset.plans) return;
-
-                    let plans;
-                    try {
-                        plans = JSON.parse(row.dataset.plans);
-                    } catch (e) {
-                        console.error("Invalid JSON in dataset.plans", e);
-                        return;
-                    }
-
-                    const selectedPlan = plans.find(plan => plan.trtplan_id == select.value);
-
-                    if (selectedPlan) {
-                        row.querySelector('.dosage').innerHTML = selectedPlan.dosage ?
-                            htmlspecialchars(selectedPlan.dosage) : '<span class="text-muted">No Dosage Given</span>';
-                        row.querySelector('.suggestion').innerHTML = selectedPlan.suggestion ?
-                            htmlspecialchars(selectedPlan.suggestion) : '<span class="text-muted">No Suggestion</span>';
-                    } else {
-                        row.querySelector('.dosage').innerHTML = '<span class="text-muted">No Dosage Given</span>';
-                        row.querySelector('.suggestion').innerHTML = '<span class="text-muted">No Suggestion</span>';
-                    }
-                }
-            });
-
-            // Helper function to filter the table
-            function filterTable() {
-                const patientFilter = document.getElementById('patientNameFilter').value.toLowerCase();
-                const doctorFilter = document.getElementById('doctorNameFilter').value.toLowerCase();
-                const rows = document.querySelectorAll('#medicalDetailsTable tbody tr');
-
-                rows.forEach(row => {
-                    const patientName = row.dataset.patientName.toLowerCase();
-                    const doctorName = row.dataset.doctorName.toLowerCase();
-                    const shouldShow = patientName.includes(patientFilter) && doctorName.includes(doctorFilter);
-                    row.style.display = shouldShow ? '' : 'none';
-                });
-            }
-
-            // Helper function for HTML escaping
-            function htmlspecialchars(str) {
-                if (typeof(str) == "string") {
-                    str = str.replace(/&/g, "&amp;");
-                    str = str.replace(/"/g, "&quot;");
-                    str = str.replace(/'/g, "&#039;");
-                    str = str.replace(/</g, "&lt;");
-                    str = str.replace(/>/g, "&gt;");
-                }
-                return str;
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Patient Name Filter
-            const patientNameFilterNurse = document.getElementById('patientNameFilterNurse');
-            patientNameFilterNurse.addEventListener('keyup', function() {
-                const filter = patientNameFilterNurse.value.toLowerCase();
-                const rows = document.querySelectorAll('#nurseTestsTable tbody tr');
-
-                rows.forEach(row => {
-                    const patientName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-                    row.style.display = patientName.includes(filter) ? '' : 'none';
-                });
-            });
-
-            // Form Submission
-            const nurseTestForm = document.getElementById('nurseTestForm');
-            nurseTestForm.addEventListener('submit', function(event) {
-                event.preventDefault(); // Prevent default form submission
-
-                const rows = document.querySelectorAll('#nurseTestsTable tbody tr');
-                const testData = [];
-
-                rows.forEach(row => {
-                    const patientId = row.dataset.patientId;
-                    const testId = row.dataset.testId;
-                    const testDate = row.querySelector('.test-date-input').value;
-                    const result = row.querySelector('.test-result-input').value;
-
-                    if (testDate && result) {
-                        testData.push({
-                            patientId,
-                            testId,
-                            testDate,
-                            result
-                        });
-                    }
-                });
-
-                // Send data to PHP for processing
-                fetch('perform_test.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(testData),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Test results submitted successfully!');
-                            location.reload(); // Reload the page to update the table
-                        } else {
-                            alert('Error submitting test results.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred.');
-                    });
-            });
-        });
-    </script>
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

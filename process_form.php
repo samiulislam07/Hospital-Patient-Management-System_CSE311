@@ -2,7 +2,9 @@
 session_start();
 include 'config.php';
 
+// Handle POST requests only.
 if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") {
+    // Get patient and doctor IDs, with error handling for missing IDs.
     $patientId = $_POST['patientId'] ?? null;
     $doctorId = $_SESSION['user_id'] ?? null;
 
@@ -11,13 +13,8 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
         exit();
     }
 
-    // Retrieve the ongoing appointment date
-    $sql = "SELECT a.appt_date 
-            FROM Appointment a
-            INNER JOIN checkup c ON a.appt_id = c.appt_id
-            WHERE c.patient_user_id = ? AND c.doctor_user_id = ? AND c.appt_status = 'ongoing' 
-            ORDER BY a.appt_id DESC LIMIT 1";
-
+    // Retrieve appointment date for the patient's ongoing appointment.
+    $sql = "SELECT a.appt_date FROM Appointment a INNER JOIN checkup c ON a.appt_id = c.appt_id WHERE c.patient_user_id = ? AND c.doctor_user_id = ? AND c.appt_status = 'scheduled' ORDER BY a.appt_id DESC LIMIT 1";
     $stmt = $con->prepare($sql);
     $stmt->bind_param("ss", $patientId, $doctorId);
     $stmt->execute();
@@ -30,10 +27,9 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
         exit();
     }
 
-    // Test insertion logic
+    // Handle test order insertion.
     if (isset($_POST['selectedTests'])) {
         $selectedTests = explode(", ", $_POST['selectedTests']);
-
         $insertSql = "INSERT INTO doc_test_patient (doctor_user_id, test_id, patient_user_id, pres_date) VALUES (?, ?, ?, ?)";
         $stmt = $con->prepare($insertSql);
 
@@ -55,7 +51,7 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
         }
         echo json_encode(["status" => "success", "message" => "Test Order Successfully Saved!"]);
     }
-    // Treatment plan insertion logic
+    // Handle treatment plan insertion.
     else if (isset($_POST['dosage']) && isset($_POST['suggestion'])) {
         $dosage = $_POST['dosage'];
         $suggestion = $_POST['suggestion'];
@@ -74,6 +70,6 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
         exit();
     }
 } else {
-    exit();
+    exit(); // Exit if not a POST request.
 }
-?>   
+?>
