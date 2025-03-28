@@ -25,6 +25,8 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
+    $gender = $_POST['gender'];
+
 
     // Check if passwords match
     if ($password !== $confirm_password) {

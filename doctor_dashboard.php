@@ -2,6 +2,8 @@
 include 'config.php';
 include 'doc_func.php';
 include 'form_modal.php';
+
+
 ?>
 
 <!DOCTYPE html>
@@ -175,7 +177,7 @@ include 'form_modal.php';
                             </thead>
                             <tbody id="appointments">
                                 <?php if (count($appointments) > 0): ?>
-                                    <!-- Loop through each appointment and show patient details-->
+                                    <!-- Loop through each appointment and show patient details -->
                                     <?php foreach ($appointments as $index => $appointment): ?>
 
                                         <tr> <!-- Display row number and increment counter, patient details and appointment details -->
@@ -369,7 +371,7 @@ include 'form_modal.php';
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="5">No test results found.</td>
+                                        <td colspan="8" class="text-center">No test results found.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
@@ -463,7 +465,7 @@ include 'form_modal.php';
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="5">No treatment plans found.</td>
+                                        <td colspan="8" class="text-center">No treatment plans found.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>

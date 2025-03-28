@@ -6,12 +6,14 @@ body {
     margin: 0;
     padding: 0;
 }
+
 .container {
     display: flex;
     height: 80vh;
     align-items: center;
     justify-content: center;
 }
+
 .left-section {
     flex: 1;
     display: flex;
@@ -20,23 +22,27 @@ body {
     justify-content: center;
     padding: 20px;
 }
+
 .left-section img {
     width: 100px;
     height: 100px;
 }
+
 .right-section {
-    flex: 1.5;
+
     background: white;
     color: black;
     border-radius: 20px;
-    padding: 40px;
+    padding: 30px;
     margin: 20px;
 }
+
 .tab-buttons {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
 }
+
 .tab-buttons button {
     background: lightgray;
     border: none;
@@ -45,26 +51,32 @@ body {
     cursor: pointer;
     border-radius: 20px;
 }
+
 .tab-buttons button.active {
-    background: blue;
+    background: #0d1b3e;
     color: white;
 }
+
 .form-container {
     display: none;
 }
+
 .form-container.active {
     display: block;
 }
+
 .form-group {
     margin: 10px 0;
 }
+
 .form-group input {
     width: 90%;
     padding: 8px;
     margin-top: 5px;
 }
+
 .submit-btn {
-    background: blue;
+    background: #0d1b3e;
     color: white;
     border: none;
     padding: 10px 20px;

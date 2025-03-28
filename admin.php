@@ -1,6 +1,7 @@
 <?php
 include 'config.php';
 include 'admin_func.php';
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,7 +42,6 @@ include 'admin_func.php';
             <div class="col-md-4" style="max-width:18%;margin-top: 3%;">
                 <div class="list-group" id="list-tab" role="tablist">
                     <a class="list-group-item list-group-item-action active" href="#list-dept" data-toggle="list">Departments</a>
-                    <a class="list-group-item list-group-item-action" href="#list-admin" data-toggle="list">Admin</a>
                     <a class="list-group-item list-group-item-action" href="#list-staff" data-toggle="list">Staff</a>
                     <a class="list-group-item list-group-item-action" href="#list-patient" data-toggle="list">Patient</a>
                 </div>
@@ -50,13 +50,18 @@ include 'admin_func.php';
                 <div class="tab-content" id="nav-tabContent" style="width: 1200px;">
                     <!-- Departments -->
                     <div class="tab-pane fade show active" id="list-dept">
+                        <div class="d-flex justify-content-between mb-3">
+                            <button class="btn btn-primary" onclick="showAddModal()">Add Department</button>
+                            <button class="btn btn-danger" onclick="showDeleteModal()">Delete Department</button>
+                        </div>
                         <table class="table table-hover" id="deptViewTable">
                             <thead>
                                 <tr>
-                                    <th style="width: 10%;">#</th>
+                                    <th style="width: 10%;">ID</th>
                                     <th style="width: 20%;">Department Name</th>
                                     <th style="width: 20%;">Department Head</th>
                                     <th style="width: 20%;">Staff Count</th>
+                                    <th style="width: 20%;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -64,20 +69,273 @@ include 'admin_func.php';
                             </tbody>
                         </table>
                     </div>
-                    <!-- Admin -->
-                    <div class="tab-pane fade show" id="list-admin">
-                        <h5> Admin Operations </h5>
+                    <div class="modal fade" id="addDeptModal" tabindex="-1" role="dialog" aria-labelledby="addDeptModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="addDeptModalLabel">Add Department</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post">
+                                        <div class="form-group">
+                                            <label for="addDeptName">Department Name:</label>
+                                            <input type="text" class="form-control" id="addDeptName" name="addDeptName" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Add</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <div class="modal fade" id="deleteDeptModal" tabindex="-1" role="dialog" aria-labelledby="deleteDeptModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteDeptModalLabel">Delete Department</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post">
+                                        <div class="form-group">
+                                            <label for="deleteDeptName">Department Name:</label>
+                                            <input type="text" class="form-control" id="deleteDeptName" name="deleteDeptName" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="editDeptModal" tabindex="-1" role="dialog" aria-labelledby="editDeptModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editDeptModalLabel">Edit Department Head</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post">
+                                        <input type="hidden" id="editDeptId" name="editDeptId">
+                                        <div class="form-group">
+                                            <label for="editDocId">Doctor Name:</label>
+                                            <select class="form-control" id="editDocId" name="editDocId">
+                                                <option value="">Select Doctor</option>
+                                                <?php
+                                                $sqlDoctors = "SELECT user_id, first_name, last_name FROM Doctor";
+                                                $resultDoctors = $con->query($sqlDoctors);
+                                                if ($resultDoctors && $resultDoctors->num_rows > 0) {
+                                                    while ($rowDoctor = $resultDoctors->fetch_assoc()) {
+                                                        echo "<option value='" . $rowDoctor['user_id'] . "'>" . htmlspecialchars($rowDoctor['first_name'] . ' ' . $rowDoctor['last_name']) . "</option>";
+                                                    }
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        function showAddModal() {
+                            $('#addDeptModal').modal('show');
+                        }
+
+                        function showDeleteModal() {
+                            $('#deleteDeptModal').modal('show');
+                        }
+
+                        function showEditModal(deptId) {
+                            document.getElementById('editDeptId').value = deptId;
+                            $('#editDeptModal').modal('show');
+                        }
+                    </script>
                     <!-- Staff -->
                     <div class="tab-pane fade show" id="list-staff">
-                        <h5> Staff Operations </h5>
+                        <div class="d-flex justify-content-between mb-3">
+                            <button class="btn btn-primary" onclick="showAddStaffModal()">Add Staff</button>
+                            <button class="btn btn-danger" onclick="showDeleteStaffModal()">Delete Staff</button>
+                        </div>
+                        <table class="table table-hover" id="staffViewTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Gender</th>
+                                    <th>Phone</th>
+                                    <th>DOB</th>
+                                    <th>Salary</th>
+                                    <th>Department</th>
+                                    <th>Fee</th>
+                                    <th>Specialization</th>
+                                    <th>Availability</th>
+                                    <th>Duty Hour</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php displayStaffTable(); ?>
+                            </tbody>
+                        </table>
                     </div>
+                    <div class="modal fade" id="addStaffModal" tabindex="-1" role="dialog" aria-labelledby="addStaffModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="addStaffModalLabel">Add Staff</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post">
+                                        <div class="form-group">
+                                            <label for="firstName">First Name</label>
+                                            <input type="text" class="form-control" name="firstName" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="lastName">Last Name</label>
+                                            <input type="text" class="form-control" name="lastName" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="email">Email</label>
+                                            <input type="email" class="form-control" name="email" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="password">Password</label>
+                                            <input type="password" class="form-control" name="password" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="gender">Gender</label>
+                                            <select class="form-control" name="gender" required>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Role:</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="isDoctor" id="isDoctorYes" value="1">
+                                                <label class="form-check-label" for="isDoctorYes">Doctor</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="isDoctor" id="isDoctorNo" value="0">
+                                                <label class="form-check-label" for="isDoctorNo">Nurse</label>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary" name="addStaff">Add</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="deleteStaffModal" tabindex="-1" role="dialog" aria-labelledby="deleteStaffModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteStaffModalLabel">Delete Staff</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post">
+                                        <div class="form-group">
+                                            <label for="UserId">User ID:</label>
+                                            <input type="text" class="form-control" name="UserId" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="editStaffModal" tabindex="-1" role="dialog" aria-labelledby="editStaffModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editStaffModalLabel">Edit Staff Details</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post">
+                                        <input type="hidden" id="editUserId" name="userId">
+                                        <div class="form-group">
+                                            <label for="salary">Salary</label>
+                                            <input type="text" class="form-control" name="salary">
+                                        </div>
+                                        <div class="form-group" id="dutyHourGroup">
+                                            <label for="dutyHour">Duty Hour</label>
+                                            <select class="form-control" name="dutyHour">
+                                                <option value="">Select Duty Hour</option>
+                                                <option value="Morning">Morning</option>
+                                                <option value="Noon">Noon</option>
+                                                <option value="Evening">Evening</option>
+                                                <option value="Night">Night</option>
+                                                <option value="Rotational">Rotational</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="deptId">Department</label>
+                                            <select class="form-control" name="deptId">
+                                                <option value="">Select Department</option>
+                                                <?php
+                                                $sqlDepartments = "SELECT dept_id, dept_name FROM Department";
+                                                $resultDepartments = $con->query($sqlDepartments);
+                                                if ($resultDepartments && $resultDepartments->num_rows > 0) {
+                                                    while ($rowDepartment = $resultDepartments->fetch_assoc()) {
+                                                        echo "<option value='" . $rowDepartment['dept_id'] . "'>" . htmlspecialchars($rowDepartment['dept_name']) . "</option>";
+                                                    }
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary" name="editStaff">Save Changes</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function showAddStaffModal() {
+                            $('#addStaffModal').modal('show');
+                        }
+
+                        function showDeleteStaffModal() {
+                            $('#deleteStaffModal').modal('show');
+                        }
+
+                        function showEditStaffModal(userId) {
+                            document.getElementById('editUserId').value = userId;
+                            if (userId.startsWith('d')) {
+                                document.getElementById('dutyHourGroup').style.display = 'none';
+                            } else {
+                                document.getElementById('dutyHourGroup').style.display = 'block';
+                            }
+                            $('#editStaffModal').modal('show');
+                        }
+                    </script>
+
                     <!-- Patient -->
                     <div class="tab-pane fade show" id="list-patient">
                         <table class="table table-hover" id="patientViewTable">
                             <thead>
                                 <tr>
-                                    <th style="width: 10%;">#</th>
+                                    <th style="width: 10%;">Patient ID</th>
                                     <th style="width: 15%;">Patient Name</th>
                                     <th style="width: 15%;">Gender</th>
                                     <th style="width: 15%;">Email</th>

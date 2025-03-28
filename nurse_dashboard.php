@@ -1,6 +1,7 @@
 <?php
 include 'config.php';
 include 'nurse_func.php';
+
 ?>
 
 <!DOCTYPE html>
@@ -214,7 +215,7 @@ include 'nurse_func.php';
                                                     echo 'N/A';
                                                 }
                                                 ?>
-                                            </td> 
+                                            </td>
                                             <td data-blood-group="<?= htmlspecialchars($patient['blood_group']) ?>"><?= htmlspecialchars($patient['blood_group']) ?></td>
                                             <td><?= htmlspecialchars($patient['allergies'] ?: 'N/A') ?></td>
                                             <td><?= htmlspecialchars($patient['pre_conditions'] ?: 'N/A') ?></td>
@@ -302,7 +303,7 @@ include 'nurse_func.php';
                                     <?php $index = 1;
                                     // Loop through each patient's treatment plans.
                                     foreach ($treatmentPlans as $patientId => $patientData): ?>
-                                    <!-- Loop through each doctor associated with the patient. -->
+                                        <!-- Loop through each doctor associated with the patient. -->
                                         <?php foreach ($patientData['doctors'] as $doctorName => $doctorPlans): ?>
                                             <tr data-plans='<?= json_encode($doctorPlans) ?>' data-patient-name='<?= htmlspecialchars($patientData['patient_name']) ?>' data-doctor-name='<?= htmlspecialchars($doctorName) ?>'>
                                                 <td><?= $index++ ?></td>
@@ -416,7 +417,7 @@ include 'nurse_func.php';
                                 <tbody>
                                     <?php if (count($tests) > 0): ?>
                                         <?php $index = 1;
-                                         // Loop through each test record.
+                                        // Loop through each test record.
                                         foreach ($tests as $test): ?>
                                             <tr data-patient-id="<?= $test['patient_user_id'] ?>" data-test-id="<?= $test['test_id'] ?>">
                                                 <td><?= $index++ ?></td>
