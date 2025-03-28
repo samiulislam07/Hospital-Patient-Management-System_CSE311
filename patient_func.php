@@ -2,10 +2,28 @@
 session_start();
 include 'config.php';
 
-// Redirect if not logged in
-if (!isset($_SESSION['user_id'])) {
-  header("Location: index.php");
-  exit();
+// Check if the user is logged in and is a patient
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'patient') {
+    header("Location: index.php");
+    exit();
+}
+
+$current_session = session_id();
+$user_id = $_SESSION['user_id'];
+
+// Fetch the stored session id from the Patient table
+$sql = "SELECT session_id FROM Patient WHERE user_id = ?";
+$stmt = $con->prepare($sql);
+$stmt->bind_param("s", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+
+if (!$row || $row['session_id'] !== $current_session) {
+    // Session mismatch: possibly logged in from another device
+    session_destroy();
+    header("Location: index.php?error=Your account was logged in from another device. Please log in again.");
+    exit();
 }
 
 $patient_id = $_SESSION['user_id'];

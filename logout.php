@@ -1,7 +1,31 @@
 <?php
 session_start();
+include 'config.php';
+
+if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+  $user_id = $_SESSION['user_id'];
+  $role = $_SESSION['role'];
+  
+  if ($role === "patient") {
+      $updateSQL = "UPDATE Patient SET session_id = NULL WHERE user_id = ?";
+  } elseif ($role === "doctor") {
+      $updateSQL = "UPDATE Doctor SET session_id = NULL WHERE user_id = ?";
+  } elseif ($role === "nurse") {
+      $updateSQL = "UPDATE Nurse SET session_id = NULL WHERE user_id = ?";
+  } elseif ($role === "staff") {
+      $updateSQL = "UPDATE Staff SET session_id = NULL WHERE user_id = ?";
+  }
+  $stmt = $con->prepare($updateSQL);
+  $stmt->bind_param("s", $user_id);
+  $stmt->execute();
+  $stmt->close();
+}
+
 session_destroy();
+header("Location: index.php");
+exit();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
