@@ -348,7 +348,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                      </div>
                     <!-- Treatment Plans Tab -->
                      <div class="tab-pane fade" id="list-trtPlan" role="tabpanel" aria-labelledby="list-trtPlan-list">
-
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped table-bordered">
+                                <thead>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Prescribed Date</th>
+                                    <th scope="col">Doctor Name</th>
+                                    <th scope="col">Specialization</th>                                
+                                    <th scope="col">Dosages</th>
+                                    <th scope="col">Suggestions</th>                                
+                                </thead>
+                                <tbody> <?php display_treatment_plans(); ?> </tbody>                            
+                            </table>
+                        </div>
                      </div>
                     <!-- Pending Tests Tab -->
                     <div class="tab-pane fade" id="list-test" role="tabpanel" aria-labelledby="list-test-list">
