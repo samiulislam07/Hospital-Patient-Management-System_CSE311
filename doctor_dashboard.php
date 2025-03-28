@@ -59,7 +59,7 @@ if (!isset($_SESSION['user_id'])) {
             <div class="col-md-4" style="max-width:18%;margin-top: 3%;">
                 <div class="list-group" id="list-tab" role="tablist">
                     <a class="list-group-item list-group-item-action active" href="#list-dash" data-toggle="list">Dashboard</a>
-                    <a class="list-group-item list-group-item-action" href="#list-dept" data-toggle="list">Departments</a>
+                    <a class="list-group-item list-group-item-action" href="#list-dept" data-toggle="list">HoD Access</a>
                     <a class="list-group-item list-group-item-action" href="#list-profile" data-toggle="list">Update Profile</a>
                     <a class="list-group-item list-group-item-action" href="#list-appt" data-toggle="list">Appointments</a>
                     <a class="list-group-item list-group-item-action" href="#list-patients" data-toggle="list">Ongoing Patients</a>
@@ -83,6 +83,7 @@ if (!isset($_SESSION['user_id'])) {
                                                 <p><strong>Gender:</strong> <?php echo htmlspecialchars($doctor['gender']); ?></p>
                                                 <p><strong>Specialization:</strong> <?php echo htmlspecialchars($doctor['specialization']); ?></p>
                                                 <p><strong>Availability:</strong> <?php echo htmlspecialchars($doctor['availability']); ?></p>
+                                                <p><strong>Department:</strong> <?php echo htmlspecialchars($departmentDetails['dept_name']); ?></p>
                                             </div>
                                             <div class="col-md-6">
                                                 <p><strong>Full Name:</strong> <?php echo htmlspecialchars($doctor['first_name'] . ' ' . $doctor['last_name']); ?></p>
@@ -90,7 +91,7 @@ if (!isset($_SESSION['user_id'])) {
                                                 <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($doctor['dob']); ?></p>
                                                 <p><strong>Salary:</strong> <?php echo htmlspecialchars($doctor['salary']); ?></p>
                                                 <p><strong>Fees:</strong> <?php echo htmlspecialchars($doctor['doc_fee']); ?></p>
-
+                                                <p><strong>Head of department:</strong> <?php echo htmlspecialchars($departmentDetails['head_name']); ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -107,11 +108,14 @@ if (!isset($_SESSION['user_id'])) {
                                     <th>Staff Name</th>
                                     <th>Gender</th>
                                     <th>Email</th>
-                                    <th>Sepcialization</th>
+                                    <th>Specialization</th>
                                     <th>Duty Hour</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                <?php
+                                deptViewTable($doctor['user_id']);
+                                ?>
                             </tbody>
                         </table>
                     </div>
@@ -175,17 +179,17 @@ if (!isset($_SESSION['user_id'])) {
                                 </div>
                             </div>
 
-                        <br>
-                        <div class="text-left">
-                            <button type="submit" name="update_doctor" class="btn btn-primary">Update</button>
-                        </div>
+                            <br>
+                            <div class="text-left">
+                                <button type="submit" name="update_doctor" class="btn btn-primary">Update</button>
+                            </div>
                         </form>
                     </div>
                     <!-- Appointments -->
                     <div class="tab-pane fade" id="list-appt">
                         <div class="row">
                             <div class="col-md-4 filter-group">
-                                <label for="apptDateFilter">Filter by Test Date:</label>
+                                <label for="apptDateFilter">Filter by Appointment Date:</label>
                                 <input type="date" class="form-control form-control-sm" id="apptDateFilter" placeholder="Enter Test Date">
                             </div>
                         </div><br>
@@ -204,10 +208,8 @@ if (!isset($_SESSION['user_id'])) {
                             </thead>
                             <tbody id="appointments">
                                 <?php if (count($appointments) > 0): ?>
-                                    <!-- Loop through each appointment and show patient details -->
                                     <?php foreach ($appointments as $index => $appointment): ?>
-
-                                        <tr> <!-- Display row number and increment counter, patient details and appointment details -->
+                                        <tr>
                                             <td><?= $index + 1 ?></td>
                                             <td><?= htmlspecialchars($appointment['patient_first_name'] . ' ' . $appointment['patient_last_name']) ?></td>
                                             <td><?= htmlspecialchars($appointment['patient_gender']) ?></td>
@@ -215,7 +217,6 @@ if (!isset($_SESSION['user_id'])) {
                                             <td><?= htmlspecialchars($appointment['appt_time']) ?></td>
                                             <td>
                                                 <?php
-                                                //Display appointment status
                                                 $status_class = '';
                                                 switch ($appointment['appt_status']) {
                                                     case 'Scheduled':
@@ -224,7 +225,8 @@ if (!isset($_SESSION['user_id'])) {
                                                     case 'Completed':
                                                         $status_class = 'badge-success';
                                                         break;
-                                                    case 'Cancelled':
+                                                    case 'Cancelled by Doctor':
+                                                    case 'Cancelled by Patient':
                                                         $status_class = 'badge-danger';
                                                         break;
                                                     case 'Missed':
@@ -239,26 +241,31 @@ if (!isset($_SESSION['user_id'])) {
                                             </td>
                                             <td>
                                                 <form method="POST">
-                                                    <!-- Choose appointment status -->
                                                     <input type="hidden" name="appt_id" value="<?= htmlspecialchars($appointment['appt_id']) ?>">
                                                     <select class="form-control form-control-sm" name="appt_status">
+                                                    <option value="Scheduled" <?= $appointment['appt_status'] == 'Scheduled' ? 'selected' : '' ?>>Select Status</option>
                                                         <option value="Completed" <?= $appointment['appt_status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
-                                                        <option value="Cancelled" <?= $appointment['appt_status'] == 'Cancelled' ? 'selected' : '' ?>>Cancel</option>
+                                                        <option value="Cancelled by Doctor" <?= $appointment['appt_status'] == 'Cancelled by Doctor' ? 'selected' : '' ?>>Cancel</option>
                                                         <option value="Missed" <?= $appointment['appt_status'] == 'Missed' ? 'selected' : '' ?>>Missed</option>
                                                     </select>
                                             </td>
-                                            <td> <!-- Button to update appointment status -->
-                                                <button type="submit" name="update_status" class="btn btn-sm btn-primary">Update</button>
+                                            <td>
+                                                <?php if ($appointment['appt_status'] == 'Scheduled'): ?>
+                                                    <button type="submit" name="update_status" class="btn btn-sm btn-primary">Update</button>
+                                                <?php else: ?>
+                                                    <button type="button" class="btn btn-sm btn-secondary" disabled>Update</button>
+                                                <?php endif; ?>
                                                 </form>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="8">No appointments found.</td>
+                                        <td colspan='6' class='text-center'>No appointments found.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
+
                         </table>
                     </div>
                     <!-- JavaScript for Appointment Date Filter -->
@@ -284,7 +291,7 @@ if (!isset($_SESSION['user_id'])) {
                                     row.style.display = (matchDate) ? "" : "none";
                                 });
                             }
-                        });
+                        }); 
                     </script>
                     <!-- Ongoing Patients -->
                     <div class="tab-pane fade" id="list-patients">

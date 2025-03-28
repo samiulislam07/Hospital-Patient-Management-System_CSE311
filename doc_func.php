@@ -34,10 +34,11 @@ $doctor_id = $_SESSION['user_id'];
 $doctor = [];
 $dept = [];
 
+
 // Fetch doctor details from the database.
 $sql = "SELECT user_id, first_name, last_name, email, gender, phone, 
             dob, salary, doc_fee, specialization, availability
-        FROM Doctor
+        FROM Doctor d
         WHERE user_id = ?";
 
 $stmt = $con->prepare($sql);
@@ -55,6 +56,79 @@ if ($stmt) {
 
     // Close the prepared statement.
     $stmt->close();
+}
+
+//Fetch department details of the doctor
+$departmentDetails = [];
+$sql = "SELECT dept.dept_name, CONCAT(s.first_name, ' ', s.last_name) AS head_name
+        FROM Doctor d
+        LEFT JOIN Department dept ON d.dept_id = dept.dept_id
+        LEFT JOIN Staff s ON dept.dept_head = s.user_id
+        WHERE d.user_id = ?";
+
+$stmt = $con->prepare($sql);
+
+if (!$stmt) {
+    die("Error: Prepare failed: " . $con->error); // Exit on error
+}
+
+$stmt->bind_param("s", $doctor_id);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result->num_rows === 1) {
+    $departmentDetails = $result->fetch_assoc();
+}
+$stmt->close();
+
+
+function deptViewTable($userId)
+{
+    global $con;
+
+    // Check if the current user is a Head of Department (HoD)
+    $hodCheckSql = "SELECT dept_id FROM Department WHERE dept_head = ?";
+    $hodCheckStmt = $con->prepare($hodCheckSql);
+    $hodCheckStmt->bind_param("s", $userId);
+    $hodCheckStmt->execute();
+    $hodCheckStmt->store_result();
+
+    if ($hodCheckStmt->num_rows > 0) {
+        $hodCheckStmt->bind_result($deptId);
+        $hodCheckStmt->fetch();
+
+        // Retrieve staff details for the HoD's department
+        $staffSql = "SELECT s.user_id, s.first_name, s.last_name, s.gender, s.email, d.specialization, n.duty_hour
+                    FROM Staff s
+                    LEFT JOIN Doctor d ON s.user_id = d.user_id
+                    LEFT JOIN Nurse n ON s.user_id = n.user_id
+                    WHERE s.dept_id = ?";
+        $staffStmt = $con->prepare($staffSql);
+        $staffStmt->bind_param("s", $deptId);
+        $staffStmt->execute();
+        $staffResult = $staffStmt->get_result();
+
+        if ($staffResult->num_rows > 0) {
+
+            while ($staffRow = $staffResult->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>" . htmlspecialchars($staffRow['user_id']) . "</td>";
+                echo "<td>" . htmlspecialchars($staffRow['first_name'] . ' ' . $staffRow['last_name']) . "</td>";
+                echo "<td>" . htmlspecialchars($staffRow['gender']) . "</td>";
+                echo "<td>" . htmlspecialchars($staffRow['email']) . "</td>";
+                echo "<td>" . htmlspecialchars($staffRow['specialization']) . "</td>";
+                echo "<td>" . htmlspecialchars($staffRow['duty_hour']) . "</td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='6' class='text-center'>No Staff found in your department.</td></tr>";
+        }
+
+        $staffStmt->close();
+    } else {
+        echo "<tr><td colspan='6' class='text-center'>You are not a Head of Departemnt.</td></tr>";
+    }
+
+    $hodCheckStmt->close();
 }
 
 // Handle doctor profile update form submission.
@@ -97,8 +171,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
 
                         if ($stmt_doctor) {
                             // Bind the form data and doctor's user ID to the prepared statement.
-                            $stmt_doctor->bind_param("sssssss", $email, $phone, $dob, $doc_fee, 
-                                                        $specialization, $availability, $doctor_id);
+                            $stmt_doctor->bind_param(
+                                "sssssss",
+                                $email,
+                                $phone,
+                                $dob,
+                                $doc_fee,
+                                $specialization,
+                                $availability,
+                                $doctor_id
+                            );
 
                             if ($stmt_doctor->execute()) {
                                 // Commit the transaction if all updates are successful.
@@ -172,6 +254,7 @@ if ($stmt) {
     // Close the prepared statement.
     $stmt->close();
 }
+
 
 // Handle appointment status update form submission.
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
@@ -338,5 +421,3 @@ if ($stmt) {
 
 // Close the database connection.
 $con->close();
-
-?>

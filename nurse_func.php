@@ -47,6 +47,32 @@ if ($stmt) {
     $stmt->close();
 }
 
+
+//Fetch department details of the nurse
+$departmentDetails = [];
+$sql = "SELECT dept.dept_name, CONCAT(s.first_name, ' ', s.last_name) AS head_name
+        FROM Doctor d
+        LEFT JOIN Department dept ON d.dept_id = dept.dept_id
+        LEFT JOIN Staff s ON dept.dept_head = s.user_id
+        WHERE d.user_id = ?";
+
+$stmt = $con->prepare($sql);
+
+if (!$stmt) {
+    die("Error: Prepare failed: " . $con->error); // Exit on error
+}
+
+$stmt->bind_param("s", $nurse_id);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result->num_rows === 1) {
+    $departmentDetails = $result->fetch_assoc();
+}
+$stmt->close();
+
+
+
+
 // Handle nurse profile update via POST request.
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_nurse'])) {
     $email = $_POST['email'];

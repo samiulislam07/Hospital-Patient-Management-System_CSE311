@@ -288,7 +288,7 @@ function display_appointment_history()
             $status    = $row['appt_status'];
 
             // If the appointment is already completed/cancelled/missed, disable the Cancel button
-            if (in_array($status, ['Completed', 'Cancelled', 'Missed'])) {
+            if (in_array($status, ['Completed', 'Cancelled by Doctor', 'Cancelled by Patient', 'Missed'])) {
                 $actionBtn = '<button class="btn btn-secondary btn-sm" disabled>Cancel</button>';
             } else {
                 // Otherwise, allow cancellation. You might pass appt_id to an AJAX or separate script.
@@ -312,9 +312,9 @@ function display_appointment_history()
 function cancel_appointment($appt_id) {
     global $con;
     
-    // Prepare query to update appointment status to 'Cancelled'
-    $sql = "UPDATE checkup SET appt_status = 'Cancelled' 
-            WHERE appt_id = ? AND appt_status NOT IN ('Completed', 'Cancelled', 'Missed')";
+    // Prepare query to update appointment status to 'Cancelled by Patient'
+    $sql = "UPDATE checkup SET appt_status = 'Cancelled by Patient' 
+            WHERE appt_id = ? AND appt_status NOT IN ('Completed', 'Cancelled by Doctor', 'Cancelled by Patient', 'Missed')";
     $stmt = $con->prepare($sql);
     if (!$stmt) {
         return array("error" => "Database error: " . $con->error);

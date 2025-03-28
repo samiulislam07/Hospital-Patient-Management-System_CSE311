@@ -1,5 +1,8 @@
 <?php
+session_start();
 include 'config.php';
+
+
 
 function displayDepartmentsTable()
 {

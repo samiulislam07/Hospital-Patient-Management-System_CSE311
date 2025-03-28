@@ -75,14 +75,14 @@ if (!isset($_SESSION['user_id'])) {
                                                 <p><strong>Phone:</strong> <?php echo htmlspecialchars($nurse['phone']); ?></p>
                                                 <p><strong>Gender:</strong> <?php echo htmlspecialchars($nurse['gender']); ?></p>
                                                 <p><strong>Duty Hour:</strong> <?php echo htmlspecialchars($nurse['duty_hour']); ?></p>
-
+                                                <p><strong>Department:</strong> <?php echo htmlspecialchars($departmentDetails['dept_name']); ?></p>
                                             </div>
                                             <div class="col-md-6">
                                                 <p><strong>Full Name:</strong> <?php echo htmlspecialchars($nurse['first_name'] . ' ' . $nurse['last_name']); ?></p>
                                                 <p><strong>Email:</strong> <?php echo htmlspecialchars($nurse['email']); ?></p>
                                                 <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($nurse['dob']); ?></p>
                                                 <p><strong>Salary:</strong> <?php echo htmlspecialchars($nurse['salary']); ?></p>
-
+                                                <p><strong>Head of department:</strong> <?php echo htmlspecialchars($departmentDetails['head_name']); ?></p> 
 
                                             </div>
                                         </div>
