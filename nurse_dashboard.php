@@ -252,7 +252,7 @@ if (!isset($_SESSION['user_id'])) {
                                 rows.forEach(row => {
                                     const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
                                     const age = row.querySelector('td:nth-child(4)').dataset.age;
-                                    const bloodGroup = row.querySelector('td:nth-child(5)').dataset.bloodG;
+                                    const bloodGroup = row.querySelector('td:nth-child(5)').dataset.bloodGroup;
 
                                     let nameMatch = name.includes(searchValue);
                                     let ageMatch = true;

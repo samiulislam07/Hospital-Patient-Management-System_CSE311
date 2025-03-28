@@ -10,12 +10,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
 }
 
 $current_session = session_id();
-$doctor_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'];
 
 // Fetch the stored session id from the Doctor table
 $sql = "SELECT session_id FROM Doctor WHERE user_id = ?";
 $stmt = $con->prepare($sql);
-$stmt->bind_param("s", $doctor_id);
+$stmt->bind_param("s", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
@@ -27,6 +27,8 @@ if (!$row || $row['session_id'] !== $current_session) {
     exit();
 }
 
+// Get the doctor's user ID from the session.
+$doctor_id = $_SESSION['user_id'];
 
 // Initialize arrays to store doctor details and department information.
 $doctor = [];

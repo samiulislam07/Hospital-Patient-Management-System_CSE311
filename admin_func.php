@@ -67,14 +67,14 @@ function deleteDepartment($deptName)
 if (isset($_POST['addDeptName'])) {
     $deptName = $_POST['addDeptName'];
     $message = addDepartment($deptName);
-    echo "<script>alert('$message'); window.location.href = window.location.href;</script>"; // Alert and refresh
+    echo "<script>alert('$message'); window.location.href = #list-dept;</script>"; // Alert and refresh
 }
 
 // Handle delete department request
 if (isset($_POST['deleteDeptName'])) {
     $deptName = $_POST['deleteDeptName'];
     $message = deleteDepartment($deptName);
-    echo "<script>alert('$message'); window.location.href = window.location.href;</script>"; // Alert and refresh
+    echo "<script>alert('$message'); window.location.href = #list-dept;</script>"; // Alert and refresh
 }
 
 // Function to handle edit department request
@@ -133,7 +133,7 @@ if (isset($_POST['editDeptId']) && isset($_POST['editDocId'])) {
     $deptId = $_POST['editDeptId'];
     $docId = $_POST['editDocId'];
     $message = editDepartment($deptId, $docId);
-    echo "<script>alert('$message'); window.location.href = window.location.href;</script>";
+    echo "<script>alert('$message'); window.location.href = #list-dept;</script>";
 }
 
 // Function to display staff details
@@ -272,7 +272,7 @@ if (isset($_POST['addStaff'])) {
     $isDoctor = isset($_POST['isDoctor']) ? intval($_POST['isDoctor']) : 0;
 
     $message = addStaff($firstName, $lastName, $email, $password, $gender, $isDoctor);
-    echo "<script>alert('$message'); window.location.href = window.location.href;</script>";
+    echo "<script>alert('$message'); window.location.href = #list-staff;</script>";
 }
 
 // Function to delete staff (placeholder)
@@ -295,7 +295,7 @@ function deleteStaff($userId)
 if (isset($_POST['UserId'])) {
     $userId = $_POST['UserId'];
     $message = deleteStaff($userId);
-    echo "<script>alert('$message'); window.location.href = window.location.href;</script>";
+    echo "<script>alert('$message'); window.location.href = #list-staff ;</script>";
 }
 
 // Function to edit staff details
@@ -353,7 +353,7 @@ if (isset($_POST['editStaff'])) {
     $deptId = $_POST['deptId'];
 
     $message = editStaff($userId, $salary, $dutyHour, $deptId);
-    echo "<script>alert('$message'); window.location.href = window.location.href;</script>";
+    echo "<script>alert('$message'); window.location.href = #list-staff;</script>";
 }
 
 

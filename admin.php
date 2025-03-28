@@ -161,9 +161,22 @@ include 'admin_func.php';
                     </script>
                     <!-- Staff -->
                     <div class="tab-pane fade show" id="list-staff">
-                        <div class="d-flex justify-content-between mb-3">
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <input type="text" id="staffNameFilter" class="form-control" placeholder="Search by Name">
+                            </div>
+                            <div class="col-md-3">
+                                <select id="staffGenderFilter" class="form-control">
+                                    <option value="">All Genders</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
                             <button class="btn btn-primary" onclick="showAddStaffModal()">Add Staff</button>
                             <button class="btn btn-danger" onclick="showDeleteStaffModal()">Delete Staff</button>
+                            </div>
                         </div>
                         <table class="table table-hover" id="staffViewTable">
                             <thead>
@@ -328,11 +341,57 @@ include 'admin_func.php';
                             }
                             $('#editStaffModal').modal('show');
                         }
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const nameFilter = document.getElementById('staffNameFilter');
+                            const genderFilter = document.getElementById('staffGenderFilter');
+
+                            nameFilter.addEventListener('keyup', filterStaffTable);
+                            genderFilter.addEventListener('change', filterStaffTable);
+                        });
+
+                        function filterStaffTable() {
+                            const nameFilterValue = document.getElementById('staffNameFilter').value.toLowerCase();
+                            const genderFilterValue = document.getElementById('staffGenderFilter').value.toLowerCase();
+                            const rows = document.querySelectorAll('#staffViewTable tbody tr');
+
+                            rows.forEach(row => {
+                                const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                                const gender = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+
+                                let showRow = true;
+
+                                if (nameFilterValue && !name.includes(nameFilterValue)) {
+                                    showRow = false;
+                                }
+
+                                if (genderFilterValue && genderFilterValue !== 'all genders' && genderFilterValue !== gender) {
+                                    showRow = false;
+                                }
+
+                                if (showRow) {
+                                    row.style.display = ''; // Show the row
+                                } else {
+                                    row.style.display = 'none'; // Hide the row
+                                }
+                            });
+                        }
                     </script>
 
                     <!-- Patient -->
                     <div class="tab-pane fade show" id="list-patient">
                         <table class="table table-hover" id="patientViewTable">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <input type="text" id="patientNameFilter" class="form-control" placeholder="Search by Name">
+                                </div>
+                                <div class="col-md-4">
+                                    <select id="patientGenderFilter" class="form-control">
+                                        <option value="">All Genders</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                </div>
+                            </div>
                             <thead>
                                 <tr>
                                     <th style="width: 10%;">Patient ID</th>
@@ -348,6 +407,42 @@ include 'admin_func.php';
                             </tbody>
                         </table>
                     </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const nameFilter = document.getElementById('patientNameFilter');
+                            const genderFilter = document.getElementById('patientGenderFilter');
+
+                            nameFilter.addEventListener('keyup', filterPatientTable);
+                            genderFilter.addEventListener('change', filterPatientTable);
+                        });
+
+                        function filterPatientTable() {
+                            const nameFilterValue = document.getElementById('patientNameFilter').value.toLowerCase();
+                            const genderFilterValue = document.getElementById('patientGenderFilter').value.toLowerCase();
+                            const rows = document.querySelectorAll('#patientViewTable tbody tr');
+
+                            rows.forEach(row => {
+                                const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                                const gender = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+
+                                let showRow = true;
+
+                                if (nameFilterValue && !name.includes(nameFilterValue)) {
+                                    showRow = false;
+                                }
+
+                                if (genderFilterValue && genderFilterValue !== 'all genders' && genderFilterValue !== gender) {
+                                    showRow = false;
+                                }
+
+                                if (showRow) {
+                                    row.style.display = ''; // Show the row
+                                } else {
+                                    row.style.display = 'none'; // Hide the row
+                                }
+                            });
+                        }
+                    </script>
 
                 </div>
             </div>
