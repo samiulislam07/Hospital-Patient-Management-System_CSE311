@@ -2,10 +2,28 @@
 session_start();
 include 'config.php';
 
-// Redirect if not logged in
-if (!isset($_SESSION['user_id'])) {
-  header("Location: index.php");
-  exit();
+// Check if the user is logged in and is a patient
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'patient') {
+    header("Location: index.php");
+    exit();
+}
+
+$current_session = session_id();
+$user_id = $_SESSION['user_id'];
+
+// Fetch the stored session id from the Patient table
+$sql = "SELECT session_id FROM Patient WHERE user_id = ?";
+$stmt = $con->prepare($sql);
+$stmt->bind_param("s", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+
+if (!$row || $row['session_id'] !== $current_session) {
+    // Session mismatch: possibly logged in from another device
+    session_destroy();
+    header("Location: index.php?error=Your account was logged in from another device. Please log in again.");
+    exit();
 }
 
 $patient_id = $_SESSION['user_id'];
@@ -311,6 +329,73 @@ function cancel_appointment($appt_id) {
         return array("error" => "Failed to cancel appointment.");
     }
 }
+
+//fetch Treatment Plans
+function display_treatment_plans() {
+    global $con;
+    
+    // Check if patient is logged in
+    if (!isset($_SESSION['user_id'])) {
+        echo "<tr><td colspan='6' class='text-center text-danger'>Session expired. Please log in again.</td></tr>";
+        return;
+    }
+    
+    $patient_id = $_SESSION['user_id'];
+    
+    // Query to fetch treatment plan details along with doctor's name and specialization
+    $sql = "SELECT 
+                tp.trtplan_id, 
+                tp.prescribe_date, 
+                tp.dosage, 
+                tp.suggestion,
+                CONCAT(d.first_name, ' ', d.last_name) AS doctor_name,
+                d.specialization
+            FROM TreatmentPlan tp
+            JOIN doctor d ON tp.doctor_user_id = d.user_id
+            WHERE tp.patient_user_id = ?
+            ORDER BY tp.prescribe_date DESC";
+            
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        echo "<tr><td colspan='6' class='text-center text-danger'>Database error: Unable to prepare statement.</td></tr>";
+        return;
+    }
+    
+    $stmt->bind_param("s", $patient_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if (!$result) {
+        echo "<tr><td colspan='6' class='text-center text-danger'>Error fetching data.</td></tr>";
+        $stmt->close();
+        return;
+    }
+    
+    if ($result->num_rows === 0) {
+        echo "<tr><td colspan='6' class='text-center'>No treatment plans found.</td></tr>";
+    } else {
+        $count = 1;
+        while ($row = $result->fetch_assoc()) {
+            $prescribe_date = htmlspecialchars($row['prescribe_date']);
+            $doctor_name = htmlspecialchars($row['doctor_name']);
+            $specialization = htmlspecialchars($row['specialization']);
+            $dosage = htmlspecialchars($row['dosage']);
+            $suggestion = htmlspecialchars($row['suggestion']);
+            
+            echo "<tr>";
+            echo "<td>" . $count++ . "</td>";
+            echo "<td>{$prescribe_date}</td>";
+            echo "<td>{$doctor_name}</td>";
+            echo "<td>{$specialization}</td>";
+            echo "<td>{$dosage}</td>";
+            echo "<td>{$suggestion}</td>";
+            echo "</tr>";
+        }
+    }
+    
+    $stmt->close();
+}
+
 
 
 

@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 28, 2025 at 04:03 AM
+-- Generation Time: Mar 28, 2025 at 06:46 AM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -47,7 +47,10 @@ INSERT INTO `appointment` (`appt_id`, `appt_date`, `appt_time`, `updated_at`) VA
 (6, '2025-03-24', '00:00:00', '2025-03-24 19:32:49'),
 (7, '2025-03-26', '10:00:00', '2025-03-24 19:52:48'),
 (8, '2025-03-29', '10:45:00', '2025-03-25 19:45:12'),
-(9, '2025-03-29', '00:00:00', '2025-03-25 20:42:08');
+(9, '2025-03-29', '00:00:00', '2025-03-25 20:42:08'),
+(10, '2025-03-28', '12:00:00', '2025-03-28 03:53:25'),
+(11, '2025-03-30', '13:30:00', '2025-03-28 05:29:48'),
+(12, '2025-04-01', '13:37:00', '2025-03-28 05:38:01');
 
 -- --------------------------------------------------------
 
@@ -109,7 +112,10 @@ INSERT INTO `checkup` (`appt_id`, `patient_user_id`, `doctor_user_id`, `appt_sta
 (6, 'p004', 'd001', 'Completed', '2025-03-24 19:32:49', '2025-03-25 20:44:26'),
 (7, 'p004', 'd001', 'Completed', '2025-03-24 19:52:48', '2025-03-25 20:28:59'),
 (8, 'p004', 'd002', 'Completed', '2025-03-25 19:45:12', '2025-03-25 19:49:19'),
-(9, 'p004', 'd001', 'Scheduled', '2025-03-25 20:42:08', '2025-03-26 19:47:21');
+(9, 'p004', 'd001', 'Scheduled', '2025-03-25 20:42:08', '2025-03-26 19:47:21'),
+(10, 'p003', 'd003', 'Cancelled', '2025-03-28 03:53:25', '2025-03-28 05:29:33'),
+(11, 'p003', 'd003', 'Completed', '2025-03-28 05:29:48', '2025-03-28 05:31:47'),
+(12, 'p003', 'd003', 'Scheduled', '2025-03-28 05:38:01', '2025-03-28 05:38:01');
 
 -- --------------------------------------------------------
 
@@ -158,17 +164,18 @@ CREATE TABLE `doctor` (
   `availability` varchar(50) DEFAULT NULL,
   `dept_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `session_id` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `doctor`
 --
 
-INSERT INTO `doctor` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `doc_fee`, `specialization`, `availability`, `dept_id`, `created_at`, `updated_at`) VALUES
-('d001', 'Dr. Kamal', 'Hossain', 'dr.kamal.hossain@gmail.com', 'password123', 'Male', '025695198085149', '1985-02-25', 10000.00, 700.00, 'Orthopedics', 'Mon-Wed-Fri 10 AM - 12 PM', 1, '2025-03-19 16:31:47', '2025-03-27 23:43:58'),
-('d002', 'Dr. Shilpi', 'Begum', 'dr.shilpi.begum@gmail.com', 'password123', 'Female', '01887654321', '1988-06-15', 65000.00, 750.00, 'Dermatology', '10AM - 4PM', 2, '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
-('d003', 'Xaima', 'Zaman', 'xaimazaman@gmail.com', '$2y$10$Kn/CbXaTjXSH/mhqLBCPA.3/LzIlWHX/fmtscNUObrFf6SG8JvL66', 'Female', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-27 23:27:30', '2025-03-27 23:27:30');
+INSERT INTO `doctor` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `doc_fee`, `specialization`, `availability`, `dept_id`, `created_at`, `updated_at`, `session_id`) VALUES
+('d001', 'Dr. Kamal', 'Hossain', 'dr.kamal.hossain@gmail.com', 'password123', 'Male', '025695198085149', '1985-02-25', 10000.00, 700.00, 'Orthopedics', 'Mon-Wed-Fri 10 AM - 12 PM', 1, '2025-03-19 16:31:47', '2025-03-27 23:43:58', NULL),
+('d002', 'Dr. Shilpi', 'Begum', 'dr.shilpi.begum@gmail.com', 'password123', 'Female', '01887654321', '1988-06-15', 65000.00, 750.00, 'Dermatology', '10AM - 4PM', 2, '2025-03-19 16:31:47', '2025-03-19 16:31:47', NULL),
+('d003', 'Xaima', 'Zaman', 'xaimazaman@gmail.com', '$2y$10$Kn/CbXaTjXSH/mhqLBCPA.3/LzIlWHX/fmtscNUObrFf6SG8JvL66', 'Female', NULL, NULL, NULL, NULL, 'Dermatology', NULL, NULL, '2025-03-27 23:27:30', '2025-03-28 05:42:40', 'llabkdtfeshnnq38805t8hfdfv');
 
 -- --------------------------------------------------------
 
@@ -263,7 +270,8 @@ CREATE TABLE `medicalhistory` (
 
 INSERT INTO `medicalhistory` (`patient_user_id`, `allergies`, `pre_conditions`, `created_at`, `updated_at`) VALUES
 ('p001', 'Dust', 'Asthma', '2025-03-19 16:33:59', '2025-03-19 16:33:59'),
-('p002', 'Penicillin', 'Diabetes', '2025-03-19 16:33:59', '2025-03-19 16:33:59');
+('p002', 'Penicillin', 'Diabetes', '2025-03-19 16:33:59', '2025-03-19 16:33:59'),
+('p003', 'Dust', 'Asthma', '2025-03-28 04:55:13', '2025-03-28 04:55:13');
 
 -- --------------------------------------------------------
 
@@ -284,16 +292,17 @@ CREATE TABLE `nurse` (
   `duty_hour` enum('Morning','Noon','Evening','Night','Rotational') DEFAULT NULL,
   `dept_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `session_id` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `nurse`
 --
 
-INSERT INTO `nurse` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `duty_hour`, `dept_id`, `created_at`, `updated_at`) VALUES
-('n001', 'Anika', 'Rahman', 'anika.rahman@gmail.com', 'password123', 'Female', NULL, NULL, 10000.00, 'Noon', 1, '2025-03-24 13:25:59', '2025-03-27 21:44:06'),
-('n002', 'Xahiya', 'Zaman', 'xahiyazaman@gmail.com', '$2y$10$h211f/8gvyNjp7AgwSGIp.T6lA72XOQxJ88vWsTx/GdHsT81tImHy', 'Female', NULL, NULL, NULL, NULL, NULL, '2025-03-27 23:27:47', '2025-03-27 23:27:47');
+INSERT INTO `nurse` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `duty_hour`, `dept_id`, `created_at`, `updated_at`, `session_id`) VALUES
+('n001', 'Anika', 'Rahman', 'anika.rahman@gmail.com', 'password123', 'Female', NULL, NULL, 10000.00, 'Noon', 1, '2025-03-24 13:25:59', '2025-03-27 21:44:06', NULL),
+('n002', 'Xahiya', 'Zaman', 'xahiyazaman@gmail.com', '$2y$10$h211f/8gvyNjp7AgwSGIp.T6lA72XOQxJ88vWsTx/GdHsT81tImHy', 'Female', NULL, NULL, NULL, NULL, NULL, '2025-03-27 23:27:47', '2025-03-27 23:27:47', NULL);
 
 -- --------------------------------------------------------
 
@@ -339,20 +348,22 @@ CREATE TABLE `patient` (
   `zip` varchar(10) DEFAULT NULL,
   `country` varchar(40) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `session_id` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `patient`
 --
 
-INSERT INTO `patient` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `blood_group`, `dob`, `hno`, `street`, `city`, `zip`, `country`, `created_at`, `updated_at`) VALUES
-('p001', 'Shanto', 'Ahmed', 'shanto.ahmed@gmail.com', 'password123', 'Male', 'A+', '1992-05-20', '56', 'Gulshan', 'Dhaka', '1212', 'Bangladesh', '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
-('p002', 'Sumi', 'Parveen', 'sumi.parveen@gmail.com', 'password123', 'Female', 'B-', '1995-03-15', '24', 'Banani', 'Dhaka', '1213', 'Bangladesh', '2025-03-19 16:31:47', '2025-03-19 16:31:47'),
-('p003', 'Samiul', 'Islam', 'samiulsamin.17@gmail.com', '$2y$10$o1NAiYsMM4XNs7Su67l9MeWrxgFcYhDaxiAs5kBZ0Rqqit9m/zFzG', 'Male', 'A+', '2003-04-18', '17/A', 'Shantibagh', 'Dhaka', '1217', 'Bangladesh', '2025-03-21 06:47:11', '2025-03-25 16:31:44'),
-('p004', 'Xaima', 'Zaman', 'xaima.nsu@gmail.com', '$2y$10$s6HyahngF6KDhSyI1qiLO.JMPdbH24vxj/4rBbX3mlKfDIgLCdsyu', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-21 10:51:49', '2025-03-21 10:51:49'),
-('p005', 'Xahiya', 'Zaman', 'xahiyazaman@gmail.com', '$2y$10$YdqKqHDcoQPXfzrIOu0oq.FpVJpXaDXg0fs5G9HYUVxzRyAZykWyG', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-24 16:12:50', '2025-03-24 16:12:50'),
-('p006', 'Xayan', 'Zaman', 'zayan@gmail.com', '$2y$10$JbRT5iov2hMgbXYLKscygOag1EXkGCiyZMM53lXN5ECkqqSw4dUaO', 'Male', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-28 02:44:07', '2025-03-28 02:44:07');
+INSERT INTO `patient` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `blood_group`, `dob`, `hno`, `street`, `city`, `zip`, `country`, `created_at`, `updated_at`, `session_id`) VALUES
+('p001', 'Shanto', 'Ahmed', 'shanto.ahmed@gmail.com', 'password123', 'Male', 'A+', '1992-05-20', '56', 'Gulshan', 'Dhaka', '1212', 'Bangladesh', '2025-03-19 16:31:47', '2025-03-19 16:31:47', NULL),
+('p002', 'Sumi', 'Parveen', 'sumi.parveen@gmail.com', 'password123', 'Female', 'B-', '1995-03-15', '24', 'Banani', 'Dhaka', '1213', 'Bangladesh', '2025-03-19 16:31:47', '2025-03-19 16:31:47', NULL),
+('p003', 'Samiul', 'Islam', 'samiulsamin.17@gmail.com', '$2y$10$o1NAiYsMM4XNs7Su67l9MeWrxgFcYhDaxiAs5kBZ0Rqqit9m/zFzG', 'Male', 'A+', '2003-04-18', '17/A', 'Shantibagh', 'Dhaka', '1217', 'Bangladesh', '2025-03-21 06:47:11', '2025-03-28 05:42:10', 'pc2mtfb65td77e553uui2mehaf'),
+('p004', 'Xaima', 'Zaman', 'xaima.nsu@gmail.com', '$2y$10$s6HyahngF6KDhSyI1qiLO.JMPdbH24vxj/4rBbX3mlKfDIgLCdsyu', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-21 10:51:49', '2025-03-21 10:51:49', NULL),
+('p005', 'Xahiya', 'Zaman', 'xahiyazaman@gmail.com', '$2y$10$YdqKqHDcoQPXfzrIOu0oq.FpVJpXaDXg0fs5G9HYUVxzRyAZykWyG', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-24 16:12:50', '2025-03-24 16:12:50', NULL),
+('p006', 'Xayan', 'Zaman', 'zayan@gmail.com', '$2y$10$JbRT5iov2hMgbXYLKscygOag1EXkGCiyZMM53lXN5ECkqqSw4dUaO', 'Male', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-28 02:44:07', '2025-03-28 02:44:07', NULL),
+('p007', 'Nafis', 'Arpon', 'nafismuktashid@hotmail.com', '$2y$10$GZd5BAf.pztQgutp5bfosOQUOCk2PXPbli5Ifdm5kidUA/dsEi4Ly', 'Male', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-03-28 05:14:47', '2025-03-28 05:46:14', NULL);
 
 -- --------------------------------------------------------
 
@@ -372,8 +383,8 @@ CREATE TABLE `patient_mobile` (
 --
 
 INSERT INTO `patient_mobile` (`patient_user_id`, `mobile`, `created_at`, `updated_at`) VALUES
-('p003', '01534594026', '2025-03-25 16:31:44', '2025-03-25 16:31:44'),
-('p003', '01999999999', '2025-03-25 16:31:44', '2025-03-25 16:31:44');
+('p003', '01534594026', '2025-03-28 04:55:13', '2025-03-28 04:55:13'),
+('p003', '01999999999', '2025-03-28 04:55:13', '2025-03-28 04:55:13');
 
 -- --------------------------------------------------------
 
@@ -466,7 +477,9 @@ INSERT INTO `treatmentplan` (`trtplan_id`, `prescribe_date`, `dosage`, `suggesti
 (6, '2025-03-24', 'hfh', 'hfh', 'p004', 'd001', '2025-03-24 19:34:08'),
 (7, '2025-03-04', 'Paraceetamol', '2 bela', 'p001', 'd001', '2025-03-25 05:04:29'),
 (8, '2025-03-29', 'khao', 'ghumao', 'p004', 'd002', '2025-03-25 19:48:48'),
-(9, '2025-03-29', 'aaaaaaaaaaa', 'aaaaaaaaaaaaaa', 'p004', 'd001', '2025-03-26 19:50:40');
+(9, '2025-03-29', 'aaaaaaaaaaa', 'aaaaaaaaaaaaaa', 'p004', 'd001', '2025-03-26 19:50:40'),
+(10, '2025-03-27', 'paracetamol 2 bela', 'saradin ghuman', 'p003', 'd003', '2025-03-28 04:08:33'),
+(11, '2025-03-28', 'Tumen 2 bela\nFexo 1x14 days\nMontair 1x30 days at night\nVentolin Inhaler as per emergency', 'early bed, sleep tight', 'p003', 'd001', '2025-03-28 04:19:31');
 
 -- --------------------------------------------------------
 
@@ -499,7 +512,8 @@ INSERT INTO `users` (`user_id`, `first_name`, `last_name`, `email`, `password`, 
 ('p003', 'Samiul', 'Islam', 'samiulsamin.17@gmail.com', '$2y$10$o1NAiYsMM4XNs7Su67l9MeWrxgFcYhDaxiAs5kBZ0Rqqit9m/zFzG', '2025-03-21 06:47:11', '2025-03-21 06:47:11'),
 ('p004', 'Xaima', 'Zaman', 'xaima.nsu@gmail.com', '$2y$10$s6HyahngF6KDhSyI1qiLO.JMPdbH24vxj/4rBbX3mlKfDIgLCdsyu', '2025-03-21 10:51:49', '2025-03-21 10:51:49'),
 ('p005', 'Xahiya', 'Zaman', 'xahiyazaman@gmail.com', '$2y$10$YdqKqHDcoQPXfzrIOu0oq.FpVJpXaDXg0fs5G9HYUVxzRyAZykWyG', '2025-03-24 16:12:50', '2025-03-24 16:12:50'),
-('p006', 'Xayan', 'Zaman', 'zayan@gmail.com', '$2y$10$JbRT5iov2hMgbXYLKscygOag1EXkGCiyZMM53lXN5ECkqqSw4dUaO', '2025-03-28 02:44:07', '2025-03-28 02:44:07');
+('p006', 'Xayan', 'Zaman', 'zayan@gmail.com', '$2y$10$JbRT5iov2hMgbXYLKscygOag1EXkGCiyZMM53lXN5ECkqqSw4dUaO', '2025-03-28 02:44:07', '2025-03-28 02:44:07'),
+('p007', 'Nafis', 'Arpon', 'nafismuktashid@hotmail.com', '$2y$10$GZd5BAf.pztQgutp5bfosOQUOCk2PXPbli5Ifdm5kidUA/dsEi4Ly', '2025-03-28 05:14:47', '2025-03-28 05:14:47');
 
 --
 -- Indexes for dumped tables
@@ -623,7 +637,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `appointment`
 --
 ALTER TABLE `appointment`
-  MODIFY `appt_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `appt_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `bill_detail`
@@ -647,7 +661,7 @@ ALTER TABLE `test`
 -- AUTO_INCREMENT for table `treatmentplan`
 --
 ALTER TABLE `treatmentplan`
-  MODIFY `trtplan_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `trtplan_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables
