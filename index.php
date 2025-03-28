@@ -112,7 +112,7 @@ $con->close();
 
             <!-- Patient Login -->
             <div class="form-container active" id="patient-form">
-                <h2>Login as Patient</h2>
+                <h3>Login as Patient</h3>
                 <form action="" method="POST">
                     <input type="hidden" name="role" value="patient">
                     <div class="form-group">
@@ -120,6 +120,7 @@ $con->close();
                     </div>
                     <div class="form-group">
                         <input type="password" name="password" placeholder="Enter your password" required>
+                        <p style="text-align: right;"><a href="reset_password.php">Reset Password</a></p>
                     </div>
                     <button type="submit" class="submit-btn">Login</button>
                 </form>
@@ -135,7 +136,7 @@ $con->close();
 
             <!-- Doctor Login -->
             <div class="form-container" id="doctor-form">
-                <h2>Login as Doctor</h2>
+                <h3>Login as Doctor</h3>
                 <form action="" method="POST">
                     <input type="hidden" name="role" value="doctor">
                     <div class="form-group">
@@ -143,6 +144,7 @@ $con->close();
                     </div>
                     <div class="form-group">
                         <input type="password" name="password" placeholder="Password" required>
+                        <p style="text-align: right;"><a href="reset_password.php">Reset Password</a></p>
                     </div>
                     <button type="submit" class="submit-btn">Login</button>
                 </form>
@@ -155,7 +157,7 @@ $con->close();
 
             <!-- Nurse Login -->
             <div class="form-container" id="nurse-form">
-                <h2>Login as Nurse</h2>
+                <h3>Login as Nurse</h3>
                 <form action="" method="POST">
                     <input type="hidden" name="role" value="nurse">
                     <div class="form-group">
@@ -163,6 +165,7 @@ $con->close();
                     </div>
                     <div class="form-group">
                         <input type="password" name="password" placeholder="Password" required>
+                        <p style="text-align: right;"><a href="reset_password.php">Reset Password</a></p>
                     </div>
                     <button type="submit" class="submit-btn">Login</button>
                 </form>

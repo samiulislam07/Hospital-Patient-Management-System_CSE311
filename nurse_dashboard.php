@@ -138,7 +138,6 @@ if (!isset($_SESSION['user_id'])) {
                                     <input type="text" name="duty_hour" class="form-control  " value="<?= $nurse['duty_hour'] ?? '' ?>" disabled>
                                 </div>
                             </div>
-                        </form>
                         <br>
                         <div class="text-left">
                             <button type="submit" name="update_nurse" class="btn btn-primary">Update</button>

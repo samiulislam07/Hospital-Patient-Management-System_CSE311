@@ -103,12 +103,12 @@ if (!isset($_SESSION['user_id'])) {
                         <table class="table table-hover" id="deptViewTable">
                             <thead>
                                 <tr>
-                                    <th style="width: 10%;">ID</th>
-                                    <th style="width: 20%;">Staff Name</th>
-                                    <th style="width: 20%;">Gender</th>
-                                    <th style="width: 20%;">Email</th>
-                                    <th style="width: 20%;">Sepcialization</th>
-                                    <th style="width: 20%;">Duty Hour</th>
+                                    <th>ID</th>
+                                    <th>Staff Name</th>
+                                    <th>Gender</th>
+                                    <th>Email</th>
+                                    <th>Sepcialization</th>
+                                    <th>Duty Hour</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -174,7 +174,6 @@ if (!isset($_SESSION['user_id'])) {
                                     <input type="text" name="availability" class="form-control" value="<?= $doctor['availability'] ?? '' ?>">
                                 </div>
                             </div>
-                        </form>
 
                         <br>
                         <div class="text-left">
@@ -186,7 +185,7 @@ if (!isset($_SESSION['user_id'])) {
                     <div class="tab-pane fade" id="list-appt">
                         <div class="row">
                             <div class="col-md-4 filter-group">
-                                <label for="testDateFilter">Filter by Test Date:</label>
+                                <label for="apptDateFilter">Filter by Test Date:</label>
                                 <input type="date" class="form-control form-control-sm" id="apptDateFilter" placeholder="Enter Test Date">
                             </div>
                         </div><br>
@@ -221,9 +220,6 @@ if (!isset($_SESSION['user_id'])) {
                                                 switch ($appointment['appt_status']) {
                                                     case 'Scheduled':
                                                         $status_class = 'badge-warning';
-                                                        break;
-                                                    case 'Ongoing':
-                                                        $status_class = 'badge-info';
                                                         break;
                                                     case 'Completed':
                                                         $status_class = 'badge-success';

@@ -2,7 +2,7 @@
 session_start();
 include 'config.php';
 
-// Check if the user is logged in and is a patient
+// Check if the user is logged in and is a nurse
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'nurse') {
     header("Location: index.php");
     exit();
@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'nurse') {
 $current_session = session_id();
 $user_id = $_SESSION['user_id'];
 
-// Fetch the stored session id from the Patient table
+// Fetch the stored session id from the Nurse table
 $sql = "SELECT session_id FROM Nurse WHERE user_id = ?";
 $stmt = $con->prepare($sql);
 $stmt->bind_param("s", $user_id);
