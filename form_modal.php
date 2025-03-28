@@ -22,6 +22,8 @@ while ($row = $testResult->fetch_assoc()) {
 
 </head>
 
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
 <body>
     <!-- Order Test Pop-up Form -->
     <div id="orderTestPopup" class="popup">

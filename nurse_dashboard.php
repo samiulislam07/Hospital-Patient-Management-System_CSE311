@@ -2,6 +2,12 @@
 include 'config.php';
 include 'nurse_func.php';
 
+// Redirect if not logged in; security measure.
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+
 ?>
 
 <!DOCTYPE html>

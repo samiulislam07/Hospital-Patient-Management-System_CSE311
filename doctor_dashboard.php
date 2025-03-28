@@ -3,6 +3,11 @@ include 'config.php';
 include 'doc_func.php';
 include 'form_modal.php';
 
+// Redirect if not logged in; security measure.
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
 
 ?>
 
@@ -21,6 +26,11 @@ include 'form_modal.php';
     <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans&display=swap" rel="stylesheet">
     </style>
 </head>
+
+<!-- JavaScript Libraries -->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 <body style="padding-top: 50px;">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
@@ -49,6 +59,7 @@ include 'form_modal.php';
             <div class="col-md-4" style="max-width:18%;margin-top: 3%;">
                 <div class="list-group" id="list-tab" role="tablist">
                     <a class="list-group-item list-group-item-action active" href="#list-dash" data-toggle="list">Dashboard</a>
+                    <a class="list-group-item list-group-item-action" href="#list-dept" data-toggle="list">Departments</a>
                     <a class="list-group-item list-group-item-action" href="#list-profile" data-toggle="list">Update Profile</a>
                     <a class="list-group-item list-group-item-action" href="#list-appt" data-toggle="list">Appointments</a>
                     <a class="list-group-item list-group-item-action" href="#list-patients" data-toggle="list">Ongoing Patients</a>
@@ -86,6 +97,23 @@ include 'form_modal.php';
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <!-- Department -->
+                    <div class="tab-pane fade show" id="list-dept">
+                        <table class="table table-hover" id="deptViewTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">ID</th>
+                                    <th style="width: 20%;">Staff Name</th>
+                                    <th style="width: 20%;">Gender</th>
+                                    <th style="width: 20%;">Email</th>
+                                    <th style="width: 20%;">Sepcialization</th>
+                                    <th style="width: 20%;">Duty Hour</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
                     <!-- Update Profile -->
                     <div class="tab-pane fade show" id="list-profile">
@@ -530,11 +558,6 @@ include 'form_modal.php';
             </div>
         </div>
     </div>
-
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 
 </html>
