@@ -412,47 +412,51 @@ if (!isset($_SESSION['user_id'])) {
                             </div>
                         </div>
                         <form id="nurseTestForm" method="post" action="perform_test.php">
-                            <table class="table table-hover" id="nurseTestsTable">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 5%;">#</th>
-                                        <th style="width: 20%;">Patient Name</th>
-                                        <th style="width: 20%;">Prescribed Date</th>
-                                        <th style="width: 20%;">Test Name</th>
-                                        <th style="width: 15%;">Test Date</th>
-                                        <th style="width: 15%;">Result</th>
-                                        <th style="width: 15%;">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (count($tests) > 0): ?>
-                                        <?php $index = 1;
-                                        // Loop through each test record.
-                                        foreach ($tests as $test): ?>
-                                            <tr data-patient-id="<?= $test['patient_user_id'] ?>" data-test-id="<?= $test['test_id'] ?>">
-                                                <td><?= $index++ ?></td>
-                                                <!--  Table row with patient and test IDs as data attributes for JavaScript access. -->
-                                                <td><?= htmlspecialchars($test['patient_first_name'] . ' ' . $test['patient_last_name']) ?></td>
-                                                <td><?= htmlspecialchars($test['pres_date']) ?></td>
-                                                <td><?= htmlspecialchars($test['test_name']) ?></td>
-                                                <td>
-                                                    <input type="date" class="form-control test-date-input" name="test_date[]">
-                                                </td>
-                                                <td>
-                                                    <input type="text" class="form-control test-result-input" name="result[]">
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-primary btn-sm" onclick="submitTest(this)">Submit</button>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="nurseTestsTable">
+                                    <thead>
                                         <tr>
-                                            <td colspan="5">No tests found.</td>
+                                            <th style="width: 5%;">#</th>
+                                            <th style="width: 20%;">Patient Name</th>
+                                            <th style="width: 20%;">Prescribed Date</th>
+                                            <th style="width: 20%;">Test Name</th>
+                                            <th style="width: 15%;">Test Date</th>
+                                            <th style="width: 15%;">Result</th>
+                                            <th style="width: 15%;">Action</th>
                                         </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (count($tests) > 0): ?>
+                                            <?php $index = 1;
+                                            // Loop through each test record.
+                                            foreach ($tests as $test): ?>
+                                                <tr data-patient-id="<?= $test['patient_user_id'] ?>" data-test-id="<?= $test['test_id'] ?>">
+                                                    <td><?= $index++ ?></td>
+                                                    <!--  Table row with patient and test IDs as data attributes for JavaScript access. -->
+                                                    <td><?= htmlspecialchars($test['patient_first_name'] . ' ' . $test['patient_last_name']) ?></td>
+                                                    <td><?= htmlspecialchars($test['pres_date']) ?></td>
+                                                    <td><?= htmlspecialchars($test['test_name']) ?></td>
+                                                    <td>
+                                                        <input type="date" class="form-control test-date-input" name="test_date[]">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control test-result-input" name="result[]">
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-primary btn-sm" onclick="submitTest(this)">Submit</button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <tr>
+                                                <td colspan="5">No tests found.</td>
+                                            </tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            
                             <!-- <button style="margin-bottom: 20px;" type="submit" class="btn btn-primary">Submit Results</button> -->
                         </form>
                     </div>

@@ -218,11 +218,11 @@ if ($result->num_rows > 0) {
 // Fetch tests with null test_date and result for display.
 $sql = "SELECT 
             dtp.patient_user_id, 
-            MIN(dtp.pres_date) AS pres_date, 
+            MAX(dtp.pres_date) AS pres_date, 
             p.first_name AS patient_first_name, 
             p.last_name AS patient_last_name, 
             t.test_name, 
-            MIN(dtp.test_id) AS test_id
+            dtp.test_id AS test_id
         FROM Doc_Test_Patient dtp 
         JOIN Patient p ON dtp.patient_user_id = p.user_id 
         JOIN Test t ON dtp.test_id = t.test_id 
