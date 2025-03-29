@@ -135,6 +135,7 @@ function deptViewTable($userId)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
     // Get form data.
     $email = $_POST['email'];
+    $gender = $_POST['gender'];
     $phone = $_POST['phone'];
     $dob = $_POST['dob'];
     $doc_fee = $_POST['doc_fee'];
@@ -156,24 +157,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
 
             if ($stmt_users->execute()) {
                 // Update the Staff table.
-                $update_staff_sql = "UPDATE Staff SET email = ?, phone = ?, dob = ? WHERE user_id = ?";
+                $update_staff_sql = "UPDATE Staff SET email = ?, gender = ?, phone = ?, dob = ? WHERE user_id = ?";
                 $stmt_staff = $con->prepare($update_staff_sql);
 
                 if ($stmt_staff) {
                     // Bind the form data and doctor's user ID to the prepared statement.
-                    $stmt_staff->bind_param("ssss", $email, $phone, $dob, $doctor_id);
+                    $stmt_staff->bind_param("sssss", $email, $gender, $phone, $dob, $doctor_id);
 
                     if ($stmt_staff->execute()) {
                         // Update the Doctor table.
-                        $update_doctor_sql = "UPDATE Doctor SET email = ?, phone = ?, dob = ?, 
+                        $update_doctor_sql = "UPDATE Doctor SET email = ?, gender =?, phone = ?, dob = ?, 
                                                 doc_fee = ?, specialization = ?, availability = ? WHERE user_id = ?";
                         $stmt_doctor = $con->prepare($update_doctor_sql);
 
                         if ($stmt_doctor) {
                             // Bind the form data and doctor's user ID to the prepared statement.
                             $stmt_doctor->bind_param(
-                                "sssssss",
+                                "ssssssss",
                                 $email,
+                                $gender,
                                 $phone,
                                 $dob,
                                 $doc_fee,
@@ -234,7 +236,8 @@ $sql = "SELECT a.appt_id, a.appt_date, a.appt_time, c.appt_status,
         FROM Appointment a
         INNER JOIN checkup c ON a.appt_id = c.appt_id
         INNER JOIN Patient p ON c.patient_user_id = p.user_id
-        WHERE c.doctor_user_id = ?";
+        WHERE c.doctor_user_id = ?
+        ORDER BY a.appt_date DESC";
 
 $stmt = $con->prepare($sql);
 

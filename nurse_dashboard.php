@@ -82,7 +82,7 @@ if (!isset($_SESSION['user_id'])) {
                                                 <p><strong>Email:</strong> <?php echo htmlspecialchars($nurse['email']); ?></p>
                                                 <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($nurse['dob']); ?></p>
                                                 <p><strong>Salary:</strong> <?php echo htmlspecialchars($nurse['salary']); ?></p>
-                                                <p><strong>Head of department:</strong> <?php echo htmlspecialchars($departmentDetails['head_name']); ?></p> 
+                                                <p><strong>Head of Department:</strong> <?php echo htmlspecialchars($departmentDetails['head_name']); ?></p>
 
                                             </div>
                                         </div>
@@ -110,7 +110,11 @@ if (!isset($_SESSION['user_id'])) {
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
-                                    <input type="text" class="form-control" value="<?= $nurse['gender'] ?? '' ?>" disabled>
+                                    <select class="form-control" name="gender" disabled>
+                                        <option value="Male" <?= $patient['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
+                                        <option value="Female" <?= $patient['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
+                                        <option value="Other" <?= $patient['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -138,10 +142,10 @@ if (!isset($_SESSION['user_id'])) {
                                     <input type="text" name="duty_hour" class="form-control  " value="<?= $nurse['duty_hour'] ?? '' ?>" disabled>
                                 </div>
                             </div>
-                        <br>
-                        <div class="text-left">
-                            <button type="submit" name="update_nurse" class="btn btn-primary">Update</button>
-                        </div>
+                            <br>
+                            <div class="text-left">
+                                <button type="submit" name="update_nurse" class="btn btn-primary">Update</button>
+                            </div>
                         </form>
                     </div>
 

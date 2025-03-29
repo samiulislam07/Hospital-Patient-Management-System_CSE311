@@ -158,7 +158,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                                         <div class="row mb-4">
                                             <div class="col-md-2">
                                                 <label>Gender:</label>
-                                                <select class="form-control" name="gender">
+                                                <select class="form-control" name="gender" disabled>
                                                     <option value="Male" <?= $patient['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
                                                     <option value="Female" <?= $patient['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
                                                     <option value="Other" <?= $patient['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>

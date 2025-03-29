@@ -91,7 +91,7 @@ if (!isset($_SESSION['user_id'])) {
                                                 <p><strong>Date of Birth:</strong> <?php echo htmlspecialchars($doctor['dob']); ?></p>
                                                 <p><strong>Salary:</strong> <?php echo htmlspecialchars($doctor['salary']); ?></p>
                                                 <p><strong>Fees:</strong> <?php echo htmlspecialchars($doctor['doc_fee']); ?></p>
-                                                <p><strong>Head of department:</strong> <?php echo htmlspecialchars($departmentDetails['head_name']); ?></p>
+                                                <p><strong>Head of Department:</strong> <?php echo htmlspecialchars($departmentDetails['head_name']); ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -138,7 +138,11 @@ if (!isset($_SESSION['user_id'])) {
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
-                                    <input type="text" class="form-control" value="<?= $doctor['gender'] ?? '' ?>" disabled>
+                                    <select class="form-control" name="gender" disabled>
+                                        <option value="Male" <?= $doctor['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
+                                        <option value="Female" <?= $doctor['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
+                                        <option value="Other" <?= $doctor['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -243,7 +247,7 @@ if (!isset($_SESSION['user_id'])) {
                                                 <form method="POST">
                                                     <input type="hidden" name="appt_id" value="<?= htmlspecialchars($appointment['appt_id']) ?>">
                                                     <select class="form-control form-control-sm" name="appt_status">
-                                                    <option value="Scheduled" <?= $appointment['appt_status'] == 'Scheduled' ? 'selected' : '' ?>>Select Status</option>
+                                                        <option value="Scheduled" <?= $appointment['appt_status'] == 'Scheduled' ? 'selected' : '' ?>>Select Status</option>
                                                         <option value="Completed" <?= $appointment['appt_status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
                                                         <option value="Cancelled by Doctor" <?= $appointment['appt_status'] == 'Cancelled by Doctor' ? 'selected' : '' ?>>Cancel</option>
                                                         <option value="Missed" <?= $appointment['appt_status'] == 'Missed' ? 'selected' : '' ?>>Missed</option>
@@ -291,7 +295,7 @@ if (!isset($_SESSION['user_id'])) {
                                     row.style.display = (matchDate) ? "" : "none";
                                 });
                             }
-                        }); 
+                        });
                     </script>
                     <!-- Ongoing Patients -->
                     <div class="tab-pane fade" id="list-patients">

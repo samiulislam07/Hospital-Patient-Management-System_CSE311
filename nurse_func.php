@@ -51,10 +51,10 @@ if ($stmt) {
 //Fetch department details of the nurse
 $departmentDetails = [];
 $sql = "SELECT dept.dept_name, CONCAT(s.first_name, ' ', s.last_name) AS head_name
-        FROM Doctor d
-        LEFT JOIN Department dept ON d.dept_id = dept.dept_id
+        FROM Nurse n
+        LEFT JOIN Department dept ON n.dept_id = dept.dept_id
         LEFT JOIN Staff s ON dept.dept_head = s.user_id
-        WHERE d.user_id = ?";
+        WHERE n.user_id = ?";
 
 $stmt = $con->prepare($sql);
 
