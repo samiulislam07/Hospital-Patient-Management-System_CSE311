@@ -216,14 +216,21 @@ if ($result->num_rows > 0) {
 }
 
 // Fetch tests with null test_date and result for display.
-$sql = "SELECT dtp.test_id, dtp.patient_user_id, dtp.pres_date, 
-                p.first_name AS patient_first_name, p.last_name AS patient_last_name, 
-                t.test_name 
-                FROM Doc_Test_Patient dtp 
-                JOIN Patient p ON dtp.patient_user_id = p.user_id 
-                JOIN Test t ON dtp.test_id = t.test_id 
-                WHERE dtp.test_date IS NULL AND dtp.result IS NULL 
-                ORDER BY dtp.pres_date DESC";
+$sql = "SELECT 
+            dtp.patient_user_id, 
+            MIN(dtp.pres_date) AS pres_date, 
+            p.first_name AS patient_first_name, 
+            p.last_name AS patient_last_name, 
+            t.test_name, 
+            MIN(dtp.test_id) AS test_id
+        FROM Doc_Test_Patient dtp 
+        JOIN Patient p ON dtp.patient_user_id = p.user_id 
+        JOIN Test t ON dtp.test_id = t.test_id 
+        WHERE dtp.test_date IS NULL 
+          AND dtp.result IS NULL 
+        GROUP BY dtp.patient_user_id, t.test_name 
+        ORDER BY pres_date DESC";
+
 $result = $con->query($sql);
 
 if ($result === false) {

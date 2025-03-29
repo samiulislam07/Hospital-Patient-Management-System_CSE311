@@ -420,7 +420,8 @@ if (!isset($_SESSION['user_id'])) {
                                         <th style="width: 20%;">Prescribed Date</th>
                                         <th style="width: 20%;">Test Name</th>
                                         <th style="width: 15%;">Test Date</th>
-                                        <th style="width: 25%;">Result</th>
+                                        <th style="width: 15%;">Result</th>
+                                        <th style="width: 15%;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -440,6 +441,9 @@ if (!isset($_SESSION['user_id'])) {
                                                 <td>
                                                     <input type="text" class="form-control test-result-input" name="result[]">
                                                 </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-primary btn-sm" onclick="submitTest(this)">Submit</button>
+                                                </td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php else: ?>
@@ -449,7 +453,7 @@ if (!isset($_SESSION['user_id'])) {
                                     <?php endif; ?>
                                 </tbody>
                             </table>
-                            <button style="margin-bottom: 20px;" type="submit" class="btn btn-primary">Submit Results</button>
+                            <!-- <button style="margin-bottom: 20px;" type="submit" class="btn btn-primary">Submit Results</button> -->
                         </form>
                     </div>
                     <!-- JavaScript for Perform Tests -->
@@ -521,6 +525,59 @@ if (!isset($_SESSION['user_id'])) {
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+    function submitTest(btn) {
+        // Find the parent row of the clicked button.
+        const row = btn.closest('tr');
+        const patientId = row.getAttribute('data-patient-id');
+        const testId = row.getAttribute('data-test-id');
+        
+        // Get the test date and result inputs from this row.
+        const testDateInput = row.querySelector('.test-date-input');
+        const testResultInput = row.querySelector('.test-result-input');
+        const testDate = testDateInput.value;
+        const result = testResultInput.value;
+        
+        // Validate that both fields are filled.
+        if (!testDate || !result) {
+            alert('Please fill in both Test Date and Result.');
+            return;
+        }
+        
+        // Prepare the data to be sent.
+        const formData = new URLSearchParams();
+        formData.append('patient_user_id', patientId);
+        formData.append('test_id', testId);
+        formData.append('test_date', testDate);
+        formData.append('result', result);
+        
+        // Use Fetch API to send an AJAX POST request.
+        fetch('perform_test.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString()
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Test result submitted successfully.');
+                // Optionally disable the inputs or the button to prevent re-submission.
+                //btn.disabled = true;
+                //btn.innerText = 'Submitted';
+            } else {
+                alert('Error: ' + (data.error || 'Submission failed.'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while submitting the test result.');
+        });
+    }
+    </script>
+
 
 </body>
 
