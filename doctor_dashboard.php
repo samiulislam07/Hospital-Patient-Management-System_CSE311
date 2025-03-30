@@ -138,11 +138,7 @@ if (!isset($_SESSION['user_id'])) {
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
-                                    <select class="form-control" name="gender" disabled>
-                                        <option value="Male" <?= $doctor['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
-                                        <option value="Female" <?= $doctor['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
-                                        <option value="Other" <?= $doctor['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
-                                    </select>
+                                    <input type="text" class="form-control" value="<?= $doctor['gender'] ?? '' ?>" disabled>
                                 </div>
                             </div>
 
@@ -170,8 +166,7 @@ if (!isset($_SESSION['user_id'])) {
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Specialization:</label>
-                                    <input type="text" class="form-control " value="<?= $doctor['specialization'] ?? '' ?>">
-                                    </select>
+                                    <input type="text" name="specialization" class="form-control " value="<?= $doctor['specialization'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Doctor Fee:</label>
