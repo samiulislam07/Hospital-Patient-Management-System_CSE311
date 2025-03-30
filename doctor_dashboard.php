@@ -409,46 +409,32 @@ if (!isset($_SESSION['user_id'])) {
                     <!-- JavaScript for Test Tab -->
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
-                            // Search input and table selection.
-                            const searchInput = document.querySelector('input[placeholder="Search by Patient Name"]');
-                            const table = document.querySelector('#testResultsTable');
-                            if (!searchInput || !table) return;
-
-                            const rows = Array.from(table.querySelectorAll('tbody tr'));
-
-                            // Search functionality.
-                            searchInput.addEventListener('input', function() {
-                                const searchText = this.value.toLowerCase();
-                                rows.forEach(row => {
-                                    const patientName = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase();
-                                    row.style.display = patientName.includes(searchText) ? '' : 'none';
+                            // For each test-select element, attach a change event listener.
+                            document.querySelectorAll('.test-select').forEach(function(selectElem) {
+                                selectElem.addEventListener('change', function() {
+                                    // Get the selected test name.
+                                    const selectedTest = this.value;
+                                    // Find the row in which this select element resides.
+                                    const row = this.closest('tr');
+                                    // Retrieve the JSON-encoded tests data from the row's data attribute.
+                                    const testsData = JSON.parse(row.getAttribute('data-tests'));
+                                    
+                                    // Find the test object that matches the selected test name.
+                                    let selectedTestData = testsData.find(function(test) {
+                                        return test.test_name === selectedTest;
+                                    });
+                                    
+                                    // Populate the test-date and test-result cells.
+                                    const testDateCell = row.querySelector('.test-date');
+                                    const testResultCell = row.querySelector('.test-result');
+                                    if (selectedTestData) {
+                                        testDateCell.textContent = selectedTestData.test_date || 'Not Yet Performed';
+                                        testResultCell.textContent = selectedTestData.result || 'Pending';
+                                    } else {
+                                        testDateCell.textContent = '';
+                                        testResultCell.textContent = '';
+                                    }
                                 });
-                            });
-
-                            // Test selection functionality.
-                            table.addEventListener('change', function(event) {
-                                if (!event.target.classList.contains('test-select')) return;
-                                const select = event.target;
-                                const row = select.closest('tr');
-                                if (!row || !row.dataset.tests) return;
-
-                                let tests;
-                                try {
-                                    tests = JSON.parse(row.dataset.tests);
-                                } catch (e) {
-                                    console.error("Invalid JSON in dataset.tests", e);
-                                    return;
-                                }
-
-                                const selectedTest = tests.find(test => test.test_name === select.value);
-
-                                if (selectedTest) {
-                                    row.querySelector('.test-date').textContent = selectedTest.test_date || 'Not Yet Performed';
-                                    row.querySelector('.test-result').textContent = selectedTest.result || 'Pending';
-                                } else {
-                                    row.querySelector('.test-date').textContent = '';
-                                    row.querySelector('.test-result').textContent = '';
-                                }
                             });
                         });
                     </script>
@@ -559,38 +545,5 @@ if (!isset($_SESSION['user_id'])) {
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // For each test-select element, attach a change event listener.
-            document.querySelectorAll('.test-select').forEach(function(selectElem) {
-                selectElem.addEventListener('change', function() {
-                    // Get the selected test name.
-                    const selectedTest = this.value;
-                    // Find the row in which this select element resides.
-                    const row = this.closest('tr');
-                    // Retrieve the JSON-encoded tests data from the row's data attribute.
-                    const testsData = JSON.parse(row.getAttribute('data-tests'));
-                    
-                    // Find the test object that matches the selected test name.
-                    let selectedTestData = testsData.find(function(test) {
-                        return test.test_name === selectedTest;
-                    });
-                    
-                    // Populate the test-date and test-result cells.
-                    const testDateCell = row.querySelector('.test-date');
-                    const testResultCell = row.querySelector('.test-result');
-                    if (selectedTestData) {
-                        testDateCell.textContent = selectedTestData.test_date || '';
-                        testResultCell.textContent = selectedTestData.result || '';
-                    } else {
-                        testDateCell.textContent = '';
-                        testResultCell.textContent = '';
-                    }
-                });
-            });
-        });
-    </script>
-
 </body>
-
 </html>
