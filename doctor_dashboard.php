@@ -371,31 +371,37 @@ if (!isset($_SESSION['user_id'])) {
                             <tbody>
                                 <?php if (count($patientTests) > 0): ?>
                                     <?php $index = 1;
-                                    // Loop through each patient’s test results.
+                                    // Loop through each patient's test results, where $patientId is the patient's ID, 
+                                    // and $patientData contains the patient's name and their test results.
                                     foreach ($patientTests as $patientId => $patientData): ?>
-                                        <tr data-tests='<?= json_encode(array_values($patientData['tests'])) ?>'>
-                                            <!-- Display row number and patient name -->
+                                        <tr data-tests='<?= json_encode($patientData['tests']) ?>'>
+                                            <!-- Display row number and increment counter and patient name -->
                                             <td><?= $index++ ?></td>
                                             <td><?= htmlspecialchars($patientData['patient_name']) ?></td>
+
                                             <td>
                                                 <select class="form-control test-select">
                                                     <option value="">Select Test</option>
+                                                    <!-- Loop through each test associated with the patient. -->
                                                     <?php foreach ($patientData['tests'] as $test): ?>
                                                         <option value="<?= htmlspecialchars($test['test_name']) ?>">
+                                                            <!-- Display test names -->
                                                             <?= htmlspecialchars($test['test_name']) ?>
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </td>
-                                            <!-- Placeholder for test date, populated by JavaScript based on selection -->
-                                            <td class="test-date"></td>
-                                            <!-- Placeholder for test result, populated by JavaScript based on selection -->
+                                            <!-- Placeholder for test date, populated by JavaScript -->
+                                            <td class="test-date">
+                                            </td>
+                                            <!-- Placeholder for test result, populated by JavaScript -->
                                             <td class="test-result"></td>
+
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="5" class="text-center">No test results found.</td>
+                                        <td colspan="8" class="text-center">No test results found.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
@@ -403,46 +409,30 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
                     <!-- JavaScript for Test Tab -->
                     <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            // Search input and table selection.
-                            const searchInput = document.querySelector('input[placeholder="Search by Patient Name"]');
-                            const table = document.querySelector('#testResultsTable');
-                            if (!searchInput || !table) return;
+                        // For each test-select element, attach a change event listener.
+                        document.querySelectorAll('.test-select').forEach(function(selectElem) {
+                            selectElem.addEventListener('change', function() {
+                                // Get the selected test name.
+                                const selectedTest = this.value;
+                                // Find the row in which this select element resides.
+                                const row = this.closest('tr');
+                                // Retrieve the JSON-encoded tests data from the row's data attribute.
+                                const testsData = JSON.parse(row.getAttribute('data-tests'));
 
-                            const rows = Array.from(table.querySelectorAll('tbody tr'));
-
-                            // Search functionality.
-                            searchInput.addEventListener('input', function() {
-                                const searchText = this.value.toLowerCase();
-                                rows.forEach(row => {
-                                    const patientName = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase();
-                                    row.style.display = patientName.includes(searchText) ? '' : 'none';
+                                // Find the test object that matches the selected test name.
+                                let selectedTestData = testsData.find(function(test) {
+                                    return test.test_name === selectedTest;
                                 });
-                            });
 
-                            // Test selection functionality.
-                            table.addEventListener('change', function(event) {
-                                if (!event.target.classList.contains('test-select')) return;
-                                const select = event.target;
-                                const row = select.closest('tr');
-                                if (!row || !row.dataset.tests) return;
-
-                                let tests;
-                                try {
-                                    tests = JSON.parse(row.dataset.tests);
-                                } catch (e) {
-                                    console.error("Invalid JSON in dataset.tests", e);
-                                    return;
-                                }
-
-                                const selectedTest = tests.find(test => test.test_name === select.value);
-
-                                if (selectedTest) {
-                                    row.querySelector('.test-date').textContent = selectedTest.test_date || 'Not Yet Performed';
-                                    row.querySelector('.test-result').textContent = selectedTest.result || 'Pending';
+                                // Populate the test-date and test-result cells.
+                                const testDateCell = row.querySelector('.test-date');
+                                const testResultCell = row.querySelector('.test-result');
+                                if (selectedTestData) {
+                                    testDateCell.textContent = selectedTestData.test_date || 'Not Yet Performed';
+                                    testResultCell.textContent = selectedTestData.result || 'Pending';
                                 } else {
-                                    row.querySelector('.test-date').textContent = '';
-                                    row.querySelector('.test-result').textContent = '';
+                                    testDateCell.textContent = '';
+                                    testResultCell.textContent = '';
                                 }
                             });
                         });
@@ -554,38 +544,6 @@ if (!isset($_SESSION['user_id'])) {
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // For each test-select element, attach a change event listener.
-            document.querySelectorAll('.test-select').forEach(function(selectElem) {
-                selectElem.addEventListener('change', function() {
-                    // Get the selected test name.
-                    const selectedTest = this.value;
-                    // Find the row in which this select element resides.
-                    const row = this.closest('tr');
-                    // Retrieve the JSON-encoded tests data from the row's data attribute.
-                    const testsData = JSON.parse(row.getAttribute('data-tests'));
-                    
-                    // Find the test object that matches the selected test name.
-                    let selectedTestData = testsData.find(function(test) {
-                        return test.test_name === selectedTest;
-                    });
-                    
-                    // Populate the test-date and test-result cells.
-                    const testDateCell = row.querySelector('.test-date');
-                    const testResultCell = row.querySelector('.test-result');
-                    if (selectedTestData) {
-                        testDateCell.textContent = selectedTestData.test_date || '';
-                        testResultCell.textContent = selectedTestData.result || '';
-                    } else {
-                        testDateCell.textContent = '';
-                        testResultCell.textContent = '';
-                    }
-                });
-            });
-        });
-    </script>
-
 </body>
 
 </html>
