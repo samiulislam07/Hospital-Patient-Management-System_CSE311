@@ -3,19 +3,19 @@ session_start();
 header('Content-Type: application/json');
 include 'config.php';
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") {
     // Retrieve posted values
     $patientId  = trim($_POST['patient_user_id'] ?? '');
     $testId     = trim($_POST['test_id'] ?? '');
-    $test_date  = trim($_POST['test_date'] ?? '');
-    $resultText = trim($_POST['result'] ?? '');
+    $test_date  = $_POST['test_date'];
+    $resultText = $_POST['result'];
 
     // Validate required fields
     if (empty($patientId) || empty($testId) || empty($test_date) || empty($resultText)) {
         echo json_encode(['success' => false, 'error' => 'Missing required fields.']);
         exit;
     }
-    
+
     // Get nurse id from session
     if (!isset($_SESSION['user_id'])) {
         echo json_encode(['success' => false, 'error' => 'Not logged in.']);
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         echo json_encode(['success' => false, 'error' => 'Prepare failed (Nurse_Test_Patient): ' . $con->error]);
         exit;
     }
-    $stmtNurse->bind_param("sss", $nurseId, $testId, $patientId);
+    $stmtNurse->bind_param("sis", $nurseId, $testId, $patientId);
     if (!$stmtNurse->execute()) {
         $success = false;
     }
@@ -43,12 +43,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // 2. Update Doc_Test_Patient record to set test_date and result
     if ($success) {
         $sqlDocTest = "UPDATE Doc_Test_Patient SET test_date = ?, result = ? 
-                       WHERE patient_user_id = ? AND test_id = ? AND test_date IS NULL AND result IS NULL";
+                       WHERE  test_id = ? AND patient_user_id = ? AND test_date IS NULL AND result IS NULL";
         $stmtDocTest = $con->prepare($sqlDocTest);
         if (!$stmtDocTest) {
             $success = false;
         } else {
-            $stmtDocTest->bind_param("ssss", $test_date, $resultText, $patientId, $testId);
+            $stmtDocTest->bind_param("ssis", $test_date, $resultText, $testId, $patientId);
             if (!$stmtDocTest->execute()) {
                 $success = false;
             }
@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             echo json_encode(['success' => false, 'error' => 'Prepare failed (Test cost): ' . $con->error]);
             exit;
         }
-        $stmtTestCost->bind_param("s", $testId);
+        $stmtTestCost->bind_param("i", $testId);
         $stmtTestCost->execute();
         $resultTestCost = $stmtTestCost->get_result();
         if ($resultTestCost && $rowTestCost = $resultTestCost->fetch_assoc()) {
@@ -83,8 +83,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             echo json_encode(['success' => false, 'error' => 'Prepare failed (Bill_detail): ' . $con->error]);
             exit;
         }
-        // Bind parameters: patient_id and test_id as strings, test_cost as a double.
-        $stmtBillDetail->bind_param("ssd", $patientId, $testId, $testCost);
+
+        $stmtBillDetail->bind_param("sis", $patientId, $testId, $testCost);
         if (!$stmtBillDetail->execute()) {
             $success = false;
         }

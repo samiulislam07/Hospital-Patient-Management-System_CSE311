@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if ($password === $db_password) { 
             $_SESSION['admin_id'] = $db_user_id;
-            header("Location: admin1.php");
+            header("Location: admin_dashboard.php");
             $stmt->close();
             $con->close();
             exit();
