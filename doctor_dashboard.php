@@ -409,31 +409,33 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
                     <!-- JavaScript for Test Tab -->
                     <script>
-                        // For each test-select element, attach a change event listener.
-                        document.querySelectorAll('.test-select').forEach(function(selectElem) {
-                            selectElem.addEventListener('change', function() {
-                                // Get the selected test name.
-                                const selectedTest = this.value;
-                                // Find the row in which this select element resides.
-                                const row = this.closest('tr');
-                                // Retrieve the JSON-encoded tests data from the row's data attribute.
-                                const testsData = JSON.parse(row.getAttribute('data-tests'));
-
-                                // Find the test object that matches the selected test name.
-                                let selectedTestData = testsData.find(function(test) {
-                                    return test.test_name === selectedTest;
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // For each test-select element, attach a change event listener.
+                            document.querySelectorAll('.test-select').forEach(function(selectElem) {
+                                selectElem.addEventListener('change', function() {
+                                    // Get the selected test name.
+                                    const selectedTest = this.value;
+                                    // Find the row in which this select element resides.
+                                    const row = this.closest('tr');
+                                    // Retrieve the JSON-encoded tests data from the row's data attribute.
+                                    const testsData = JSON.parse(row.getAttribute('data-tests'));
+                                    
+                                    // Find the test object that matches the selected test name.
+                                    let selectedTestData = testsData.find(function(test) {
+                                        return test.test_name === selectedTest;
+                                    });
+                                    
+                                    // Populate the test-date and test-result cells.
+                                    const testDateCell = row.querySelector('.test-date');
+                                    const testResultCell = row.querySelector('.test-result');
+                                    if (selectedTestData) {
+                                        testDateCell.textContent = selectedTestData.test_date || 'Not Yet Performed';
+                                        testResultCell.textContent = selectedTestData.result || 'Pending';
+                                    } else {
+                                        testDateCell.textContent = '';
+                                        testResultCell.textContent = '';
+                                    }
                                 });
-
-                                // Populate the test-date and test-result cells.
-                                const testDateCell = row.querySelector('.test-date');
-                                const testResultCell = row.querySelector('.test-result');
-                                if (selectedTestData) {
-                                    testDateCell.textContent = selectedTestData.test_date || 'Not Yet Performed';
-                                    testResultCell.textContent = selectedTestData.result || 'Pending';
-                                } else {
-                                    testDateCell.textContent = '';
-                                    testResultCell.textContent = '';
-                                }
                             });
                         });
                     </script>
@@ -545,5 +547,4 @@ if (!isset($_SESSION['user_id'])) {
         </div>
     </div>
 </body>
-
 </html>
