@@ -303,6 +303,7 @@ if (!isset($_SESSION['user_id'])) {
                                     <th>Blood Group</th>
                                     <th>Allergy</th>
                                     <th>Preconditions</th>
+                                    <th>Medical History</th>
                                     <th>Order Test</th>
                                     <th>Treatment Plan</th>
                                 </tr>
@@ -331,6 +332,12 @@ if (!isset($_SESSION['user_id'])) {
                                             <td><?= htmlspecialchars($patient['allergies'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($patient['pre_conditions'] ?? 'N/A') ?></td>
                                             <td>
+                                                <button type="button" class="btn btn-warning btn-sm view-history-btn"
+                                                    data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>">
+                                                    View History
+                                                </button>
+                                            </td>
+                                            <td>
                                                 <!-- Button to Order Test -->
                                                 <button type="button" class="btn btn-warning btn-sm order-form-btn"
                                                     data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>">
@@ -354,6 +361,53 @@ if (!isset($_SESSION['user_id'])) {
 
                             </tbody>
                         </table>
+                        <!-- Patient History Modal -->
+                        <div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="historyModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="historyModalLabel">Patient History</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- History content will be loaded here via AJAX -->
+                                    <div id="historyContent">
+                                        <p>Loading history...</p>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                // Attach click event to the "View History" buttons
+                                document.querySelectorAll('.view-history-btn').forEach(function(button) {
+                                    button.addEventListener('click', function() {
+                                        const patientId = this.getAttribute('data-patient-id');
+                                        // Show a loading message in the modal body
+                                        document.getElementById('historyContent').innerHTML = "<p>Loading history...</p>";
+                                        // Open the modal (Bootstrap 4 syntax)
+                                        $('#historyModal').modal('show');
+                                        
+                                        // Fetch the patient history using AJAX
+                                        fetch('get_patient_history.php?patient_id=' + encodeURIComponent(patientId))
+                                            .then(response => response.text())
+                                            .then(data => {
+                                                document.getElementById('historyContent').innerHTML = data;
+                                            })
+                                            .catch(error => {
+                                                console.error('Error fetching patient history:', error);
+                                                document.getElementById('historyContent').innerHTML = "<p class='text-danger'>Error loading history.</p>";
+                                            });
+                                    });
+                                });
+                            });
+                        </script>
                     </div>
                     <!-- Test Results -->
                     <div class="tab-pane fade" id="list-tests">
