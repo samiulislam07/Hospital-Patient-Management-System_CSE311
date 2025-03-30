@@ -357,33 +357,36 @@ if ($stmt) {
 $patientTests = [];
 $sql = "SELECT p.first_name, p.last_name, t.test_name, 
             dtp.test_date, dtp.result, dtp.patient_user_id
-        FROM Doc_Test_Patient dtp
-        JOIN Patient p ON dtp.patient_user_id = p.user_id
-        JOIN Test t ON dtp.test_id = t.test_id
+        FROM Doc_Test_Patient dtp 
+        JOIN Patient p ON dtp.patient_user_id = p.user_id 
+        JOIN Test t ON dtp.test_id = t.test_id 
         WHERE dtp.doctor_user_id = ?
         ORDER BY dtp.pres_date DESC";
-
 $stmt = $con->prepare($sql);
-
 if ($stmt) {
-    // Bind the doctor's user ID to the prepared statement.
     $stmt->bind_param("s", $doctor_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    // Process the result set and store test results.
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
             $patient_id = $row['patient_user_id'];
+            // Set patient name (assumes the same for all rows for that patient)
             $patientTests[$patient_id]['patient_name'] = $row['first_name'] . ' ' . $row['last_name'];
-            $patientTests[$patient_id]['tests'][] = [
-                'test_name' => $row['test_name'],
-                'test_date' => $row['test_date'],
-                'result' => $row['result']
-            ];
+            // Initialize tests array if it doesn't exist yet (as an associative array keyed by test_name)
+            if (!isset($patientTests[$patient_id]['tests'])) {
+                $patientTests[$patient_id]['tests'] = [];
+            }
+            // Only add a test if not already added for that patient (keeping the first, latest record)
+            if (!isset($patientTests[$patient_id]['tests'][$row['test_name']])) {
+                $patientTests[$patient_id]['tests'][$row['test_name']] = [
+                    'test_name' => $row['test_name'],
+                    'test_date' => $row['test_date'],
+                    'result'    => $row['result']
+                ];
+            }
         }
     }
-    // Close the prepared statement.
     $stmt->close();
 }
 
