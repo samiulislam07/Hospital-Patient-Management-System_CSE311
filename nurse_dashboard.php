@@ -409,6 +409,10 @@ if (!isset($_SESSION['user_id'])) {
                                     <label for="patientNameFilterNurse">Filter by Patient Name:</label>
                                     <input type="text" class="form-control form-control-sm" id="patientNameFilterNurse" placeholder="Enter Name">
                                 </div>
+                                <div class="col-md-4 filter-group">
+                                    <label for="testNameFilterNurse">Filter by Test Name:</label>
+                                    <input type="text" class="form-control form-control-sm" id="testNameFilterNurse" placeholder="Enter Name">
+                                </div>
                             </div>
                         </div>
                         <form id="nurseTestForm" method="post" action="perform_test.php">
@@ -451,7 +455,6 @@ if (!isset($_SESSION['user_id'])) {
 
                             </div>
 
-                            <!-- <button style="margin-bottom: 20px;" type="submit" class="btn btn-primary">Submit Results</button> -->
                         </form>
                     </div>
                     <!-- JavaScript for Perform Tests -->
@@ -459,14 +462,27 @@ if (!isset($_SESSION['user_id'])) {
                         document.addEventListener('DOMContentLoaded', function() {
                             // Patient Name Filter
                             const patientNameFilterNurse = document.getElementById('patientNameFilterNurse');
-                            patientNameFilterNurse.addEventListener('keyup', function() {
-                                const filter = patientNameFilterNurse.value.toLowerCase();
+                            const testNameFilterNurse = document.getElementById('testNameFilterNurse');
+
+                            function applyFilters() {
+                                const patientFilter = patientNameFilterNurse.value.toLowerCase();
+                                const testFilter = testNameFilterNurse.value.toLowerCase();
                                 const rows = document.querySelectorAll('#nurseTestsTable tbody tr');
+
                                 rows.forEach(row => {
                                     const patientName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-                                    row.style.display = patientName.includes(filter) ? '' : 'none';
+                                    const testName = row.querySelector('td:nth-child(4)').textContent.toLowerCase(); // Assuming Test Name is in the 4th column
+
+                                    const patientMatch = patientName.includes(patientFilter);
+                                    const testMatch = testName.includes(testFilter);
+
+                                    // Show row if both filters match or if both filters are empty.
+                                    row.style.display = (patientMatch && testMatch) || (!patientFilter && !testFilter) || (patientMatch && !testFilter) || (!patientFilter && testMatch) ? '' : 'none';
                                 });
-                            });
+                            }
+
+                            patientNameFilterNurse.addEventListener('keyup', applyFilters);
+                            testNameFilterNurse.addEventListener('keyup', applyFilters);
                         });
 
                         function submitTest(btn) {
