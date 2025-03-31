@@ -145,7 +145,7 @@ if (!isset($_SESSION['user_id'])) {
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label>Email:</label>
-                                    <input type="email" name="email" class="form-control" value="<?= $doctor['email'] ?? '' ?>">
+                                    <input type="email" name="email" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="<?= $doctor['email'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Phone:</label>

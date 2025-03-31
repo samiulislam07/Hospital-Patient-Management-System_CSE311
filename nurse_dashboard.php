@@ -110,11 +110,7 @@ if (!isset($_SESSION['user_id'])) {
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
-                                    <select class="form-control" name="gender" disabled>
-                                        <option value="Male" <?= $patient['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
-                                        <option value="Female" <?= $patient['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
-                                        <option value="Other" <?= $patient['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
-                                    </select>
+                                    <input type="text" class="form-control  " value="<?= $nurse['gender'] ?? '' ?>" disabled>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -124,7 +120,7 @@ if (!isset($_SESSION['user_id'])) {
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Phone:</label>
-                                    <input type="text" name="phone" class="form-control  " value="<?= $nurse['phone'] ?? '' ?>">
+                                    <input type="text" name="phone" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="<?= $nurse['phone'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Date of Birth:</label>

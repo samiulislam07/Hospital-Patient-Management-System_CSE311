@@ -76,7 +76,6 @@ $stmt->close();
 // Handle nurse profile update via POST request.
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_nurse'])) {
     $email = $_POST['email'];
-    $gender = $_POST['gender'];
     $phone = $_POST['phone'];
     $dob = $_POST['dob'];
     $dutyhour = $_POST['duty_hour'];
@@ -97,24 +96,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_nurse'])) {
             $stmt_users->bind_param("ss", $email, $nurse_id);
 
             if ($stmt_users->execute()) {
-                // Update Staff table (email, gender, phone, dob).
+                // Update Staff table 
                 $update_staff_sql = "UPDATE Staff 
-                                    SET email = ?, gender = ?, phone = ?, dob = ? 
+                                    SET email = ?, phone = ?, dob = ? 
                                     WHERE user_id = ?";
                 $stmt_staff = $con->prepare($update_staff_sql);
 
                 if ($stmt_staff) {
-                    $stmt_staff->bind_param("sssss", $email, $gender, $phone, $dob, $nurse_id);
+                    $stmt_staff->bind_param("ssss", $email, $phone, $dob, $nurse_id);
 
                     if ($stmt_staff->execute()) {
-                        // Update Nurse table (email, gender, phone, dob, duty_hour).
+                        // Update Nurse table
                         $update_nurse_sql = "UPDATE Nurse 
-                                            SET email = ?, gender = ?, phone = ?, dob = ?, duty_hour = ? 
+                                            SET email = ?, phone = ?, dob = ?, duty_hour = ? 
                                             WHERE user_id = ?";
                         $stmt_nurse = $con->prepare($update_nurse_sql);
 
                         if ($stmt_nurse) {
-                            $stmt_nurse->bind_param("ssssss", $email, $gender, $phone, $dob, $dutyhour, $nurse_id);
+                            $stmt_nurse->bind_param("sssss", $email, $phone, $dob, $dutyhour, $nurse_id);
 
                             if ($stmt_nurse->execute()) {
                                 // Commit the transaction if all updates succeed.
