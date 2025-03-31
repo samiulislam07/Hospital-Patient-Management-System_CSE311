@@ -425,3 +425,4 @@ if ($stmt) {
 
 // Close the database connection.
 $con->close();
+?>
