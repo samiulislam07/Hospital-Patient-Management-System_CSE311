@@ -235,13 +235,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                                     <center>
                                         <h4>Book Appointment</h4>
                                     </center><br>
-                                    <form class="form-group" method="post" action="patient_dashboard.php">
+                                    <form id="bookApptForm" class="form-group" method="post" action="patient_dashboard.php">
                                         <div class="row">
                                             <div class="col-md-4">
                                                 <label for="spec">Specialization</label>
                                             </div>
                                             <div class="col-md-8">
-                                                <select name="spec" class="form-control" id="spec">
+                                                <select name="spec" class="form-control" id="spec" required>
                                                     <option value="" disabled selected>Select Specialization</option>
                                                     <?php display_specs() ?>
                                                 </select>
@@ -249,22 +249,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                                             <br><br>
 
                                             <script>
-                                                document.getElementById('spec').onchange = function foo() {
+                                                document.getElementById('spec').onchange = function () {
                                                     let spec = this.value;
-                                                    console.log(spec)
-                                                    let docs = [...document.getElementById('doctor').options];
-                                                    docs.forEach((el, ind, arr) => {
-                                                        arr[ind].setAttribute("style", "");
-                                                        if (el.getAttribute("data-spec") != spec) {
-                                                            arr[ind].setAttribute("style", "display: none");
+                                                    console.log(spec);
+                                                    let doctorSelect = document.getElementById('doctor');
+                                                    let docs = [...doctorSelect.options];
+                                                    // Reset all doctor options first, then hide those that don't match.
+                                                    docs.forEach((option) => {
+                                                        option.style.display = "";
+                                                        if (option.getAttribute("data-spec") !== spec) {
+                                                            option.style.display = "none";
                                                         }
                                                     });
+                                                    // Reset the doctor select element to the default option
+                                                    doctorSelect.selectedIndex = 0;
                                                 };
                                             </script>
 
                                             <div class="col-md-4"><label for="doctor">Doctors:</label></div>
                                             <div class="col-md-8">
-                                                <select name="doctor" class="form-control" id="doctor">
+                                                <select name="doctor" class="form-control" id="doctor" required>
                                                     <option value="" disabled selected>Select Doctor</option>
                                                     <?php display_docs(); ?>
                                                 </select>
@@ -283,13 +287,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                                                 }
                                             </script>
 
-                                            <div class="col-md-4">
+                                            <!-- <div class="col-md-4">
                                                 <label for="consultancyfees">Doctor ID</label>
                                             </div>
                                             <div class="col-md-8">
                                                 <input class="form-control" type="text" name="docId" id="docId" readonly="readonly" />
-                                            </div>
-                                            <br><br>
+                                            </div> -->
+                                            <input type="hidden" name="docId" id="docId">
 
                                             <div class="col-md-4">
                                                 <label for="consultancyfees">Consultancy Fees</label>
@@ -306,10 +310,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                                             </div>
                                             <br><br>
                                             <div class="col-md-4"><label>Appointment Date</label></div>
-                                            <div class="col-md-8"><input type="date" class="form-control datepicker" name="appdate"></div><br><br>
+                                            <div class="col-md-8"><input type="date" class="form-control datepicker" name="appdate" required></div><br><br>
 
                                             <div class="col-md-4"><label>Appointment Time</label></div>
-                                            <div class="col-md-8"><input type="time" class="form-control timepicker" name="appointmentTime"></div><br><br>
+                                            <div class="col-md-8"><input type="time" class="form-control timepicker" name="appointmentTime" required></div><br><br>
 
                                             <div class="col-md-4">
                                                 <input type="submit" name="app-submit" value="Create New Appointment" class="btn btn-primary" id="inputbtn">
@@ -543,49 +547,125 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                 });
             }
         });
-        </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const downloadInvoiceBtn = document.getElementById('downloadInvoiceBtn');
-                if(downloadInvoiceBtn){
-                    downloadInvoiceBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        // Redirect to the PDF generation endpoint
-                        window.location.href = 'download_invoice.php';
-                    });
-                }
-            });
-        </script>
-        <script>
-            function cancelAppointment(apptId) {
-                if (!confirm("Are you sure you want to cancel this appointment?")) {
-                    return;
-                }
-                
-                // Use Fetch API to post to the current page (which will handle the cancellation)
-                fetch(window.location.href, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'cancel_appt_id=' + encodeURIComponent(apptId)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert("Appointment cancelled successfully.");
-                        // Optionally reload the page or update the table row to show the new status
-                        location.reload();
-                    } else {
-                        alert("Error: " + (data.error || "Could not cancel appointment."));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("There was a problem processing your request.");
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const downloadInvoiceBtn = document.getElementById('downloadInvoiceBtn');
+            if(downloadInvoiceBtn){
+                downloadInvoiceBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Redirect to the PDF generation endpoint
+                    window.location.href = 'download_invoice.php';
                 });
             }
-            </script>
+        });
+    </script>
+    <script>
+        function cancelAppointment(apptId) {
+            if (!confirm("Are you sure you want to cancel this appointment?")) {
+                return;
+            }
+                
+            // Use Fetch API to post to the current page (which will handle the cancellation)
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'cancel_appt_id=' + encodeURIComponent(apptId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Appointment cancelled successfully.");
+                    // Optionally reload the page or update the table row to show the new status
+                    location.reload();
+                } else {
+                    alert("Error: " + (data.error || "Could not cancel appointment."));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("There was a problem processing your request.");
+            });
+        }
+        </script>
+        <script>
+        document.getElementById('bookApptForm').addEventListener('submit', function(e) {
+            // Get the appointment date and time values.
+            let apptDate = document.querySelector('input[name="appdate"]').value; // format: YYYY-MM-DD
+            let apptTime = document.querySelector('input[name="appointmentTime"]').value; // format: HH:MM (24-hour)
+            
+            // Get the doctor's availability as a string (for example "Mon-Fri 9AM-5PM")
+            let availability = document.getElementById('availibility').value;
+            
+            // Proceed only if availability is provided.
+            if (availability.trim() !== "") {
+                // 1. Determine allowed days.
+                // Here, we check if the availability contains "Mon-Fri" and set allowed days accordingly.
+                let allowedDays = [];
+                if (availability.indexOf("Mon-Fri") !== -1) {
+                    allowedDays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+                } else {
+                    // You could add more parsing logic here for other availability formats.
+                    alert("Doctor's availability days not recognized.");
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // 2. Parse the allowed time range.
+                // We expect something like "9AM-5PM". Use a regular expression to extract numbers and periods.
+                let timeRangeMatch = availability.match(/(\d{1,2})(AM|PM)[\s-]+(\d{1,2})(AM|PM)/);
+                if (!timeRangeMatch) {
+                    alert("Doctor's availability time format not recognized.");
+                    e.preventDefault();
+                    return false;
+                }
+                
+                let startHour = parseInt(timeRangeMatch[1]);
+                let startPeriod = timeRangeMatch[2];
+                let endHour = parseInt(timeRangeMatch[3]);
+                let endPeriod = timeRangeMatch[4];
+                
+                // Convert start time and end time to 24-hour format.
+                if (startPeriod === 'PM' && startHour < 12) {
+                    startHour += 12;
+                }
+                if (startPeriod === 'AM' && startHour === 12) {
+                    startHour = 0;
+                }
+                if (endPeriod === 'PM' && endHour < 12) {
+                    endHour += 12;
+                }
+                if (endPeriod === 'AM' && endHour === 12) {
+                    endHour = 0;
+                }
+                
+                // Format allowed times as strings "HH:MM"
+                let startTimeAllowed = ('0' + startHour).slice(-2) + ":00";
+                let endTimeAllowed = ('0' + endHour).slice(-2) + ":00";
+                
+                // 3. Check if appointment date falls within allowed days.
+                // Convert appointment date to a day abbreviation ("Mon", "Tue", etc.)
+                let apptDay = new Date(apptDate).toString().slice(0, 3);
+                if (!allowedDays.includes(apptDay)) {
+                    e.preventDefault();
+                    alert("The appointment date (" + apptDay + ") is not within the doctor's available working days (" + allowedDays.join(", ") + ").");
+                    return false;
+                }
+                
+                // 4. Check if appointment time is within allowed range.
+                // Since apptTime is in 24-hour HH:MM format, we can do a simple string comparison.
+                if (apptTime < startTimeAllowed || apptTime > endTimeAllowed) {
+                    e.preventDefault();
+                    alert("The appointment time (" + apptTime + ") is outside the doctor's available time range (" + startTimeAllowed + " to " + endTimeAllowed + ").");
+                    return false;
+                }
+            }
+            // If all checks pass, the form is submitted.
+        });
+        </script>
+
 </body>
 
 </html>
