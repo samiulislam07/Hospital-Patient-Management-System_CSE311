@@ -86,6 +86,8 @@ if ($stmtPhones) {
 
 // Update Patient Profile
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
+  $first_name = $_POST['first_name'];
+  $last_name = $_POST['last_name'];
   $email = $_POST['email'];
   $gender = $_POST['gender'];
   $blood_group = $_POST['blood_group'];
@@ -107,10 +109,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
   // Ensure patient ID is set
   if (!empty($patient_id)) {
     // Update Patient table
-      $update_sql = "UPDATE Patient SET email = ?, gender = ?, blood_group = ?, dob = ?, hno = ?, street = ?, city = ?, zip = ?, country = ? WHERE user_id = ?";
+      $update_sql = "UPDATE Patient SET first_name = ?, last_name = ?, email = ?, gender = ?, blood_group = ?, dob = ?, hno = ?, street = ?, city = ?, zip = ?, country = ? WHERE user_id = ?";
       $stmt = $con->prepare($update_sql);
       if ($stmt) {
-          $stmt->bind_param("ssssssssss", $email, $gender, $blood_group, $dob, $hno, $street, $city, $zip, $country, $patient_id);
+          $stmt->bind_param("ssssssssssss", $first_name, $last_name, $email, $gender, $blood_group, $dob, $hno, $street, $city, $zip, $country, $patient_id);
           if ($stmt->execute()) {
             // Now update the phone numbers.
             // Delete existing phone numbers for this patient
@@ -137,14 +139,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
                 $stmt_ins->close();
             }
             // Update Medical History: try to update first
-            $update_med_sql = "UPDATE MedicalHistory SET allergies = ?, pre_conditions = ? WHERE patient_user_id = ?";
-            $stmt_med = $con->prepare($update_med_sql);
-            if ($stmt_med) {
-                $stmt_med->bind_param("sss", $allergies, $preconditions, $patient_id);
-                $stmt_med->execute();
-                // If no rows were updated, insert a new record.
-                if ($stmt_med->affected_rows == 0) {
-                    $stmt_med->close();
+            // Check if a medical history record exists for this patient.
+            $sqlCheckMed = "SELECT patient_user_id FROM MedicalHistory WHERE patient_user_id = ?";
+            $stmtCheckMed = $con->prepare($sqlCheckMed);
+            if ($stmtCheckMed) {
+                $stmtCheckMed->bind_param("s", $patient_id);
+                $stmtCheckMed->execute();
+                $resultCheckMed = $stmtCheckMed->get_result();
+                
+                if ($resultCheckMed && $resultCheckMed->num_rows > 0) {
+                    // If record exists, update it.
+                    $stmtCheckMed->close();
+                    $update_med_sql = "UPDATE MedicalHistory SET allergies = ?, pre_conditions = ? WHERE patient_user_id = ?";
+                    $stmt_med = $con->prepare($update_med_sql);
+                    if ($stmt_med) {
+                        $stmt_med->bind_param("sss", $allergies, $preconditions, $patient_id);
+                        $stmt_med->execute();
+                        $stmt_med->close();
+                    } else {
+                        echo "<script>alert('Database error while updating medical history.');</script>";
+                    }
+                } else {
+                    // No record exists, insert new.
+                    $stmtCheckMed->close();
                     $insert_med_sql = "INSERT INTO MedicalHistory (patient_user_id, allergies, pre_conditions) VALUES (?, ?, ?)";
                     $stmt_med = $con->prepare($insert_med_sql);
                     if ($stmt_med) {
@@ -154,12 +171,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
                     } else {
                         echo "<script>alert('Database error while inserting medical history.');</script>";
                     }
-                } else {
-                    $stmt_med->close();
                 }
             } else {
-                echo "<script>alert('Database error while updating medical history.');</script>";
+                echo "<script>alert('Database error while checking medical history.');</script>";
             }
+
               echo "<script>alert('Profile updated successfully!'); window.location.href='patient_dashboard.php';</script>";
           } else {
               echo "<script>alert('Error updating profile. Please try again.');</script>";

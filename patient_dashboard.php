@@ -134,11 +134,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                                             </div>
                                             <div class="col-md-3">
                                                 <label>First Name:</label>
-                                                <input type="text" class="form-control" value="<?= $patient['first_name'] ?>" disabled>
+                                                <input type="text" name="first_name" class="form-control" value="<?= htmlspecialchars($patient['first_name']) ?>">
                                             </div>
                                             <div class="col-md-3">
                                                 <label>Last Name:</label>
-                                                <input type="text" class="form-control" value="<?= $patient['last_name'] ?>" disabled>
+                                                <input type="text" name="last_name" class="form-control" value="<?= htmlspecialchars($patient['last_name']) ?>">
                                             </div>
                                             <div class="col-md-4">
                                                 <label>Email:</label>
@@ -158,11 +158,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                                         <div class="row mb-4">
                                             <div class="col-md-2">
                                                 <label>Gender:</label>
-                                                <select class="form-control" name="gender" disabled>
-                                                    <option value="Male" <?= $patient['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
-                                                    <option value="Female" <?= $patient['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
-                                                    <option value="Other" <?= $patient['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
-                                                </select>
+                                                <input type="text" name="gender" class="form-control" value="<?= htmlspecialchars($patient['gender']) ?>" readonly>
                                             </div>
                                             <div class="col-md-2">
                                                 <label>Blood Group:</label>
