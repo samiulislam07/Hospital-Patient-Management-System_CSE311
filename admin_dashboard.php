@@ -173,6 +173,9 @@ if (!isset($_SESSION['admin_id'])) {
                                 <input type="text" id="staffNameFilter" class="form-control" placeholder="Search by Name">
                             </div>
                             <div class="col-md-3">
+                                <input type="text" id="staffDeptFilter" class="form-control" placeholder="Search by Department Name">
+                            </div>
+                            <div class="col-md-3">
                                 <select id="staffGenderFilter" class="form-control">
                                     <option value="">All Genders</option>
                                     <option value="Male">Male</option>
@@ -181,8 +184,8 @@ if (!isset($_SESSION['admin_id'])) {
                                 </select>
                             </div>
                             <div class="col-md-3">
-                            <button class="btn btn-primary" onclick="showAddStaffModal()">Add Staff</button>
-                            <button class="btn btn-danger" onclick="showDeleteStaffModal()">Delete Staff</button>
+                                <button class="btn btn-primary" onclick="showAddStaffModal()">Add Staff</button>
+                                <button class="btn btn-danger" onclick="showDeleteStaffModal()">Delete Staff</button>
                             </div>
                         </div>
                         <table class="table table-hover" id="staffViewTable">
@@ -350,24 +353,31 @@ if (!isset($_SESSION['admin_id'])) {
                         }
                         document.addEventListener('DOMContentLoaded', function() {
                             const nameFilter = document.getElementById('staffNameFilter');
+                            const deptFilter = document.getElementById('staffDeptFilter');
                             const genderFilter = document.getElementById('staffGenderFilter');
 
                             nameFilter.addEventListener('keyup', filterStaffTable);
+                            deptFilter.addEventListener('keyup', filterStaffTable);
                             genderFilter.addEventListener('change', filterStaffTable);
                         });
 
                         function filterStaffTable() {
                             const nameFilterValue = document.getElementById('staffNameFilter').value.toLowerCase();
+                            const deptFilterValue = document.getElementById('staffDeptFilter').value.toLowerCase();
                             const genderFilterValue = document.getElementById('staffGenderFilter').value.toLowerCase();
                             const rows = document.querySelectorAll('#staffViewTable tbody tr');
 
                             rows.forEach(row => {
                                 const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                                const dept = row.querySelector('td:nth-child(8)').textContent.toLowerCase();
                                 const gender = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
 
                                 let showRow = true;
 
                                 if (nameFilterValue && !name.includes(nameFilterValue)) {
+                                    showRow = false;
+                                }
+                                if (deptFilterValue && !dept.includes(deptFilterValue)) {
                                     showRow = false;
                                 }
 
