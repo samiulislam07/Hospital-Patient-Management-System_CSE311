@@ -107,7 +107,7 @@ if (!isset($_SESSION['user_id'])) {
                                     <th>ID</th>
                                     <th>Staff Name</th>
                                     <th>Gender</th>
-                                    <th>Email</th>
+                                    <th>Phone</th>
                                     <th>Specialization</th>
                                     <th>Duty Hour</th>
                                 </tr>

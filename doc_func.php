@@ -97,7 +97,7 @@ function deptViewTable($userId)
         $hodCheckStmt->fetch();
 
         // Retrieve staff details for the HoD's department
-        $staffSql = "SELECT s.user_id, s.first_name, s.last_name, s.gender, s.email, d.specialization, n.duty_hour
+        $staffSql = "SELECT s.user_id, s.first_name, s.last_name, s.gender, s.phone, d.specialization, n.duty_hour
                     FROM Staff s
                     LEFT JOIN Doctor d ON s.user_id = d.user_id
                     LEFT JOIN Nurse n ON s.user_id = n.user_id
@@ -114,7 +114,7 @@ function deptViewTable($userId)
                 echo "<td>" . htmlspecialchars($staffRow['user_id']) . "</td>";
                 echo "<td>" . htmlspecialchars($staffRow['first_name'] . ' ' . $staffRow['last_name']) . "</td>";
                 echo "<td>" . htmlspecialchars($staffRow['gender']) . "</td>";
-                echo "<td>" . htmlspecialchars($staffRow['email']) . "</td>";
+                echo "<td>" . htmlspecialchars($staffRow['phone']) . "</td>";
                 echo "<td>" . htmlspecialchars($staffRow['specialization']) . "</td>";
                 echo "<td>" . htmlspecialchars($staffRow['duty_hour']) . "</td>";
                 echo "</tr>";
