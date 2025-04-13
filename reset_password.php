@@ -103,8 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="images/favicon.png" />
     <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans&display=swap" rel="stylesheet">
-    <title>Reset Password - Hospital Management System</title>
+    <title>Reset Password</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/style1.css">
 </head>

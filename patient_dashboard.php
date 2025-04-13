@@ -445,7 +445,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                             <div class="card mt-4">
                                 <div class="card-body d-flex justify-content-between align-items-center">
                                     <!-- Subtotal or Amount Due -->
-                                    <h5 class="mb-0">Subtotal: <span class="text-primary">$<?= htmlspecialchars($subtotal) ?></span></h5>
+                                    <h5 class="mb-0">Subtotal: <span class="text-primary">BDT <?= htmlspecialchars($subtotal) ?></span></h5>
                                     <!-- Action Buttons -->
                                     <div>
                                         <button id="payNowBtn" class="btn btn-primary mr-2">

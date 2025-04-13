@@ -49,16 +49,17 @@ $pdf->Ln(5);
 
 // Patient Info
 $pdf->SetFont('Arial','',12);
-$pdf->Cell(50,8,'Patient ID: '.$patient_id,0,1);
+$pdf->Cell(95,8,'Patient ID: ' . $patient_id,0,0,'L');   // Left-aligned, 95 units wide
+$pdf->Cell(95,8,'Invoice Date: ' . date('Y-m-d'),0,1,'R'); // Right-aligned, 95 units wide
 $pdf->Ln(5);
 
 // Table headers
 $pdf->SetFont('Arial','B',12);
-$pdf->Cell(10,10,'#',1);
-$pdf->Cell(40,10,'Bill Type',1);
-$pdf->Cell(50,10,'Doctor Name',1);
-$pdf->Cell(50,10,'Test Name',1);
-$pdf->Cell(30,10,'Amount ($)',1);
+$pdf->Cell(10,10,'#',1,0,'C');
+$pdf->Cell(40,10,'Bill Type',1,0,'C');
+$pdf->Cell(50,10,'Doctor Name',1,0,'C');
+$pdf->Cell(50,10,'Test Name',1,0,'C');
+$pdf->Cell(30,10,'Amount (BDT)',1,0,'C');
 $pdf->Ln();
 
 // Reset font for table rows and prepare subtotal
@@ -78,11 +79,11 @@ foreach ($rows as $row) {
     $amount = $row['charge_amount'];
     $subtotal += (float)$amount;
     
-    $pdf->Cell(10,10,$counter,1);
-    $pdf->Cell(40,10,$billType,1);
-    $pdf->Cell(50,10,$doctorName,1);
-    $pdf->Cell(50,10,$testName,1);
-    $pdf->Cell(30,10,number_format($amount,2),1);
+    $pdf->Cell(10,10,$counter,1,0,'C');
+    $pdf->Cell(40,10,$billType,1,0,'C');
+    $pdf->Cell(50,10,$doctorName,1,0,'C');
+    $pdf->Cell(50,10,$testName,1,0,'C');
+    $pdf->Cell(30,10,number_format($amount,2),1,0,'C');
     $pdf->Ln();
     $counter++;
 }
@@ -90,7 +91,7 @@ foreach ($rows as $row) {
 $pdf->Ln(5);
 $pdf->SetFont('Arial','B',12);
 $pdf->Cell(150,10,'Subtotal:',0,0,'R');
-$pdf->Cell(30,10,'$'.number_format($subtotal,2),0,1,'L');
+$pdf->Cell(30,10,'BDT '.number_format($subtotal,2),0,1,'L');
 
 // Force download of the PDF invoice
 $pdf->Output('D', 'Invoice.pdf');

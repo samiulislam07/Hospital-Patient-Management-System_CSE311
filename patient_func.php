@@ -272,7 +272,7 @@ function display_appointment_history()
             JOIN appointment A ON A.appt_id = C.appt_id
             JOIN doctor D ON D.user_id = C.doctor_user_id
             WHERE C.patient_user_id = ?
-            ORDER BY A.appt_date ASC, A.appt_time ASC";
+            ORDER BY A.appt_date DESC, A.appt_time ASC";
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {
@@ -412,9 +412,6 @@ function display_treatment_plans() {
     $stmt->close();
 }
 
-
-
-
 //fetch Pending Tests
 function display_pending_tests()
 {
@@ -431,7 +428,8 @@ function display_pending_tests()
               FROM doc_test_patient dtp
               JOIN test t ON t.test_id = dtp.test_id
               JOIN doctor d ON d.user_id = dtp.doctor_user_id
-              WHERE dtp.patient_user_id = '$patient_id' AND dtp.test_date IS NULL";
+              WHERE dtp.patient_user_id = '$patient_id' AND dtp.test_date IS NULL
+              ORDER BY dtp.pres_date DESC";
 
     $result = mysqli_query($con, $query);
 
@@ -481,7 +479,8 @@ function display_test_results()
             JOIN doctor d ON dtp.doctor_user_id = d.user_id
             WHERE dtp.patient_user_id = ? 
               AND dtp.test_date IS NOT NULL 
-              AND dtp.result IS NOT NULL";
+              AND dtp.result IS NOT NULL 
+            order by dtp.test_date desc";
 
     // Collect filter parameters from GET if available
     $filters = [];
@@ -501,7 +500,7 @@ function display_test_results()
         $types .= "s";
     }
 
-    $sql .= " ORDER BY dtp.test_date DESC";
+    //$sql .= " ORDER BY dtp.test_date DESC";
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {
@@ -626,7 +625,7 @@ function display_due_bills_and_subtotal()
                     <td>{$billType}</td>
                     <td>{$doctorName}</td>
                     <td>{$testName}</td>
-                    <td>\${$amount}</td>
+                    <td>BDT {$amount}</td>
                   </tr>";
 
             $counter++;
