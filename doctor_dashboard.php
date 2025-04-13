@@ -130,11 +130,11 @@ if (!isset($_SESSION['user_id'])) {
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>First Name:</label>
-                                    <input type="text" class="form-control" value="<?= $doctor['first_name'] ?? '' ?>" disabled>
+                                    <input type="text" name="first_name" class="form-control" value="<?= htmlspecialchars($doctor['first_name']) ?>">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Last Name:</label>
-                                    <input type="text" class="form-control" value="<?= $doctor['last_name'] ?? '' ?>" disabled>
+                                    <input type="text" name="last_name" class="form-control" value="<?= htmlspecialchars($doctor['last_name']) ?>">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
@@ -145,11 +145,11 @@ if (!isset($_SESSION['user_id'])) {
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label>Email:</label>
-                                    <input type="email" name="email" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="<?= $doctor['email'] ?? '' ?>">
+                                    <input type="email" name="email" class="form-control" value="<?= $doctor['email'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Phone:</label>
-                                    <input type="text" name="phone" class="form-control" value="<?= $doctor['phone'] ?? '' ?>">
+                                    <input type="text" name="phone" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="<?= $doctor['phone'] ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Date of Birth:</label>
@@ -363,22 +363,22 @@ if (!isset($_SESSION['user_id'])) {
                         </table>
                         <!-- Patient History Modal -->
                         <div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="historyModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="historyModalLabel">Patient History</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <!-- History content will be loaded here via AJAX -->
-                                    <div id="historyContent">
-                                        <p>Loading history...</p>
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="historyModalLabel">Patient History</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- History content will be loaded here via AJAX -->
+                                        <div id="historyContent">
+                                            <p>Loading history...</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         </div>
                         <script>
                             document.addEventListener('DOMContentLoaded', function() {
@@ -390,7 +390,7 @@ if (!isset($_SESSION['user_id'])) {
                                         document.getElementById('historyContent').innerHTML = "<p>Loading history...</p>";
                                         // Open the modal (Bootstrap 4 syntax)
                                         $('#historyModal').modal('show');
-                                        
+
                                         // Fetch the patient history using AJAX
                                         fetch('get_patient_history.php?patient_id=' + encodeURIComponent(patientId))
                                             .then(response => response.text())
@@ -470,12 +470,12 @@ if (!isset($_SESSION['user_id'])) {
                                     const row = this.closest('tr');
                                     // Retrieve the JSON-encoded tests data from the row's data attribute.
                                     const testsData = JSON.parse(row.getAttribute('data-tests'));
-                                    
+
                                     // Find the test object that matches the selected test name.
                                     let selectedTestData = testsData.find(function(test) {
                                         return test.test_name === selectedTest;
                                     });
-                                    
+
                                     // Populate the test-date and test-result cells.
                                     const testDateCell = row.querySelector('.test-date');
                                     const testResultCell = row.querySelector('.test-result');
@@ -598,4 +598,5 @@ if (!isset($_SESSION['user_id'])) {
         </div>
     </div>
 </body>
+
 </html>

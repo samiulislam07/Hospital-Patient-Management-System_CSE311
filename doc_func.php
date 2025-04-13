@@ -134,8 +134,10 @@ function deptViewTable($userId)
 // Handle doctor profile update form submission.
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
     // Get form data.
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
     $email = $_POST['email'];
-    $phone = $_POST['phone'];
+    $phone = trim($_POST['phone']);
     $dob = $_POST['dob'];
     $doc_fee = $_POST['doc_fee'];
     $specialization = $_POST['specialization'];
@@ -147,32 +149,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
         $con->begin_transaction();
 
         // Update the Users table (email only).
-        $update_users_sql = "UPDATE Users SET email = ? WHERE user_id = ?";
+        $update_users_sql = "UPDATE Users SET first_name = ?, last_name = ?, email = ? WHERE user_id = ?";
         $stmt_users = $con->prepare($update_users_sql);
 
         if ($stmt_users) {
             // Bind the email and doctor's user ID to the prepared statement.
-            $stmt_users->bind_param("ss", $email, $doctor_id);
+            $stmt_users->bind_param("ssss", $first_name, $last_name, $email, $doctor_id);
 
             if ($stmt_users->execute()) {
                 // Update the Staff table.
-                $update_staff_sql = "UPDATE Staff SET email = ?, phone = ?, dob = ? WHERE user_id = ?";
+                $update_staff_sql = "UPDATE Staff SET first_name = ?, last_name = ?, email = ?, phone = ?, dob = ? WHERE user_id = ?";
                 $stmt_staff = $con->prepare($update_staff_sql);
 
                 if ($stmt_staff) {
                     // Bind the form data and doctor's user ID to the prepared statement.
-                    $stmt_staff->bind_param("ssss", $email, $phone, $dob, $doctor_id);
+                    $stmt_staff->bind_param("ssssss", $first_name, $last_name, $email, $phone, $dob, $doctor_id);
 
                     if ($stmt_staff->execute()) {
                         // Update the Doctor table.
-                        $update_doctor_sql = "UPDATE Doctor SET email = ?, phone = ?, dob = ?, 
+                        $update_doctor_sql = "UPDATE Doctor SET first_name = ?, last_name = ?, email = ?, phone = ?, dob = ?, 
                                                 doc_fee = ?, specialization = ?, availability = ? WHERE user_id = ?";
                         $stmt_doctor = $con->prepare($update_doctor_sql);
 
                         if ($stmt_doctor) {
                             // Bind the form data and doctor's user ID to the prepared statement.
                             $stmt_doctor->bind_param(
-                                "sssssss",
+                                "sssssssss",
+                                $first_name, 
+                                $last_name,
                                 $email,
                                 $phone,
                                 $dob,
@@ -425,4 +429,3 @@ if ($stmt) {
 
 // Close the database connection.
 $con->close();
-?>

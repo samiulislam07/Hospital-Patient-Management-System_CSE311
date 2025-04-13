@@ -75,8 +75,10 @@ $stmt->close();
 
 // Handle nurse profile update via POST request.
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_nurse'])) {
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
     $email = $_POST['email'];
-    $phone = $_POST['phone'];
+    $phone = trim($_POST['phone']);
     $dob = $_POST['dob'];
     $dutyhour = $_POST['duty_hour'];
 
@@ -88,32 +90,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_nurse'])) {
 
         // Update email in the Users table.
         $update_users_sql = "UPDATE Users 
-                            SET email = ? 
+                            SET first_name = ?, last_name = ?, email = ? 
                             WHERE user_id = ?";
         $stmt_users = $con->prepare($update_users_sql);
 
         if ($stmt_users) {
-            $stmt_users->bind_param("ss", $email, $nurse_id);
+            $stmt_users->bind_param("ssss", $first_name, $last_name, $email, $nurse_id);
 
             if ($stmt_users->execute()) {
                 // Update Staff table 
                 $update_staff_sql = "UPDATE Staff 
-                                    SET email = ?, phone = ?, dob = ? 
+                                    SET first_name = ?, last_name = ?, email = ?, phone = ?, dob = ? 
                                     WHERE user_id = ?";
                 $stmt_staff = $con->prepare($update_staff_sql);
 
                 if ($stmt_staff) {
-                    $stmt_staff->bind_param("ssss", $email, $phone, $dob, $nurse_id);
+                    $stmt_staff->bind_param("ssssss", $first_name, $last_name, $email, $phone, $dob, $nurse_id);
 
                     if ($stmt_staff->execute()) {
                         // Update Nurse table
                         $update_nurse_sql = "UPDATE Nurse 
-                                            SET email = ?, phone = ?, dob = ?, duty_hour = ? 
+                                            SET first_name = ?, last_name = ?, email = ?, phone = ?, dob = ?, duty_hour = ? 
                                             WHERE user_id = ?";
                         $stmt_nurse = $con->prepare($update_nurse_sql);
 
                         if ($stmt_nurse) {
-                            $stmt_nurse->bind_param("sssss", $email, $phone, $dob, $dutyhour, $nurse_id);
+                            $stmt_nurse->bind_param("sssssss", $first_name, $last_name, $email, $phone, $dob, $dutyhour, $nurse_id);
 
                             if ($stmt_nurse->execute()) {
                                 // Commit the transaction if all updates succeed.
@@ -245,5 +247,3 @@ if ($result->num_rows > 0) {
 }
 
 $con->close(); // Close the database connection.
-
-?>

@@ -102,11 +102,11 @@ if (!isset($_SESSION['user_id'])) {
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>First Name:</label>
-                                    <input type="text" class="form-control  " value="<?= $nurse['first_name'] ?? '' ?>" disabled>
+                                    <input type="text" name="first_name" class="form-control" value="<?= htmlspecialchars($nurse['first_name']) ?>">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Last Name:</label>
-                                    <input type="text" class="form-control  " value="<?= $nurse['last_name'] ?? '' ?>" disabled>
+                                    <input type="text" name="last_name" class="form-control" value="<?= htmlspecialchars($nurse['last_name']) ?>">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Gender:</label>
