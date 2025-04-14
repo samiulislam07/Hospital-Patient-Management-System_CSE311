@@ -136,11 +136,14 @@ if (!isset($_SESSION['admin_id'])) {
                                             <select class="form-control" id="editDocId" name="editDocId">
                                                 <option value="">Select Doctor</option>
                                                 <?php
-                                                $sqlDoctors = "SELECT user_id, first_name, last_name FROM Doctor";
+                                                $sqlDoctors = "SELECT user_id, first_name, last_name, specialization FROM Doctor";
                                                 $resultDoctors = $con->query($sqlDoctors);
                                                 if ($resultDoctors && $resultDoctors->num_rows > 0) {
                                                     while ($rowDoctor = $resultDoctors->fetch_assoc()) {
-                                                        echo "<option value='" . $rowDoctor['user_id'] . "'>" . htmlspecialchars($rowDoctor['first_name'] . ' ' . $rowDoctor['last_name']) . "</option>";
+                                                        // Display the doctor's full name with their specialization, separated by a comma
+                                                        echo "<option value='" . $rowDoctor['user_id'] . "'>" . 
+                                                            htmlspecialchars($rowDoctor['first_name'] . ' ' . $rowDoctor['last_name'] . ', ' . $rowDoctor['specialization']) .
+                                                            "</option>";
                                                     }
                                                 }
                                                 ?>
