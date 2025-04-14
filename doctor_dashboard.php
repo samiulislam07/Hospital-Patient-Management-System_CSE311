@@ -333,7 +333,8 @@ if (!isset($_SESSION['user_id'])) {
                                             <td><?= htmlspecialchars($patient['pre_conditions'] ?? 'N/A') ?></td>
                                             <td>
                                                 <button type="button" class="btn btn-warning btn-sm view-history-btn"
-                                                    data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>">
+                                                    data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>"
+                                                    data-patient-name="<?= htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']) ?>">
                                                     View History
                                                 </button>
                                             </td>
@@ -388,6 +389,11 @@ if (!isset($_SESSION['user_id'])) {
                                 document.querySelectorAll('.view-history-btn').forEach(function(button) {
                                     button.addEventListener('click', function() {
                                         const patientId = this.getAttribute('data-patient-id');
+                                        const patientName = this.getAttribute('data-patient-name'); // retrieve patient name
+
+                                        // Update the modal title to include the patient name
+            document.getElementById('historyModalLabel').textContent = "Patient History - " + patientName;
+            
                                         // Show a loading message in the modal body
                                         document.getElementById('historyContent').innerHTML = "<p>Loading history...</p>";
                                         // Open the modal (Bootstrap 4 syntax)
