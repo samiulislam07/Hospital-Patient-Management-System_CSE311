@@ -42,7 +42,7 @@ if (!isset($_SESSION['user_id'])) {
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="logout.php"><i class="fa fa-power-off" aria-hidden="true"></i> Logout</a>
+                    <a class="nav-link" href="index.php"><i class="fa fa-power-off" aria-hidden="true"></i> Logout</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#"></a>
@@ -392,7 +392,7 @@ if (!isset($_SESSION['user_id'])) {
                                         const patientName = this.getAttribute('data-patient-name'); // retrieve patient name
 
                                         // Update the modal title to include the patient name
-            document.getElementById('historyModalLabel').textContent = "Patient History - " + patientName;
+                                        document.getElementById('historyModalLabel').textContent = "Patient History - " + patientName;
             
                                         // Show a loading message in the modal body
                                         document.getElementById('historyContent').innerHTML = "<p>Loading history...</p>";
@@ -400,7 +400,7 @@ if (!isset($_SESSION['user_id'])) {
                                         $('#historyModal').modal('show');
 
                                         // Fetch the patient history using AJAX
-                                        fetch('get_patient_history.php?patient_id=' + encodeURIComponent(patientId))
+                                        fetch('get_patient_history.php?patient_id=' + encodeURIComponent(patientId)) //calling for history content
                                             .then(response => response.text())
                                             .then(data => {
                                                 document.getElementById('historyContent').innerHTML = data;

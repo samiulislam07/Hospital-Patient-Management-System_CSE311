@@ -173,18 +173,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_doctor'])) {
 
                         if ($stmt_doctor) {
                             // Bind the form data and doctor's user ID to the prepared statement.
-                            $stmt_doctor->bind_param(
-                                "sssssssss",
-                                $first_name, 
-                                $last_name,
-                                $email,
-                                $phone,
-                                $dob,
-                                $doc_fee,
-                                $specialization,
-                                $availability,
-                                $doctor_id
-                            );
+                            $stmt_doctor->bind_param("sssssssss",$first_name,$last_name,$email,$phone,$dob,$doc_fee,$specialization,$availability,$doctor_id);
 
                             if ($stmt_doctor->execute()) {
                                 // Commit the transaction if all updates are successful.
