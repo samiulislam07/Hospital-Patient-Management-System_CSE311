@@ -482,56 +482,56 @@ if (!isset($_SESSION['user_id'])) {
                         });
 
                         function submitTest(btn) {
-    // Find the parent row of the clicked button.
-    const row = btn.closest('tr');
-    const patientId = row.getAttribute('data-patient-id');
-    const testId = row.getAttribute('data-test-id');
+                    // Find the parent row of the clicked button.
+                    const row = btn.closest('tr');
+                    const patientId = row.getAttribute('data-patient-id');
+                    const testId = row.getAttribute('data-test-id');
 
-    // Use the current date in YYYY-MM-DD format for the test date.
-    const currentDate = new Date();
-    const testDate = currentDate.toISOString().split('T')[0];
+                    // Use the current date in YYYY-MM-DD format for the test date.
+                    const currentDate = new Date();
+                    const testDate = currentDate.toISOString().split('T')[0];
 
-    // Get the test result input from this row.
-    const testResultInput = row.querySelector('.test-result-input');
-    const result = testResultInput.value;
-    
-    // Validate that the result field is filled.
-    if (!result) {
-        alert('Please fill in the Test Result.');
-        return;
-    }
+                    // Get the test result input from this row.
+                    const testResultInput = row.querySelector('.test-result-input');
+                    const result = testResultInput.value;
+                    
+                    // Validate that the result field is filled.
+                    if (!result) {
+                        alert('Please fill in the Test Result.');
+                        return;
+                    }
 
-    // Prepare the data to be sent.
-    const formData = new URLSearchParams();
-    formData.append('patient_user_id', patientId);
-    formData.append('test_id', testId);
-    formData.append('test_date', testDate);
-    formData.append('result', result);
+                    // Prepare the data to be sent.
+                    const formData = new URLSearchParams();
+                    formData.append('patient_user_id', patientId);
+                    formData.append('test_id', testId);
+                    formData.append('test_date', testDate);
+                    formData.append('result', result);
 
-    // Use Fetch API to send an AJAX POST request.
-    fetch('perform_test.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: formData.toString()
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Test result submitted successfully.');
-                // Optionally disable the inputs or the button to prevent re-submission.
-                // btn.disabled = true;
-                // btn.innerText = 'Submitted';
-            } else {
-                alert('Error: ' + (data.error || 'Submission failed.'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while submitting the test result.');
-        });
-}
+                    // Use Fetch API to send an AJAX POST request.
+                    fetch('perform_test.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: formData.toString()
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Test result submitted successfully.');
+                                // Optionally disable the inputs or the button to prevent re-submission.
+                                // btn.disabled = true;
+                                // btn.innerText = 'Submitted';
+                            } else {
+                                alert('Error: ' + (data.error || 'Submission failed.'));
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while submitting the test result.');
+                        });
+                    }
                     </script>
 
                 </div>
