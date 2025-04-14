@@ -130,20 +130,13 @@ if (!isset($_SESSION['admin_id'])) {
                                 </div>
                                 <div class="modal-body">
                                     <form method="post">
+                                        <!-- Hidden field storing the department being edited -->
                                         <input type="hidden" id="editDeptId" name="editDeptId">
                                         <div class="form-group">
                                             <label for="editDocId">Doctor Name:</label>
                                             <select class="form-control" id="editDocId" name="editDocId">
-                                                <option value="">Select Doctor</option>
-                                                <?php
-                                                $sqlDoctors = "SELECT user_id, first_name, last_name FROM Doctor";
-                                                $resultDoctors = $con->query($sqlDoctors);
-                                                if ($resultDoctors && $resultDoctors->num_rows > 0) {
-                                                    while ($rowDoctor = $resultDoctors->fetch_assoc()) {
-                                                        echo "<option value='" . $rowDoctor['user_id'] . "'>" . htmlspecialchars($rowDoctor['first_name'] . ' ' . $rowDoctor['last_name']) . "</option>";
-                                                    }
-                                                }
-                                                ?>
+                                                <option value="" disabled selected>Select Doctor</option>
+                                                <?php display_docs(); ?>
                                             </select>
                                         </div>
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -162,8 +155,23 @@ if (!isset($_SESSION['admin_id'])) {
                         }
 
                         function showEditModal(deptId) {
-                            document.getElementById('editDeptId').value = deptId;
-                            $('#editDeptModal').modal('show');
+                            // Set the hidden department id for later use.
+                            document.getElementById("editDeptId").value = deptId;
+                            
+                            // Iterate over each option in the doctor dropdown and show or hide based on department.
+                            $("#editDocId option").each(function() {
+                                // Show only if data-dept equals the department id passed in (convert to string for comparison)
+                                if ($(this).attr("data-dept") === deptId.toString()) {
+                                    $(this).show();
+                                } else {
+                                    $(this).hide();
+                                }
+                            });
+                            // Reset the selection to the default option ("Select Doctor")
+                            $("#editDocId").val("");
+                            
+                            // Now show the modal
+                            $("#editDeptModal").modal('show');
                         }
                     </script>
                     <!-- Staff -->

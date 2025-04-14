@@ -2,8 +2,6 @@
 session_start();
 include 'config.php';
 
-
-
 function displayDepartmentsTable()
 {
     global $con;
@@ -23,7 +21,7 @@ function displayDepartmentsTable()
                 echo "<td>" . htmlspecialchars($row['dept_name']) . "</td>";
                 echo "<td>" . htmlspecialchars($row['dept_head'] ? $row['dept_head'] : 'N/A') . "</td>";
                 echo "<td>" . htmlspecialchars($row['staff_count'] ? $row['staff_count'] : '0') . "</td>";
-                echo "<td><button onclick='showEditModal(" . $row['dept_id'] . ")'>Edit</button></td>";
+                echo "<td><button onclick='showEditModal(" . htmlspecialchars($row['dept_id']) . ")'>Edit</button></td>";
                 echo "</tr>";
             }
         } else {
@@ -65,6 +63,22 @@ function deleteDepartment($deptName)
         return "Error: " . $sql . "<br>" . $con->error;
     }
 }
+
+function display_docs() {
+    global $con;
+    $query = "SELECT * FROM Doctor";
+    $result = mysqli_query($con, $query);
+    while ($row = mysqli_fetch_array($result)) {
+        $userid      = $row['user_id'];
+        $doctor_name = $row['first_name'] . ' ' . $row['last_name'];
+        $spec        = $row['specialization'];
+        $docFee      = $row['doc_fee'];
+        $availability = $row['availability'];
+        $dept_id     = $row['dept_id']; // new attribute for department id
+        echo '<option data-name="' . htmlspecialchars($doctor_name) . '" data-spec="' . htmlspecialchars($spec) . '" data-fee="' . htmlspecialchars($docFee) . '" data-availability="' . htmlspecialchars($availability) . '" data-id="' . htmlspecialchars($userid) . '" data-dept="' . htmlspecialchars($dept_id) . '">' . htmlspecialchars($doctor_name) . '</option>';
+    }
+}
+
 
 // Handle add department request
 if (isset($_POST['addDeptName'])) {
