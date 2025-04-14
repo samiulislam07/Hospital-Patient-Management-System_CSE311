@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 06, 2025 at 12:16 AM
+-- Generation Time: Apr 14, 2025 at 06:20 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -250,20 +250,20 @@ CREATE TABLE `doctor` (
 
 INSERT INTO `doctor` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `doc_fee`, `specialization`, `availability`, `dept_id`, `created_at`, `updated_at`, `session_id`) VALUES
 ('d001', 'Rahim', 'Hossain', 'rahim.hossain@gmail.com', '$2y$10$f/jTmvSchzaW5QzvSe81u.y7beXruJ1x4L.ohhdJFr9mr144xp6rO', 'Male', '01711223344', '1980-05-12', 150000.00, 1000.00, 'Cardiologist', 'Mon-Fri 9AM-5PM', 1, '2025-04-05 21:16:09', '2025-04-05 22:09:42', NULL),
-('d002', 'Fatima', 'Begum', 'fatima.begum@gmail.com', 'pass123', 'Female', '01722334455', '1982-08-15', 145000.00, 1200.00, 'Neurologist', 'Tue-Sat 10AM-6PM', 2, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d003', 'Karim', 'Ahmed', 'karim.ahmed@gmail.com', 'pass123', 'Male', '01733445566', '1978-03-20', 160000.00, 1100.00, 'Orthopedic Surgeon', 'Mon-Fri 8AM-4PM', 3, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d004', 'Ayesha', 'Khatun', 'ayesha.khatun@gmail.com', 'pass123', 'Female', '01744556677', '1985-11-10', 140000.00, 900.00, 'Pediatrician', 'Wed-Sun 9AM-5PM', 4, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d005', 'Siddiq', 'Rahman', 'siddiq.rahman@gmail.com', 'pass123', 'Male', '01755667788', '1975-07-25', 155000.00, 1000.00, 'General Physician', 'Mon-Fri 10AM-6PM', 5, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d006', 'Nusrat', 'Jahan', 'nusrat.jahan@gmail.com', 'pass123', 'Female', '01766778899', '1983-09-30', 148000.00, 1100.00, 'Cardiologist', 'Tue-Sat 9AM-5PM', 1, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d007', 'Hasan', 'Miah', 'hasan.miah@gmail.com', 'pass123', 'Male', '01777889900', '1981-01-15', 152000.00, 1200.00, 'Neurologist', 'Mon-Fri 8AM-4PM', 2, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d008', 'Shirin', 'Akter', 'shirin.akter@gmail.com', 'pass123', 'Female', '01788990011', '1984-04-22', 142000.00, 1000.00, 'Orthopedic Surgeon', 'Wed-Sun 10AM-6PM', 3, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d009', 'Mahmud', 'Islam', 'mahmud.islam@gmail.com', 'pass123', 'Male', '01799001122', '1979-06-18', 158000.00, 900.00, 'Pediatrician', 'Mon-Fri 9AM-5PM', 4, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d010', 'Ruma', 'Sultana', 'ruma.sultana@gmail.com', 'pass123', 'Female', '01800112233', '1986-12-05', 146000.00, 1100.00, 'General Physician', 'Tue-Sat 10AM-6PM', 5, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d011', 'Jamil', 'Uddin', 'jamil.uddin@gmail.com', 'pass123', 'Male', '01811223344', '1980-02-28', 150000.00, 1000.00, 'Cardiologist', 'Mon-Fri 8AM-4PM', 1, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d012', 'Laila', 'Parvin', 'laila.parvin@gmail.com', 'pass123', 'Female', '01822334455', '1983-10-14', 144000.00, 1200.00, 'Neurologist', 'Wed-Sun 9AM-5PM', 2, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d013', 'Arif', 'Chowdhury', 'arif.chowdhury@gmail.com', 'pass123', 'Male', '01833445566', '1977-08-09', 157000.00, 1100.00, 'Orthopedic Surgeon', 'Mon-Fri 10AM-6PM', 3, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d014', 'Sabina', 'Yasmin', 'sabina.yasmin@gmail.com', 'pass123', 'Female', '01844556677', '1985-03-17', 143000.00, 900.00, 'Pediatrician', 'Tue-Sat 9AM-5PM', 4, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL),
-('d015', 'Tarek', 'Aziz', 'tarek.aziz@gmail.com', 'pass123', 'Male', '01855667788', '1982-07-21', 154000.00, 1000.00, 'General Physician', 'Mon-Fri 8AM-4PM', 5, '2025-04-05 21:16:09', '2025-04-05 21:16:09', NULL);
+('d002', 'Fatima', 'Begum', 'fatima.begum@gmail.com', '$2y$10$G9yBYHOmxpQ3yFtuxJ0zA.feMdb9p3DUTC.YqGi/6EBamUwMGZW5K', 'Female', '01722334455', '1982-08-15', 145000.00, 1200.00, 'Neurologist', 'Tue-Sat 10AM-6PM', 2, '2025-04-05 21:16:09', '2025-04-14 16:07:55', NULL),
+('d003', 'Karim', 'Ahmed', 'karim.ahmed@gmail.com', '$2y$10$6oi6ts.5J1FMPn79JyOB2er9ujj4dgCWGTn5zSevyIQjbvUb9qg0.', 'Male', '01733445566', '1978-03-20', 160000.00, 1100.00, 'Orthopedic Surgeon', 'Mon-Fri 8AM-4PM', 3, '2025-04-05 21:16:09', '2025-04-14 16:08:33', NULL),
+('d004', 'Ayesha', 'Khatun', 'ayesha.khatun@gmail.com', '$2y$10$UvSkYtoXUCKyrtyFNo/2yeYIceQ1aSKjORcxkp.rhITONUNf8qID6', 'Female', '01744556677', '1985-11-10', 140000.00, 900.00, 'Pediatrician', 'Wed-Sun 9AM-5PM', 4, '2025-04-05 21:16:09', '2025-04-14 16:08:49', NULL),
+('d005', 'Siddiq', 'Rahman', 'siddiq.rahman@gmail.com', '$2y$10$0YqQN0gsDnLKYzGGI9/eU.YGVn90mnIQ3deE.9N1MVSRplsCv.DXi', 'Male', '01755667788', '1975-07-25', 155000.00, 1000.00, 'General Physician', 'Mon-Fri 10AM-6PM', 5, '2025-04-05 21:16:09', '2025-04-14 16:09:10', NULL),
+('d006', 'Nusrat', 'Jahan', 'nusrat.jahan@gmail.com', '$2y$10$8MhS3xcX70wcApBjlxmA9OOjKGRsK8ZyfkTIHdJjUgv.zRU.SimKC', 'Female', '01766778899', '1983-09-30', 148000.00, 1100.00, 'Cardiologist', 'Tue-Sat 9AM-5PM', 1, '2025-04-05 21:16:09', '2025-04-14 16:09:26', NULL),
+('d007', 'Hasan', 'Miah', 'hasan.miah@gmail.com', '$2y$10$YhRitf3i0x4nPLCA1URFzuSJD8SzvWdclu8AdfCVKnjHEjzYqsyjy', 'Male', '01777889900', '1981-01-15', 152000.00, 1200.00, 'Neurologist', 'Mon-Fri 8AM-4PM', 2, '2025-04-05 21:16:09', '2025-04-14 16:09:43', NULL),
+('d008', 'Shirin', 'Akter', 'shirin.akter@gmail.com', '$2y$10$cgdN3g8c0MNlhm3CxFXbOO6E6rKatywUXKp8g.crcKv9gEvzr4RT2', 'Female', '01788990011', '1984-04-22', 142000.00, 1000.00, 'Orthopedic Surgeon', 'Wed-Sun 10AM-6PM', 3, '2025-04-05 21:16:09', '2025-04-14 16:09:59', NULL),
+('d009', 'Mahmud', 'Islam', 'mahmud.islam@gmail.com', '$2y$10$Pod3XTYU8xrhRZXnBB.h5OZoe/QPeQRc7yXgV.S41tVd9h9pq09f.', 'Male', '01799001122', '1979-06-18', 158000.00, 900.00, 'Pediatrician', 'Mon-Fri 9AM-5PM', 4, '2025-04-05 21:16:09', '2025-04-14 16:10:23', NULL),
+('d010', 'Ruma', 'Sultana', 'ruma.sultana@gmail.com', '$2y$10$8rt7UOvsNe7.wdhNY/Ov3OWlBTsyP.e9Bix1SisoiWQFuC.Q58x2S', 'Female', '01800112233', '1986-12-05', 146000.00, 1100.00, 'General Physician', 'Tue-Sat 10AM-6PM', 5, '2025-04-05 21:16:09', '2025-04-14 16:10:45', NULL),
+('d011', 'Jamil', 'Uddin', 'jamil.uddin@gmail.com', '$2y$10$KlYMQAIifJ7J53XsNXiz1uzPWUrLYhsZxoSIi0A0UOxC.HzJi0YO6', 'Male', '01811223344', '1980-02-28', 150000.00, 1000.00, 'Cardiologist', 'Mon-Fri 8AM-4PM', 1, '2025-04-05 21:16:09', '2025-04-14 16:11:06', NULL),
+('d012', 'Laila', 'Parvin', 'laila.parvin@gmail.com', '$2y$10$oWT68s0tir8kGqfMEAFloO/T.RnStOZ4pV1hdQKNNhEVSmwVn1/f.', 'Female', '01822334455', '1983-10-14', 144000.00, 1200.00, 'Neurologist', 'Wed-Sun 9AM-5PM', 2, '2025-04-05 21:16:09', '2025-04-14 16:11:33', NULL),
+('d013', 'Arif', 'Chowdhury', 'arif.chowdhury@gmail.com', '$2y$10$cp6MkAqsMteQCqEg8kXiCeItvZJeIJqjKI4Z9oFRiAOpvBUwMO9PS', 'Male', '01833445566', '1977-08-09', 157000.00, 1100.00, 'Orthopedic Surgeon', 'Mon-Fri 10AM-6PM', 3, '2025-04-05 21:16:09', '2025-04-14 16:11:51', NULL),
+('d014', 'Sabina', 'Yasmin', 'sabina.yasmin@gmail.com', '$2y$10$MdmMqtG5wK3o7dkmnrBPxeElA1zxKxWyUXAZ5jnaJdys3RBSK3Lwu', 'Female', '01844556677', '1985-03-17', 143000.00, 900.00, 'Pediatrician', 'Tue-Sat 9AM-5PM', 4, '2025-04-05 21:16:09', '2025-04-14 16:12:09', NULL),
+('d015', 'Tarek', 'Aziz', 'tarek.aziz@gmail.com', '$2y$10$1oGmvJAvFK0/JJTmuYUSeOV/jbAkeCYr6n6fA2gmBAFkWhkpOvNPe', 'Male', '01855667788', '1982-07-21', 154000.00, 1000.00, 'General Physician', 'Mon-Fri 8AM-4PM', 5, '2025-04-05 21:16:09', '2025-04-14 16:12:27', NULL);
 
 -- --------------------------------------------------------
 
@@ -408,20 +408,20 @@ CREATE TABLE `nurse` (
 
 INSERT INTO `nurse` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `duty_hour`, `dept_id`, `created_at`, `updated_at`, `session_id`) VALUES
 ('n001', 'Salma', 'Akter', 'salma.akter@gmail.com', '$2y$10$6HiAAHv9.CKF0EacHm2ZcOPE8qN3W0NqhwSbm5CC9YpgC9Rxls/zm', 'Female', '01911223344', '1990-05-10', 35000.00, 'Morning', 1, '2025-04-05 21:16:27', '2025-04-05 22:11:15', NULL),
-('n002', 'Rashed', 'Khan', 'rashed.khan@gmail.com', 'pass123', 'Male', '01922334455', '1988-08-22', 36000.00, 'Noon', 2, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n003', 'Monira', 'Begum', 'monira.begum@gmail.com', 'pass123', 'Female', '01933445566', '1992-03-15', 34000.00, 'Evening', 3, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n004', 'Kamal', 'Hossain', 'kamal.hossain@gmail.com', 'pass123', 'Male', '01944556677', '1987-11-30', 37000.00, 'Night', 4, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n005', 'Rina', 'Parvin', 'rina.parvin@gmail.com', 'pass123', 'Female', '01955667788', '1991-07-12', 35000.00, 'Rotational', 5, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n006', 'Sohel', 'Rana', 'sohel.rana@gmail.com', 'pass123', 'Male', '01966778899', '1989-09-25', 36000.00, 'Morning', 1, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n007', 'Tania', 'Sultana', 'tania.sultana@gmail.com', 'pass123', 'Female', '01977889900', '1993-01-18', 34000.00, 'Noon', 2, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n008', 'Imran', 'Ali', 'imran.ali@gmail.com', 'pass123', 'Male', '01988990011', '1986-04-05', 37000.00, 'Evening', 3, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n009', 'Shabnam', 'Jahan', 'shabnam.jahan@gmail.com', 'pass123', 'Female', '01999001122', '1990-06-20', 35000.00, 'Night', 4, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n010', 'Firoz', 'Miah', 'firoz.miah@gmail.com', 'pass123', 'Male', '01600112233', '1988-12-15', 36000.00, 'Rotational', 5, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n011', 'Nasrin', 'Akter', 'nasrin.akter@gmail.com', 'pass123', 'Female', '01611223344', '1992-02-28', 34000.00, 'Morning', 1, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n012', 'Jahangir', 'Alam', 'jahangir.alam@gmail.com', 'pass123', 'Male', '01622334455', '1987-10-10', 37000.00, 'Noon', 2, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n013', 'Rokeya', 'Begum', 'rokeya.begum@gmail.com', 'pass123', 'Female', '01633445566', '1991-08-05', 35000.00, 'Evening', 3, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n014', 'Anwar', 'Hossain', 'anwar.hossain@gmail.com', 'pass123', 'Male', '01644556677', '1989-03-22', 36000.00, 'Night', 4, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL),
-('n015', 'Shamima', 'Khatun', 'shamima.khatun@gmail.com', 'pass123', 'Female', '01655667788', '1993-07-17', 34000.00, 'Rotational', 5, '2025-04-05 21:16:27', '2025-04-05 21:16:27', NULL);
+('n002', 'Rashed', 'Khan', 'rashed.khan@gmail.com', '$2y$10$v4G4cLp6//pngdvd5aWRNuXdhiQLxGmSi9kxijZfmioaECOLnlGm6', 'Male', '01922334455', '1988-08-22', 36000.00, 'Noon', 2, '2025-04-05 21:16:27', '2025-04-14 16:13:04', NULL),
+('n003', 'Monira', 'Begum', 'monira.begum@gmail.com', '$2y$10$o3M9tXAxuIyH8ycuFg/tWOrqAnwSXfLcB7iIb5.h/pfBE4jL3HiLe', 'Female', '01933445566', '1992-03-15', 34000.00, 'Evening', 3, '2025-04-05 21:16:27', '2025-04-14 16:13:19', NULL),
+('n004', 'Kamal', 'Hossain', 'kamal.hossain@gmail.com', '$2y$10$oFl603kKnbeSP2jwmucUkOI5r0V4t9Ph8VTwW8bKSbLA3tOKC5U4u', 'Male', '01944556677', '1987-11-30', 37000.00, 'Night', 4, '2025-04-05 21:16:27', '2025-04-14 16:14:11', NULL),
+('n005', 'Rina', 'Parvin', 'rina.parvin@gmail.com', '$2y$10$REdwfKm9QGDT2sRql20m1.U5py2CUVtMR.TOuiXLgsQsAx3vj1YZG', 'Female', '01955667788', '1991-07-12', 35000.00, 'Rotational', 5, '2025-04-05 21:16:27', '2025-04-14 16:14:32', NULL),
+('n006', 'Sohel', 'Rana', 'sohel.rana@gmail.com', '$2y$10$Th7ZmIN9MzuerSrQIdw4ouGtIJ3mEd3DdwVRi233/Jap6ROqiO4sq', 'Male', '01966778899', '1989-09-25', 36000.00, 'Morning', 1, '2025-04-05 21:16:27', '2025-04-14 16:14:48', NULL),
+('n007', 'Tania', 'Sultana', 'tania.sultana@gmail.com', '$2y$10$Q5N5qjjIc6/WA6QXZFWdyOn7YIEWAXbATYjciC0WkzNeOm1fFoMyC', 'Female', '01977889900', '1993-01-18', 34000.00, 'Noon', 2, '2025-04-05 21:16:27', '2025-04-14 16:15:04', NULL),
+('n008', 'Imran', 'Ali', 'imran.ali@gmail.com', '$2y$10$/4HslK0LSc5PFWnzUEOWSOHbdsWxv7DXhgyPf4EhfHr/UDruKiau.', 'Male', '01988990011', '1986-04-05', 37000.00, 'Evening', 3, '2025-04-05 21:16:27', '2025-04-14 16:15:18', NULL),
+('n009', 'Shabnam', 'Jahan', 'shabnam.jahan@gmail.com', '$2y$10$O6q66Q5V4skAZP1QneVW/upOJ5AYq2LcEvCyQ63OWwhuszjuK4s2u', 'Female', '01999001122', '1990-06-20', 35000.00, 'Night', 4, '2025-04-05 21:16:27', '2025-04-14 16:15:38', NULL),
+('n010', 'Firoz', 'Miah', 'firoz.miah@gmail.com', '$2y$10$wDd7tLXfspoR9s84ab6F..Re9Mltf9A1xl9QwdUltagvCcJzO33UO', 'Male', '01600112233', '1988-12-15', 36000.00, 'Rotational', 5, '2025-04-05 21:16:27', '2025-04-14 16:15:52', NULL),
+('n011', 'Nasrin', 'Akter', 'nasrin.akter@gmail.com', '$2y$10$on9Rp4dhWCBXZ9e5eO6E8.nim17KIQarg/3cUjt83712pnZvrLhbK', 'Female', '01611223344', '1992-02-28', 34000.00, 'Morning', 1, '2025-04-05 21:16:27', '2025-04-14 16:16:06', NULL),
+('n012', 'Jahangir', 'Alam', 'jahangir.alam@gmail.com', '$2y$10$1y2OlyJmEyA7OQVIV5Pq.ec8H9eCt1nva62yujvL0ZPUN3U0.ZD2a', 'Male', '01622334455', '1987-10-10', 37000.00, 'Noon', 2, '2025-04-05 21:16:27', '2025-04-14 16:16:20', NULL),
+('n013', 'Rokeya', 'Begum', 'rokeya.begum@gmail.com', '$2y$10$NnpI3W/R4786Ro3XpHOkfOCt/2QEuTwx3uNnfPCF0bvaAg2SPWA92', 'Female', '01633445566', '1991-08-05', 35000.00, 'Evening', 3, '2025-04-05 21:16:27', '2025-04-14 16:16:35', NULL),
+('n014', 'Anwar', 'Hossain', 'anwar.hossain@gmail.com', '$2y$10$Z5xRnG8DKIgAkIEqt6Q.9e6RYfZ3sCohu1ez1MqWojT8q/./NGi9e', 'Male', '01644556677', '1989-03-22', 36000.00, 'Night', 4, '2025-04-05 21:16:27', '2025-04-14 16:16:49', NULL),
+('n015', 'Shamima', 'Khatun', 'shamima.khatun@gmail.com', '$2y$10$AF2VKlab95JTxnzcfkj8fOtk0zzTUUgkygqCPZL4wQZIQwByuhAF6', 'Female', '01655667788', '1993-07-17', 34000.00, 'Rotational', 5, '2025-04-05 21:16:27', '2025-04-14 16:17:15', NULL);
 
 -- --------------------------------------------------------
 
@@ -494,10 +494,10 @@ CREATE TABLE `patient` (
 
 INSERT INTO `patient` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `blood_group`, `dob`, `hno`, `street`, `city`, `zip`, `country`, `created_at`, `updated_at`, `session_id`) VALUES
 ('p001', 'Abdul', 'Karim', 'abdul.karim@gmail.com', '$2y$10$dL3rNGe1KhLBx6L17iAEx..2FaDeODiOwzv7B4J7E0n26M60TjGyK', 'Male', 'A+', '1990-04-15', '12/A', 'Mirpur Road', 'Dhaka', '1216', 'Bangladesh', '2025-04-05 21:17:08', '2025-04-05 22:15:00', NULL),
-('p002', 'Sultana', 'Razia', 'sultana.razia@gmail.com', 'pass123', 'Female', 'B+', '1985-07-20', '45/B', 'Gulshan Avenue', 'Dhaka', '1212', 'Bangladesh', '2025-04-05 21:17:08', '2025-04-05 21:17:08', NULL),
-('p003', 'Iqbal', 'Hossain', 'iqbal.hossain@gmail.com', 'pass123', 'Male', 'O+', '1978-09-10', '78/C', 'Chittagong Road', 'Chittagong', '4000', 'Bangladesh', '2025-04-05 21:17:08', '2025-04-05 21:17:08', NULL),
-('p004', 'Rokeya', 'Sultana', 'rokeya.sultana@gmail.com', 'pass123', 'Female', 'AB-', '1995-12-25', '23/D', 'Sylhet Street', 'Sylhet', '3100', 'Bangladesh', '2025-04-05 21:17:08', '2025-04-05 21:17:08', NULL),
-('p005', 'Moin', 'Uddin', 'moin.uddin@gmail.com', 'pass123', 'Male', 'A-', '1982-03-18', '56/E', 'Khulna Lane', 'Khulna', '9100', 'Bangladesh', '2025-04-05 21:17:08', '2025-04-05 21:17:08', NULL);
+('p002', 'Sultana', 'Razia', 'sultana.razia@gmail.com', '$2y$10$SDaILh0M9x48zah.PLHBY.Xow/dHUtaYCDz8dZHs8dFRmygxL/s6i', 'Female', 'B+', '1985-07-20', '45/B', 'Gulshan Avenue', 'Dhaka', '1212', 'Bangladesh', '2025-04-05 21:17:08', '2025-04-14 16:06:24', NULL),
+('p003', 'Iqbal', 'Hossain', 'iqbal.hossain@gmail.com', '$2y$10$HkP6GngKzDPE9gcaKZubg.XLyN50PYgb4VUuOPsQQjvZgF1cTXihm', 'Male', 'O+', '1978-09-10', '78/C', 'Chittagong Road', 'Chittagong', '4000', 'Bangladesh', '2025-04-05 21:17:08', '2025-04-14 16:06:42', NULL),
+('p004', 'Rokeya', 'Sultana', 'rokeya.sultana@gmail.com', '$2y$10$kVOttevcUf5QcMI2iHT/qOibpW85uv5xyC5AvWXgDRojcaZUP/BP2', 'Female', 'AB-', '1995-12-25', '23/D', 'Sylhet Street', 'Sylhet', '3100', 'Bangladesh', '2025-04-05 21:17:08', '2025-04-14 16:07:07', NULL),
+('p005', 'Moin', 'Uddin', 'moin.uddin@gmail.com', '$2y$10$4VHmPXmJBHVdpskzZLISGul6KHn5bsF1xIXQNM59EzdYKHHIAs/Dm', 'Male', 'A-', '1982-03-18', '56/E', 'Khulna Lane', 'Khulna', '9100', 'Bangladesh', '2025-04-05 21:17:08', '2025-04-14 16:07:25', NULL);
 
 -- --------------------------------------------------------
 
@@ -555,35 +555,35 @@ CREATE TABLE `staff` (
 
 INSERT INTO `staff` (`user_id`, `first_name`, `last_name`, `email`, `password`, `gender`, `phone`, `dob`, `salary`, `dept_id`, `created_at`, `updated_at`) VALUES
 ('d001', 'Rahim', 'Hossain', 'rahim.hossain@gmail.com', '$2y$10$f/jTmvSchzaW5QzvSe81u.y7beXruJ1x4L.ohhdJFr9mr144xp6rO', 'Male', '01711223344', '1980-05-12', 150000.00, 1, '2025-04-05 21:15:05', '2025-04-05 22:01:28'),
-('d002', 'Fatima', 'Begum', 'fatima.begum@gmail.com', 'pass123', 'Female', '01722334455', '1982-08-15', 145000.00, 2, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d003', 'Karim', 'Ahmed', 'karim.ahmed@gmail.com', 'pass123', 'Male', '01733445566', '1978-03-20', 160000.00, 3, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d004', 'Ayesha', 'Khatun', 'ayesha.khatun@gmail.com', 'pass123', 'Female', '01744556677', '1985-11-10', 140000.00, 4, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d005', 'Siddiq', 'Rahman', 'siddiq.rahman@gmail.com', 'pass123', 'Male', '01755667788', '1975-07-25', 155000.00, 5, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d006', 'Nusrat', 'Jahan', 'nusrat.jahan@gmail.com', 'pass123', 'Female', '01766778899', '1983-09-30', 148000.00, 1, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d007', 'Hasan', 'Miah', 'hasan.miah@gmail.com', 'pass123', 'Male', '01777889900', '1981-01-15', 152000.00, 2, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d008', 'Shirin', 'Akter', 'shirin.akter@gmail.com', 'pass123', 'Female', '01788990011', '1984-04-22', 142000.00, 3, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d009', 'Mahmud', 'Islam', 'mahmud.islam@gmail.com', 'pass123', 'Male', '01799001122', '1979-06-18', 158000.00, 4, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d010', 'Ruma', 'Sultana', 'ruma.sultana@gmail.com', 'pass123', 'Female', '01800112233', '1986-12-05', 146000.00, 5, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d011', 'Jamil', 'Uddin', 'jamil.uddin@gmail.com', 'pass123', 'Male', '01811223344', '1980-02-28', 150000.00, 1, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d012', 'Laila', 'Parvin', 'laila.parvin@gmail.com', 'pass123', 'Female', '01822334455', '1983-10-14', 144000.00, 2, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d013', 'Arif', 'Chowdhury', 'arif.chowdhury@gmail.com', 'pass123', 'Male', '01833445566', '1977-08-09', 157000.00, 3, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d014', 'Sabina', 'Yasmin', 'sabina.yasmin@gmail.com', 'pass123', 'Female', '01844556677', '1985-03-17', 143000.00, 4, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('d015', 'Tarek', 'Aziz', 'tarek.aziz@gmail.com', 'pass123', 'Male', '01855667788', '1982-07-21', 154000.00, 5, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
+('d002', 'Fatima', 'Begum', 'fatima.begum@gmail.com', '$2y$10$G9yBYHOmxpQ3yFtuxJ0zA.feMdb9p3DUTC.YqGi/6EBamUwMGZW5K', 'Female', '01722334455', '1982-08-15', 145000.00, 2, '2025-04-05 21:15:05', '2025-04-14 16:07:55'),
+('d003', 'Karim', 'Ahmed', 'karim.ahmed@gmail.com', '$2y$10$6oi6ts.5J1FMPn79JyOB2er9ujj4dgCWGTn5zSevyIQjbvUb9qg0.', 'Male', '01733445566', '1978-03-20', 160000.00, 3, '2025-04-05 21:15:05', '2025-04-14 16:08:33'),
+('d004', 'Ayesha', 'Khatun', 'ayesha.khatun@gmail.com', '$2y$10$UvSkYtoXUCKyrtyFNo/2yeYIceQ1aSKjORcxkp.rhITONUNf8qID6', 'Female', '01744556677', '1985-11-10', 140000.00, 4, '2025-04-05 21:15:05', '2025-04-14 16:08:49'),
+('d005', 'Siddiq', 'Rahman', 'siddiq.rahman@gmail.com', '$2y$10$0YqQN0gsDnLKYzGGI9/eU.YGVn90mnIQ3deE.9N1MVSRplsCv.DXi', 'Male', '01755667788', '1975-07-25', 155000.00, 5, '2025-04-05 21:15:05', '2025-04-14 16:09:10'),
+('d006', 'Nusrat', 'Jahan', 'nusrat.jahan@gmail.com', '$2y$10$8MhS3xcX70wcApBjlxmA9OOjKGRsK8ZyfkTIHdJjUgv.zRU.SimKC', 'Female', '01766778899', '1983-09-30', 148000.00, 1, '2025-04-05 21:15:05', '2025-04-14 16:09:26'),
+('d007', 'Hasan', 'Miah', 'hasan.miah@gmail.com', '$2y$10$YhRitf3i0x4nPLCA1URFzuSJD8SzvWdclu8AdfCVKnjHEjzYqsyjy', 'Male', '01777889900', '1981-01-15', 152000.00, 2, '2025-04-05 21:15:05', '2025-04-14 16:09:43'),
+('d008', 'Shirin', 'Akter', 'shirin.akter@gmail.com', '$2y$10$cgdN3g8c0MNlhm3CxFXbOO6E6rKatywUXKp8g.crcKv9gEvzr4RT2', 'Female', '01788990011', '1984-04-22', 142000.00, 3, '2025-04-05 21:15:05', '2025-04-14 16:09:59'),
+('d009', 'Mahmud', 'Islam', 'mahmud.islam@gmail.com', '$2y$10$Pod3XTYU8xrhRZXnBB.h5OZoe/QPeQRc7yXgV.S41tVd9h9pq09f.', 'Male', '01799001122', '1979-06-18', 158000.00, 4, '2025-04-05 21:15:05', '2025-04-14 16:10:23'),
+('d010', 'Ruma', 'Sultana', 'ruma.sultana@gmail.com', '$2y$10$8rt7UOvsNe7.wdhNY/Ov3OWlBTsyP.e9Bix1SisoiWQFuC.Q58x2S', 'Female', '01800112233', '1986-12-05', 146000.00, 5, '2025-04-05 21:15:05', '2025-04-14 16:10:45'),
+('d011', 'Jamil', 'Uddin', 'jamil.uddin@gmail.com', '$2y$10$KlYMQAIifJ7J53XsNXiz1uzPWUrLYhsZxoSIi0A0UOxC.HzJi0YO6', 'Male', '01811223344', '1980-02-28', 150000.00, 1, '2025-04-05 21:15:05', '2025-04-14 16:11:06'),
+('d012', 'Laila', 'Parvin', 'laila.parvin@gmail.com', '$2y$10$oWT68s0tir8kGqfMEAFloO/T.RnStOZ4pV1hdQKNNhEVSmwVn1/f.', 'Female', '01822334455', '1983-10-14', 144000.00, 2, '2025-04-05 21:15:05', '2025-04-14 16:11:33'),
+('d013', 'Arif', 'Chowdhury', 'arif.chowdhury@gmail.com', '$2y$10$cp6MkAqsMteQCqEg8kXiCeItvZJeIJqjKI4Z9oFRiAOpvBUwMO9PS', 'Male', '01833445566', '1977-08-09', 157000.00, 3, '2025-04-05 21:15:05', '2025-04-14 16:11:51'),
+('d014', 'Sabina', 'Yasmin', 'sabina.yasmin@gmail.com', '$2y$10$MdmMqtG5wK3o7dkmnrBPxeElA1zxKxWyUXAZ5jnaJdys3RBSK3Lwu', 'Female', '01844556677', '1985-03-17', 143000.00, 4, '2025-04-05 21:15:05', '2025-04-14 16:12:09'),
+('d015', 'Tarek', 'Aziz', 'tarek.aziz@gmail.com', '$2y$10$1oGmvJAvFK0/JJTmuYUSeOV/jbAkeCYr6n6fA2gmBAFkWhkpOvNPe', 'Male', '01855667788', '1982-07-21', 154000.00, 5, '2025-04-05 21:15:05', '2025-04-14 16:12:27'),
 ('n001', 'Salma', 'Akter', 'salma.akter@gmail.com', '$2y$10$6HiAAHv9.CKF0EacHm2ZcOPE8qN3W0NqhwSbm5CC9YpgC9Rxls/zm', 'Female', '01911223344', '1990-05-10', 35000.00, 1, '2025-04-05 21:15:05', '2025-04-05 22:10:17'),
-('n002', 'Rashed', 'Khan', 'rashed.khan@gmail.com', 'pass123', 'Male', '01922334455', '1988-08-22', 36000.00, 2, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n003', 'Monira', 'Begum', 'monira.begum@gmail.com', 'pass123', 'Female', '01933445566', '1992-03-15', 34000.00, 3, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n004', 'Kamal', 'Hossain', 'kamal.hossain@gmail.com', 'pass123', 'Male', '01944556677', '1987-11-30', 37000.00, 4, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n005', 'Rina', 'Parvin', 'rina.parvin@gmail.com', 'pass123', 'Female', '01955667788', '1991-07-12', 35000.00, 5, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n006', 'Sohel', 'Rana', 'sohel.rana@gmail.com', 'pass123', 'Male', '01966778899', '1989-09-25', 36000.00, 1, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n007', 'Tania', 'Sultana', 'tania.sultana@gmail.com', 'pass123', 'Female', '01977889900', '1993-01-18', 34000.00, 2, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n008', 'Imran', 'Ali', 'imran.ali@gmail.com', 'pass123', 'Male', '01988990011', '1986-04-05', 37000.00, 3, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n009', 'Shabnam', 'Jahan', 'shabnam.jahan@gmail.com', 'pass123', 'Female', '01999001122', '1990-06-20', 35000.00, 4, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n010', 'Firoz', 'Miah', 'firoz.miah@gmail.com', 'pass123', 'Male', '01600112233', '1988-12-15', 36000.00, 5, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n011', 'Nasrin', 'Akter', 'nasrin.akter@gmail.com', 'pass123', 'Female', '01611223344', '1992-02-28', 34000.00, 1, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n012', 'Jahangir', 'Alam', 'jahangir.alam@gmail.com', 'pass123', 'Male', '01622334455', '1987-10-10', 37000.00, 2, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n013', 'Rokeya', 'Begum', 'rokeya.begum@gmail.com', 'pass123', 'Female', '01633445566', '1991-08-05', 35000.00, 3, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n014', 'Anwar', 'Hossain', 'anwar.hossain@gmail.com', 'pass123', 'Male', '01644556677', '1989-03-22', 36000.00, 4, '2025-04-05 21:15:05', '2025-04-05 21:15:05'),
-('n015', 'Shamima', 'Khatun', 'shamima.khatun@gmail.com', 'pass123', 'Female', '01655667788', '1993-07-17', 34000.00, 5, '2025-04-05 21:15:05', '2025-04-05 21:15:05');
+('n002', 'Rashed', 'Khan', 'rashed.khan@gmail.com', '$2y$10$v4G4cLp6//pngdvd5aWRNuXdhiQLxGmSi9kxijZfmioaECOLnlGm6', 'Male', '01922334455', '1988-08-22', 36000.00, 2, '2025-04-05 21:15:05', '2025-04-14 16:13:04'),
+('n003', 'Monira', 'Begum', 'monira.begum@gmail.com', '$2y$10$o3M9tXAxuIyH8ycuFg/tWOrqAnwSXfLcB7iIb5.h/pfBE4jL3HiLe', 'Female', '01933445566', '1992-03-15', 34000.00, 3, '2025-04-05 21:15:05', '2025-04-14 16:13:19'),
+('n004', 'Kamal', 'Hossain', 'kamal.hossain@gmail.com', '$2y$10$oFl603kKnbeSP2jwmucUkOI5r0V4t9Ph8VTwW8bKSbLA3tOKC5U4u', 'Male', '01944556677', '1987-11-30', 37000.00, 4, '2025-04-05 21:15:05', '2025-04-14 16:14:11'),
+('n005', 'Rina', 'Parvin', 'rina.parvin@gmail.com', '$2y$10$REdwfKm9QGDT2sRql20m1.U5py2CUVtMR.TOuiXLgsQsAx3vj1YZG', 'Female', '01955667788', '1991-07-12', 35000.00, 5, '2025-04-05 21:15:05', '2025-04-14 16:14:32'),
+('n006', 'Sohel', 'Rana', 'sohel.rana@gmail.com', '$2y$10$Th7ZmIN9MzuerSrQIdw4ouGtIJ3mEd3DdwVRi233/Jap6ROqiO4sq', 'Male', '01966778899', '1989-09-25', 36000.00, 1, '2025-04-05 21:15:05', '2025-04-14 16:14:48'),
+('n007', 'Tania', 'Sultana', 'tania.sultana@gmail.com', '$2y$10$Q5N5qjjIc6/WA6QXZFWdyOn7YIEWAXbATYjciC0WkzNeOm1fFoMyC', 'Female', '01977889900', '1993-01-18', 34000.00, 2, '2025-04-05 21:15:05', '2025-04-14 16:15:04'),
+('n008', 'Imran', 'Ali', 'imran.ali@gmail.com', '$2y$10$/4HslK0LSc5PFWnzUEOWSOHbdsWxv7DXhgyPf4EhfHr/UDruKiau.', 'Male', '01988990011', '1986-04-05', 37000.00, 3, '2025-04-05 21:15:05', '2025-04-14 16:15:18'),
+('n009', 'Shabnam', 'Jahan', 'shabnam.jahan@gmail.com', '$2y$10$O6q66Q5V4skAZP1QneVW/upOJ5AYq2LcEvCyQ63OWwhuszjuK4s2u', 'Female', '01999001122', '1990-06-20', 35000.00, 4, '2025-04-05 21:15:05', '2025-04-14 16:15:38'),
+('n010', 'Firoz', 'Miah', 'firoz.miah@gmail.com', '$2y$10$wDd7tLXfspoR9s84ab6F..Re9Mltf9A1xl9QwdUltagvCcJzO33UO', 'Male', '01600112233', '1988-12-15', 36000.00, 5, '2025-04-05 21:15:05', '2025-04-14 16:15:52'),
+('n011', 'Nasrin', 'Akter', 'nasrin.akter@gmail.com', '$2y$10$on9Rp4dhWCBXZ9e5eO6E8.nim17KIQarg/3cUjt83712pnZvrLhbK', 'Female', '01611223344', '1992-02-28', 34000.00, 1, '2025-04-05 21:15:05', '2025-04-14 16:16:06'),
+('n012', 'Jahangir', 'Alam', 'jahangir.alam@gmail.com', '$2y$10$1y2OlyJmEyA7OQVIV5Pq.ec8H9eCt1nva62yujvL0ZPUN3U0.ZD2a', 'Male', '01622334455', '1987-10-10', 37000.00, 2, '2025-04-05 21:15:05', '2025-04-14 16:16:20'),
+('n013', 'Rokeya', 'Begum', 'rokeya.begum@gmail.com', '$2y$10$NnpI3W/R4786Ro3XpHOkfOCt/2QEuTwx3uNnfPCF0bvaAg2SPWA92', 'Female', '01633445566', '1991-08-05', 35000.00, 3, '2025-04-05 21:15:05', '2025-04-14 16:16:35'),
+('n014', 'Anwar', 'Hossain', 'anwar.hossain@gmail.com', '$2y$10$Z5xRnG8DKIgAkIEqt6Q.9e6RYfZ3sCohu1ez1MqWojT8q/./NGi9e', 'Male', '01644556677', '1989-03-22', 36000.00, 4, '2025-04-05 21:15:05', '2025-04-14 16:16:49'),
+('n015', 'Shamima', 'Khatun', 'shamima.khatun@gmail.com', '$2y$10$AF2VKlab95JTxnzcfkj8fOtk0zzTUUgkygqCPZL4wQZIQwByuhAF6', 'Female', '01655667788', '1993-07-17', 34000.00, 5, '2025-04-05 21:15:05', '2025-04-14 16:17:15');
 
 -- --------------------------------------------------------
 
@@ -684,40 +684,40 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `first_name`, `last_name`, `email`, `password`, `created_at`, `updated_at`) VALUES
 ('d001', 'Rahim', 'Hossain', 'rahim.hossain@gmail.com', '$2y$10$f/jTmvSchzaW5QzvSe81u.y7beXruJ1x4L.ohhdJFr9mr144xp6rO', '2025-04-05 21:10:36', '2025-04-05 22:01:28'),
-('d002', 'Fatima', 'Begum', 'fatima.begum@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d003', 'Karim', 'Ahmed', 'karim.ahmed@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d004', 'Ayesha', 'Khatun', 'ayesha.khatun@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d005', 'Siddiq', 'Rahman', 'siddiq.rahman@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d006', 'Nusrat', 'Jahan', 'nusrat.jahan@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d007', 'Hasan', 'Miah', 'hasan.miah@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d008', 'Shirin', 'Akter', 'shirin.akter@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d009', 'Mahmud', 'Islam', 'mahmud.islam@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d010', 'Ruma', 'Sultana', 'ruma.sultana@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d011', 'Jamil', 'Uddin', 'jamil.uddin@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d012', 'Laila', 'Parvin', 'laila.parvin@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d013', 'Arif', 'Chowdhury', 'arif.chowdhury@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d014', 'Sabina', 'Yasmin', 'sabina.yasmin@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('d015', 'Tarek', 'Aziz', 'tarek.aziz@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
+('d002', 'Fatima', 'Begum', 'fatima.begum@gmail.com', '$2y$10$G9yBYHOmxpQ3yFtuxJ0zA.feMdb9p3DUTC.YqGi/6EBamUwMGZW5K', '2025-04-05 21:10:36', '2025-04-14 16:07:55'),
+('d003', 'Karim', 'Ahmed', 'karim.ahmed@gmail.com', '$2y$10$6oi6ts.5J1FMPn79JyOB2er9ujj4dgCWGTn5zSevyIQjbvUb9qg0.', '2025-04-05 21:10:36', '2025-04-14 16:08:33'),
+('d004', 'Ayesha', 'Khatun', 'ayesha.khatun@gmail.com', '$2y$10$UvSkYtoXUCKyrtyFNo/2yeYIceQ1aSKjORcxkp.rhITONUNf8qID6', '2025-04-05 21:10:36', '2025-04-14 16:08:49'),
+('d005', 'Siddiq', 'Rahman', 'siddiq.rahman@gmail.com', '$2y$10$0YqQN0gsDnLKYzGGI9/eU.YGVn90mnIQ3deE.9N1MVSRplsCv.DXi', '2025-04-05 21:10:36', '2025-04-14 16:09:10'),
+('d006', 'Nusrat', 'Jahan', 'nusrat.jahan@gmail.com', '$2y$10$8MhS3xcX70wcApBjlxmA9OOjKGRsK8ZyfkTIHdJjUgv.zRU.SimKC', '2025-04-05 21:10:36', '2025-04-14 16:09:26'),
+('d007', 'Hasan', 'Miah', 'hasan.miah@gmail.com', '$2y$10$YhRitf3i0x4nPLCA1URFzuSJD8SzvWdclu8AdfCVKnjHEjzYqsyjy', '2025-04-05 21:10:36', '2025-04-14 16:09:43'),
+('d008', 'Shirin', 'Akter', 'shirin.akter@gmail.com', '$2y$10$cgdN3g8c0MNlhm3CxFXbOO6E6rKatywUXKp8g.crcKv9gEvzr4RT2', '2025-04-05 21:10:36', '2025-04-14 16:09:59'),
+('d009', 'Mahmud', 'Islam', 'mahmud.islam@gmail.com', '$2y$10$Pod3XTYU8xrhRZXnBB.h5OZoe/QPeQRc7yXgV.S41tVd9h9pq09f.', '2025-04-05 21:10:36', '2025-04-14 16:10:23'),
+('d010', 'Ruma', 'Sultana', 'ruma.sultana@gmail.com', '$2y$10$8rt7UOvsNe7.wdhNY/Ov3OWlBTsyP.e9Bix1SisoiWQFuC.Q58x2S', '2025-04-05 21:10:36', '2025-04-14 16:10:45'),
+('d011', 'Jamil', 'Uddin', 'jamil.uddin@gmail.com', '$2y$10$KlYMQAIifJ7J53XsNXiz1uzPWUrLYhsZxoSIi0A0UOxC.HzJi0YO6', '2025-04-05 21:10:36', '2025-04-14 16:11:06'),
+('d012', 'Laila', 'Parvin', 'laila.parvin@gmail.com', '$2y$10$oWT68s0tir8kGqfMEAFloO/T.RnStOZ4pV1hdQKNNhEVSmwVn1/f.', '2025-04-05 21:10:36', '2025-04-14 16:11:33'),
+('d013', 'Arif', 'Chowdhury', 'arif.chowdhury@gmail.com', '$2y$10$cp6MkAqsMteQCqEg8kXiCeItvZJeIJqjKI4Z9oFRiAOpvBUwMO9PS', '2025-04-05 21:10:36', '2025-04-14 16:11:51'),
+('d014', 'Sabina', 'Yasmin', 'sabina.yasmin@gmail.com', '$2y$10$MdmMqtG5wK3o7dkmnrBPxeElA1zxKxWyUXAZ5jnaJdys3RBSK3Lwu', '2025-04-05 21:10:36', '2025-04-14 16:12:09'),
+('d015', 'Tarek', 'Aziz', 'tarek.aziz@gmail.com', '$2y$10$1oGmvJAvFK0/JJTmuYUSeOV/jbAkeCYr6n6fA2gmBAFkWhkpOvNPe', '2025-04-05 21:10:36', '2025-04-14 16:12:27'),
 ('n001', 'Salma', 'Akter', 'salma.akter@gmail.com', '$2y$10$6HiAAHv9.CKF0EacHm2ZcOPE8qN3W0NqhwSbm5CC9YpgC9Rxls/zm', '2025-04-05 21:10:36', '2025-04-05 22:10:17'),
-('n002', 'Rashed', 'Khan', 'rashed.khan@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n003', 'Monira', 'Begum', 'monira.begum@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n004', 'Kamal', 'Hossain', 'kamal.hossain@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n005', 'Rina', 'Parvin', 'rina.parvin@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n006', 'Sohel', 'Rana', 'sohel.rana@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n007', 'Tania', 'Sultana', 'tania.sultana@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n008', 'Imran', 'Ali', 'imran.ali@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n009', 'Shabnam', 'Jahan', 'shabnam.jahan@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n010', 'Firoz', 'Miah', 'firoz.miah@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n011', 'Nasrin', 'Akter', 'nasrin.akter@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n012', 'Jahangir', 'Alam', 'jahangir.alam@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n013', 'Rokeya', 'Begum', 'rokeya.begum@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n014', 'Anwar', 'Hossain', 'anwar.hossain@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('n015', 'Shamima', 'Khatun', 'shamima.khatun@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
+('n002', 'Rashed', 'Khan', 'rashed.khan@gmail.com', '$2y$10$v4G4cLp6//pngdvd5aWRNuXdhiQLxGmSi9kxijZfmioaECOLnlGm6', '2025-04-05 21:10:36', '2025-04-14 16:13:04'),
+('n003', 'Monira', 'Begum', 'monira.begum@gmail.com', '$2y$10$o3M9tXAxuIyH8ycuFg/tWOrqAnwSXfLcB7iIb5.h/pfBE4jL3HiLe', '2025-04-05 21:10:36', '2025-04-14 16:13:19'),
+('n004', 'Kamal', 'Hossain', 'kamal.hossain@gmail.com', '$2y$10$oFl603kKnbeSP2jwmucUkOI5r0V4t9Ph8VTwW8bKSbLA3tOKC5U4u', '2025-04-05 21:10:36', '2025-04-14 16:14:11'),
+('n005', 'Rina', 'Parvin', 'rina.parvin@gmail.com', '$2y$10$REdwfKm9QGDT2sRql20m1.U5py2CUVtMR.TOuiXLgsQsAx3vj1YZG', '2025-04-05 21:10:36', '2025-04-14 16:14:32'),
+('n006', 'Sohel', 'Rana', 'sohel.rana@gmail.com', '$2y$10$Th7ZmIN9MzuerSrQIdw4ouGtIJ3mEd3DdwVRi233/Jap6ROqiO4sq', '2025-04-05 21:10:36', '2025-04-14 16:14:48'),
+('n007', 'Tania', 'Sultana', 'tania.sultana@gmail.com', '$2y$10$Q5N5qjjIc6/WA6QXZFWdyOn7YIEWAXbATYjciC0WkzNeOm1fFoMyC', '2025-04-05 21:10:36', '2025-04-14 16:15:04'),
+('n008', 'Imran', 'Ali', 'imran.ali@gmail.com', '$2y$10$/4HslK0LSc5PFWnzUEOWSOHbdsWxv7DXhgyPf4EhfHr/UDruKiau.', '2025-04-05 21:10:36', '2025-04-14 16:15:18'),
+('n009', 'Shabnam', 'Jahan', 'shabnam.jahan@gmail.com', '$2y$10$O6q66Q5V4skAZP1QneVW/upOJ5AYq2LcEvCyQ63OWwhuszjuK4s2u', '2025-04-05 21:10:36', '2025-04-14 16:15:38'),
+('n010', 'Firoz', 'Miah', 'firoz.miah@gmail.com', '$2y$10$wDd7tLXfspoR9s84ab6F..Re9Mltf9A1xl9QwdUltagvCcJzO33UO', '2025-04-05 21:10:36', '2025-04-14 16:15:52'),
+('n011', 'Nasrin', 'Akter', 'nasrin.akter@gmail.com', '$2y$10$on9Rp4dhWCBXZ9e5eO6E8.nim17KIQarg/3cUjt83712pnZvrLhbK', '2025-04-05 21:10:36', '2025-04-14 16:16:06'),
+('n012', 'Jahangir', 'Alam', 'jahangir.alam@gmail.com', '$2y$10$1y2OlyJmEyA7OQVIV5Pq.ec8H9eCt1nva62yujvL0ZPUN3U0.ZD2a', '2025-04-05 21:10:36', '2025-04-14 16:16:20'),
+('n013', 'Rokeya', 'Begum', 'rokeya.begum@gmail.com', '$2y$10$NnpI3W/R4786Ro3XpHOkfOCt/2QEuTwx3uNnfPCF0bvaAg2SPWA92', '2025-04-05 21:10:36', '2025-04-14 16:16:35'),
+('n014', 'Anwar', 'Hossain', 'anwar.hossain@gmail.com', '$2y$10$Z5xRnG8DKIgAkIEqt6Q.9e6RYfZ3sCohu1ez1MqWojT8q/./NGi9e', '2025-04-05 21:10:36', '2025-04-14 16:16:49'),
+('n015', 'Shamima', 'Khatun', 'shamima.khatun@gmail.com', '$2y$10$AF2VKlab95JTxnzcfkj8fOtk0zzTUUgkygqCPZL4wQZIQwByuhAF6', '2025-04-05 21:10:36', '2025-04-14 16:17:15'),
 ('p001', 'Abdul', 'Karim', 'abdul.karim@gmail.com', '$2y$10$dL3rNGe1KhLBx6L17iAEx..2FaDeODiOwzv7B4J7E0n26M60TjGyK', '2025-04-05 21:10:36', '2025-04-05 22:11:44'),
-('p002', 'Sultana', 'Razia', 'sultana.razia@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('p003', 'Iqbal', 'Hossain', 'iqbal.hossain@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('p004', 'Rokeya', 'Sultana', 'rokeya.sultana@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36'),
-('p005', 'Moin', 'Uddin', 'moin.uddin@gmail.com', 'pass123', '2025-04-05 21:10:36', '2025-04-05 21:10:36');
+('p002', 'Sultana', 'Razia', 'sultana.razia@gmail.com', '$2y$10$SDaILh0M9x48zah.PLHBY.Xow/dHUtaYCDz8dZHs8dFRmygxL/s6i', '2025-04-05 21:10:36', '2025-04-14 16:06:24'),
+('p003', 'Iqbal', 'Hossain', 'iqbal.hossain@gmail.com', '$2y$10$HkP6GngKzDPE9gcaKZubg.XLyN50PYgb4VUuOPsQQjvZgF1cTXihm', '2025-04-05 21:10:36', '2025-04-14 16:06:42'),
+('p004', 'Rokeya', 'Sultana', 'rokeya.sultana@gmail.com', '$2y$10$kVOttevcUf5QcMI2iHT/qOibpW85uv5xyC5AvWXgDRojcaZUP/BP2', '2025-04-05 21:10:36', '2025-04-14 16:07:07'),
+('p005', 'Moin', 'Uddin', 'moin.uddin@gmail.com', '$2y$10$4VHmPXmJBHVdpskzZLISGul6KHn5bsF1xIXQNM59EzdYKHHIAs/Dm', '2025-04-05 21:10:36', '2025-04-14 16:07:25');
 
 --
 -- Indexes for dumped tables
@@ -751,8 +751,7 @@ ALTER TABLE `checkup`
 -- Indexes for table `department`
 --
 ALTER TABLE `department`
-  ADD PRIMARY KEY (`dept_id`),
-  ADD KEY `dept_head` (`dept_head`);
+  ADD PRIMARY KEY (`dept_id`);
 
 --
 -- Indexes for table `doctor`
