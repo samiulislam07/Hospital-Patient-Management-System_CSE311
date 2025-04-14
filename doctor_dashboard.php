@@ -340,14 +340,16 @@ if (!isset($_SESSION['user_id'])) {
                                             <td>
                                                 <!-- Button to Order Test -->
                                                 <button type="button" class="btn btn-warning btn-sm order-form-btn"
-                                                    data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>">
+                                                    data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>"
+                                                    data-patient-name="<?= htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']) ?>">
                                                     Order
                                                 </button>
                                             </td>
                                             <td>
                                                 <!-- Button to Prescribe Treatmentplan -->
                                                 <button type="button" class="btn btn-info btn-sm treatment-form-btn"
-                                                    data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>">
+                                                    data-patient-id="<?= htmlspecialchars($patient['user_id']) ?>"
+                                                    data-patient-name="<?= htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']) ?>">
                                                     Prescribe
                                                 </button>
                                             </td>

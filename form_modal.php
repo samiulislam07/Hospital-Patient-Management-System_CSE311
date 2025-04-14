@@ -57,8 +57,9 @@ while ($row = $testResult->fetch_assoc()) {
             // Show Order Test Pop-up
             $(".order-form-btn").click(function() {
                 let patientId = $(this).data("patient-id");
+                let patientName = $(this).data("patient-name"); // retrieve patient name
                 $("#testPatientId").val(patientId);
-                $("#orderTestTitle").text("Ordering Test for " + patientId);
+                $("#orderTestTitle").text("Ordering Test for " + patientName);
                 $("#testSearch").val(""); // Clear search field
                 $("#selectedTests").val("");
                 selectedTests = [];
@@ -163,8 +164,9 @@ while ($row = $testResult->fetch_assoc()) {
             // Open pop-up when button is clicked
             $(".treatment-form-btn").click(function() {
                 var patientId = $(this).data("patient-id");
+                let patientName = $(this).data("patient-name"); // retrieve patient name
                 $("#patientId").val(patientId);
-                $("#popupTitle").text("Treatment Plan for " + patientId);
+                $("#popupTitle").text("Suggest Treatment Plan for "+patientName);
                 $("#popupForm").show();
             });
 
