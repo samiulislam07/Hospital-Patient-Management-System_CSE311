@@ -420,8 +420,8 @@ if (!isset($_SESSION['user_id'])) {
                                             <th style="width: 20%;">Patient Name</th>
                                             <th style="width: 20%;">Prescribed Date</th>
                                             <th style="width: 20%;">Test Name</th>
-                                            <!-- <th style="width: 15%;">Test Date</th> -->
-                                            <th style="width: 30%;">Result</th>
+                                            <th style="width: 15%;">Test Date</th>
+                                            <th style="width: 15%;">Result</th>
                                             <th style="width: 15%;">Action</th>
                                         </tr>
                                     </thead>
@@ -436,7 +436,7 @@ if (!isset($_SESSION['user_id'])) {
                                                     <td><?= htmlspecialchars($test['patient_first_name'] . ' ' . $test['patient_last_name']) ?></td>
                                                     <td><?= htmlspecialchars($test['pres_date']) ?></td>
                                                     <td><?= htmlspecialchars($test['test_name']) ?></td>
-                                                    <!-- <td><input type="date" class="form-control test-date-input" name="test_date"></td> -->
+                                                    <td><input type="date" class="form-control test-date-input" name="test_date"></td>
                                                     <td><input type="text" class="form-control test-result-input" name="result"></td>
                                                     <td><button type="button" class="btn btn-primary btn-sm" onclick="submitTest(this)">Submit</button></td>
                                                 </tr>
@@ -455,59 +455,82 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
                     <!-- JavaScript for Perform Tests -->
                     <script>
-function submitTest(btn) {
-    // Find the parent row of the clicked button.
-    const row = btn.closest('tr');
-    const patientId = row.getAttribute('data-patient-id');
-    const testId = row.getAttribute('data-test-id');
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Patient Name Filter
+                            const patientNameFilterNurse = document.getElementById('patientNameFilterNurse');
+                            const testNameFilterNurse = document.getElementById('testNameFilterNurse');
 
-    // Use the current date in YYYY-MM-DD format for the test date.
-    const currentDate = new Date();
-    const testDate = currentDate.toISOString().split('T')[0];
+                            function applyFilters() {
+                                const patientFilter = patientNameFilterNurse.value.toLowerCase();
+                                const testFilter = testNameFilterNurse.value.toLowerCase();
+                                const rows = document.querySelectorAll('#nurseTestsTable tbody tr');
 
-    // Get the test result input from this row.
-    const testResultInput = row.querySelector('.test-result-input');
-    const result = testResultInput.value;
-    
-    // Validate that the result field is filled.
-    if (!result) {
-        alert('Please fill in the Test Result.');
-        return;
-    }
+                                rows.forEach(row => {
+                                    const patientName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                                    const testName = row.querySelector('td:nth-child(4)').textContent.toLowerCase(); // Assuming Test Name is in the 4th column
 
-    // Prepare the data to be sent.
-    const formData = new URLSearchParams();
-    formData.append('patient_user_id', patientId);
-    formData.append('test_id', testId);
-    formData.append('test_date', testDate);
-    formData.append('result', result);
+                                    const patientMatch = patientName.includes(patientFilter);
+                                    const testMatch = testName.includes(testFilter);
 
-    // Use Fetch API to send an AJAX POST request.
-    fetch('perform_test.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: formData.toString()
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Test result submitted successfully.');
-                // Optionally disable the inputs or the button to prevent re-submission.
-                // btn.disabled = true;
-                // btn.innerText = 'Submitted';
-            } else {
-                alert('Error: ' + (data.error || 'Submission failed.'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while submitting the test result.');
-        });
-}
-</script>
+                                    // Show row if both filters match or if both filters are empty.
+                                    row.style.display = (patientMatch && testMatch) || (!patientFilter && !testFilter) || (patientMatch && !testFilter) || (!patientFilter && testMatch) ? '' : 'none';
+                                });
+                            }
 
+                            patientNameFilterNurse.addEventListener('keyup', applyFilters);
+                            testNameFilterNurse.addEventListener('keyup', applyFilters);
+                        });
+
+                        function submitTest(btn) {
+                            // Find the parent row of the clicked button.
+                            const row = btn.closest('tr');
+                            const patientId = row.getAttribute('data-patient-id');
+                            const testId = row.getAttribute('data-test-id');
+
+                            // Get the test date and result inputs from this row.
+                            const testDateInput = row.querySelector('.test-date-input');
+                            const testResultInput = row.querySelector('.test-result-input');
+                            const testDate = testDateInput.value;
+                            const result = testResultInput.value;
+
+                            // Validate that both fields are filled.
+                            if (!testDate || !result) {
+                                alert('Please fill in both Test Date and Result.');
+                                return;
+                            }
+
+                            // Prepare the data to be sent.
+                            const formData = new URLSearchParams();
+                            formData.append('patient_user_id', patientId);
+                            formData.append('test_id', testId);
+                            formData.append('test_date', testDate);
+                            formData.append('result', result);
+
+                            // Use Fetch API to send an AJAX POST request.
+                            fetch('perform_test.php', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded'
+                                    },
+                                    body: formData.toString()
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        alert('Test result submitted successfully.');
+                                        // Optionally disable the inputs or the button to prevent re-submission.
+                                        //btn.disabled = true;
+                                        //btn.innerText = 'Submitted';
+                                    } else {
+                                        alert('Error: ' + (data.error || 'Submission failed.'));
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('An error occurred while submitting the test result.');
+                                });
+                        }
+                    </script>
 
                 </div>
             </div>
