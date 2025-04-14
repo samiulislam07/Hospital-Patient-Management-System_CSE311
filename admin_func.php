@@ -8,9 +8,12 @@ function displayDepartmentsTable()
 {
     global $con;
 
-    $sql = "SELECT d.dept_id, d.dept_name, d.dept_head, COUNT(s.user_id) AS staff_count
+    $sql = "SELECT d.dept_id, d.dept_name, 
+                   CONCAT(h.first_name, ' ', h.last_name) AS dept_head, 
+                   COUNT(s.user_id) AS staff_count
             FROM Department d
             LEFT JOIN Staff s ON d.dept_id = s.dept_id
+            LEFT JOIN Staff h ON d.dept_head = h.user_id
             GROUP BY d.dept_id";
 
     $result = $con->query($sql);
@@ -33,6 +36,7 @@ function displayDepartmentsTable()
         echo "<tr><td colspan='5'>Error: " . mysqli_error($con) . "</td></tr>";
     }
 }
+
 
 // Function to add a department
 function addDepartment($deptName)
