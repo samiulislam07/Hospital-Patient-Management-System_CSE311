@@ -595,6 +595,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
             // Get the appointment date and time values.
             let apptDate = document.querySelector('input[name="appdate"]').value; // format: YYYY-MM-DD
             let apptTime = document.querySelector('input[name="appointmentTime"]').value; // format: HH:MM (24-hour)
+
+            // Check if the appointment date is in the past.
+            let today = new Date();
+            today.setHours(0, 0, 0, 0); // Set time to midnight for comparison.
+            let selectedDate = new Date(apptDate);
+            if (selectedDate < today) {
+                e.preventDefault();
+                alert("Appointment date cannot be in the past.");
+                return false;
+            }
             
             // Get the doctor's availability as a string (for example "Mon-Fri 9AM-5PM")
             let availability = document.getElementById('availibility').value;
@@ -606,7 +616,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cancel_appt_id'])) {
                 let allowedDays = [];
                 if (availability.indexOf("Mon-Fri") !== -1) {
                     allowedDays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-                } else {
+                } else if (availability.indexOf("Tue-Sat") !== -1) {
+                    allowedDays = ["Tue", "Wed", "Thu", "Fri", "Sat"];
+                } else if (availability.indexOf("Wed-Sun") !== -1) {
+                    allowedDays = ["Wed", "Thu", "Fri", "Sat", "Sun"];
+                } 
+                else {
                     // You could add more parsing logic here for other availability formats.
                     alert("Doctor's availability days not recognized.");
                     e.preventDefault();
