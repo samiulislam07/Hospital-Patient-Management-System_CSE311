@@ -318,7 +318,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
 
 // Fetch Ongoing Patients for the doctor.
 $ongoingPatients = [];
-$sql = "SELECT p.user_id, p.first_name, p.last_name, 
+$sql = "SELECT p.user_id, p.first_name, p.last_name, p.dob,
             p.blood_group, mh.allergies, mh.pre_conditions
         FROM Patient p
         INNER JOIN checkup c ON p.user_id = c.patient_user_id
