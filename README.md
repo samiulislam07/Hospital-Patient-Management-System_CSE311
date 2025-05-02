@@ -61,6 +61,7 @@ Move the project files to htdocs in XAMPP directory
 Open http://localhost/hospital-management-system in your browser
 
 👥 Team Members
+
 S M Samiul Islam (2231971042)
 
 System implementation, frontend/backend for patients and login, ERD modeling
@@ -71,7 +72,9 @@ Frontend/backend for doctor, nurse, and admin, SQL execution, ERD modeling
 
 📌 Acknowledgment
 Submitted to: Dr. Abu Sayed Mohammad Latiful Hoque (Slf)
+
 Lab Instructor: Sadia Afrin
+
 North South University, Spring 2025
 
 📄 License
